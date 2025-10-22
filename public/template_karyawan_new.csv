@@ -1,0 +1,4 @@
+id_karyawan,nama_lengkap,email,password,departemen,posisi,telepon,alamat,tanggal_masuk,gaji,status_aktif,remote_attendance
+EMP003,Alice Johnson,alice.johnson@email.com,password,Marketing,Marketing Manager,+6281234567892,"Jl. Sudirman No. 1 Jakarta",2024-03-01,6000000,aktif,ya
+EMP004,Bob Wilson,bob.wilson@email.com,password,Finance,Finance Staff,+6281234567893,"Jl. Thamrin No. 2 Jakarta",2024-03-15,4500000,aktif,tidak
+EMP005,Charlie Brown,charlie.brown@email.com,password,Operations,Operations Lead,+6281234567894,"Jl. Gatot Subroto No. 3 Jakarta",2024-04-01,5500000,aktif,ya

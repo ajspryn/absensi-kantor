@@ -1,0 +1,195 @@
+/* Admin UI Enhancements: consistent, modern, mobile-first */
+:root {
+    --admin-primary: #0d6efd;
+    --admin-success: #20c997;
+    --admin-warning: #fd7e14;
+    --admin-danger: #dc3545;
+    --admin-purple: #6f42c1;
+    --admin-dark: #222;
+    --admin-muted: #6c757d;
+    --radius-m: 12px;
+    --radius-s: 10px;
+}
+
+/* Header */
+.header-bar.header-app.header-bar-detached {
+    background: rgba(255, 255, 255, 0.85);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+.header-bar .header-title {
+    font-weight: 700;
+}
+
+/* Cards */
+.card.card-style {
+    border-radius: var(--radius-m);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}
+.card.card-style .content {
+    padding: 16px 14px;
+}
+.card.card-style:hover {
+    transform: translateY(-1px);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.06);
+}
+
+/* Uniform card width block for lists/sections */
+.card-uniform,
+.card.card-style.card-uniform {
+    width: 100%;
+    max-width: none;
+    margin: 0 0 1.5rem 0;
+}
+
+/* Stats card pattern */
+.stats-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border: none !important;
+    border-radius: var(--radius-m);
+    transition: all 0.3s ease;
+}
+.stats-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+/* Quick actions */
+.quick-action-btn {
+    background: linear-gradient(135deg, var(--admin-primary), #0b5ed7);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(13, 110, 253, 0.25);
+}
+.quick-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(13, 110, 253, 0.35);
+    color: white;
+}
+.quick-action-btn.btn-orange {
+    background: linear-gradient(135deg, var(--admin-warning), #e55a00);
+    box-shadow: 0 4px 15px rgba(253, 126, 20, 0.25);
+}
+.quick-action-btn.btn-orange:hover {
+    box-shadow: 0 6px 20px rgba(253, 126, 20, 0.35);
+}
+
+/* Generic entity card with active/inactive styling */
+.entity-card {
+    border-left: 4px solid var(--admin-primary);
+    transition: all 0.3s ease;
+}
+.entity-card.active {
+    border-left-color: var(--admin-success);
+    background: linear-gradient(135deg, #e8f5e8 0%, #f8fff8 100%);
+}
+.entity-card.inactive {
+    border-left-color: #6c757d;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+}
+.entity-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+}
+
+/* Time/metric badges (reused from schedules) */
+.time-badge {
+    background: linear-gradient(135deg, var(--admin-primary), #0b5ed7);
+    color: #fff;
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-weight: 600;
+    display: inline-block;
+}
+.metric-badge {
+    background: linear-gradient(135deg, #17a2b8, #138496);
+    color: #fff;
+    border-radius: 12px;
+    padding: 4px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+/* Buttons */
+.btn {
+    border-radius: 10px;
+}
+.btn-primary,
+.bg-highlight {
+    background: linear-gradient(
+        135deg,
+        var(--admin-primary),
+        #0b5ed7
+    ) !important;
+}
+.btn-success,
+.bg-green-dark {
+    background: linear-gradient(
+        135deg,
+        var(--admin-success),
+        #199d83
+    ) !important;
+}
+.btn-warning,
+.bg-orange-dark {
+    background: linear-gradient(
+        135deg,
+        var(--admin-warning),
+        #e55a00
+    ) !important;
+}
+
+/* Badges */
+.badge.rounded-xl {
+    border-radius: 999px;
+}
+
+/* Lists and table-like rows */
+.admin-list-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-radius: var(--radius-s);
+    background: linear-gradient(
+        180deg,
+        rgba(0, 0, 0, 0.03),
+        rgba(0, 0, 0, 0.01)
+    );
+}
+
+/* Footer bar */
+.footer-bar.footer-bar-detached {
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* Utilities */
+.shadow-s {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+.shadow-m {
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.08);
+}
+.shadow-l {
+    box-shadow: 0 10px 38px rgba(0, 0, 0, 0.12);
+}
+
+/* Responsive tweaks */
+@media (min-width: 768px) {
+    .card.card-style .content {
+        padding: 18px 16px;
+    }
+}

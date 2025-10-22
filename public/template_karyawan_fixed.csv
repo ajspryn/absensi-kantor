@@ -1,0 +1,3 @@
+id_karyawan,nama_lengkap,email,password,departemen,posisi,telepon,alamat,tanggal_masuk,gaji,status_aktif,remote_attendance
+EMP001,John Doe,john.doe@email.com,password,IT,Software Developer,+6281234567890,"Jl. Contoh No. 123, Jakarta",2024-01-15,5000000,aktif,ya
+EMP002,Jane Smith,jane.smith@email.com,password,HR,HR Manager,+6281234567891,"Jl. Contoh No. 456, Jakarta",2024-02-01,7000000,aktif,tidak

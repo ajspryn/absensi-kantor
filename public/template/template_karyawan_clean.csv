@@ -1,0 +1,4 @@
+nama_lengkap,email,id_karyawan,departemen,posisi,telepon,alamat,tanggal_masuk,gaji,status_aktif,remote_attendance
+John Doe,john.doe.new@company.com,EMP201,IT,Software Engineer,"081234567890",Jl. Sudirman No. 123,2024-01-15,8000000,aktif,ya
+Jane Smith,jane.smith.new@company.com,EMP202,HR,HR Manager,"081234567891",Jl. Thamrin No. 456,2024-02-01,7500000,aktif,tidak
+Bob Wilson,bob.wilson.new@company.com,EMP203,Finance,Accountant,"081234567892",Jl. Gatot Subroto No. 789,2024-03-10,6500000,aktif,tidak
