@@ -362,9 +362,14 @@
                         <!-- Camera Interface -->
                         <div id="camera-interface" class="text-center py-3">
                             <div class="position-relative d-inline-block w-100" style="max-width: 350px;">
-                                <video id="camera" class="w-100 rounded-s" style="height: 250px; object-fit: cover;" autoplay playsinline></video>
+                                <video id="camera" class="w-100 rounded-s camera-mirror" style="height: 250px; object-fit: cover;" autoplay playsinline></video>
                                 <canvas id="canvas" class="d-none"></canvas>
                                 <img id="captured-photo" class="d-none w-100 rounded-s" style="height: 250px; object-fit: cover;">
+                                <!-- Face placement guide overlay -->
+                                <div id="face-guide" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 60%; height: 55%; border: 2px dashed rgba(255,255,255,0.9); border-radius: 12px; pointer-events: none; box-shadow: 0 0 0 9999px rgba(0,0,0,0.15) inset;"></div>
+                                <div id="face-status" style="position: absolute; left: 8px; bottom: 8px; background: rgba(0,0,0,0.45); color: #fff; padding: 4px 8px; border-radius: 8px; font-size: 12px;">
+                                    Mendeteksi wajah...
+                                </div>
                             </div>
                         </div>
                         <div class="text-center mt-3">
@@ -372,6 +377,7 @@
                                 <button type="button" id="capture-btn" class="btn btn-s bg-blue-dark text-white rounded-s flex-fill" onclick="capturePhoto()" style="min-height: 45px;">
                                     <i class="bi bi-camera-fill pe-2 font-14"></i>Ambil Foto
                                 </button>
+
                                 <button type="button" class="btn btn-s bg-orange-dark text-white rounded-s flex-fill d-none" id="retake-btn" onclick="retakePhoto()" style="min-height: 45px;">
                                     <i class="bi bi-arrow-clockwise pe-2 font-14"></i>Ulangi Foto
                                 </button>
@@ -468,7 +474,24 @@
             currentAttendanceType = 'checkin';
             document.getElementById('attendanceModalLabel').textContent = 'Check In';
             resetModal();
-            new bootstrap.Modal(document.getElementById('attendanceModal')).show();
+            // Defensive modal show: ensure element and bootstrap are available
+            const modalEl = document.getElementById('attendanceModal');
+            if (modalEl && typeof bootstrap !== 'undefined') {
+                try {
+                    new bootstrap.Modal(modalEl).show();
+                } catch (e) {
+                    console.error('Failed to show attendance modal', e);
+                    // fallback: make modal visible manually (best-effort)
+                    modalEl.classList.add('show');
+                    modalEl.style.display = 'block';
+                    document.body.classList.add('modal-open');
+                }
+            } else {
+                console.error('attendanceModal element or bootstrap is missing', {
+                    modalEl,
+                    bootstrap: typeof bootstrap
+                });
+            }
             getLocation();
         }
 
@@ -476,7 +499,23 @@
             currentAttendanceType = 'checkout';
             document.getElementById('attendanceModalLabel').textContent = 'Check Out';
             resetModal();
-            new bootstrap.Modal(document.getElementById('attendanceModal')).show();
+            // Defensive modal show: ensure element and bootstrap are available
+            const modalEl = document.getElementById('attendanceModal');
+            if (modalEl && typeof bootstrap !== 'undefined') {
+                try {
+                    new bootstrap.Modal(modalEl).show();
+                } catch (e) {
+                    console.error('Failed to show attendance modal', e);
+                    modalEl.classList.add('show');
+                    modalEl.style.display = 'block';
+                    document.body.classList.add('modal-open');
+                }
+            } else {
+                console.error('attendanceModal element or bootstrap is missing', {
+                    modalEl,
+                    bootstrap: typeof bootstrap
+                });
+            }
             getLocation();
         }
 
@@ -671,7 +710,161 @@
                     document.getElementById('camera-error').classList.remove('d-none');
                     document.getElementById('error-message').textContent = errorMessage;
                 });
+            // Start face detection loop if supported
+            initFaceDetection();
         }
+
+        // Face detection helpers
+        let faceDetector = null;
+        let faceDetected = false;
+        let detectionInterval = null;
+        let detectionCanvas = null;
+        let detectionCtx = null;
+
+        function initFaceDetection() {
+            const video = document.getElementById('camera');
+            const statusEl = document.getElementById('face-status');
+            const captureBtn = document.getElementById('capture-btn');
+
+            // Disable capture until we detect a face
+            if (captureBtn) captureBtn.disabled = true;
+
+            // Try native FaceDetector first
+            faceDetector = null;
+            if ('FaceDetector' in window) {
+                try {
+                    faceDetector = new FaceDetector({
+                        fastMode: true,
+                        maxDetectedFaces: 1
+                    });
+                } catch (e) {
+                    faceDetector = null;
+                }
+            }
+
+            // Prepare small canvas for faster detection frames
+            if (!detectionCanvas) {
+                detectionCanvas = document.createElement('canvas');
+                detectionCanvas.width = 320;
+                detectionCanvas.height = 240;
+                detectionCtx = detectionCanvas.getContext('2d');
+            }
+
+            // If native FaceDetector available, use it
+            if (faceDetector) {
+                if (detectionInterval) clearInterval(detectionInterval);
+                detectionInterval = setInterval(async function() {
+                    if (!video || video.readyState < 2) return;
+                    detectionCtx.drawImage(video, 0, 0, detectionCanvas.width, detectionCanvas.height);
+                    try {
+                        const faces = await faceDetector.detect(detectionCanvas);
+                        if (faces && faces.length > 0) {
+                            faceDetected = true;
+                            if (statusEl) {
+                                statusEl.textContent = 'Wajah terdeteksi ✓';
+                                statusEl.style.background = 'rgba(0,128,0,0.45)';
+                            }
+                            if (captureBtn) captureBtn.disabled = false;
+                        } else {
+                            faceDetected = false;
+                            if (statusEl) {
+                                statusEl.textContent = 'Arahkan wajah ke kotak panduan';
+                                statusEl.style.background = 'rgba(0,0,0,0.45)';
+                            }
+                            if (captureBtn) captureBtn.disabled = true;
+                        }
+                    } catch (err) {
+                        console.warn('Face detection error', err);
+                        clearInterval(detectionInterval);
+                        detectionInterval = null;
+                        faceDetector = null;
+                        if (statusEl) statusEl.textContent = 'Deteksi wajah tidak tersedia';
+                    }
+                }, 350);
+                return;
+            }
+
+            // Fallback: try face-api.js (local /models first, then CDN)
+            if (statusEl) statusEl.textContent = 'Memuat model deteksi wajah...';
+
+            async function loadFaceApi() {
+                if (!window.faceapi) {
+                    await new Promise((resolve, reject) => {
+                        const s = document.createElement('script');
+                        s.src = 'https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js';
+                        s.onload = resolve;
+                        s.onerror = reject;
+                        document.head.appendChild(s);
+                    }).catch(err => {
+                        console.warn('Failed to load face-api.js', err);
+                    });
+                }
+            }
+
+            async function loadModels() {
+                if (!window.faceapi) return false;
+                // try local models folder first
+                const localPath = '/models';
+                const cdnPath = 'https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights';
+                try {
+                    await window.faceapi.nets.tinyFaceDetector.loadFromUri(localPath);
+                    return true;
+                } catch (e) {
+                    try {
+                        await window.faceapi.nets.tinyFaceDetector.loadFromUri(cdnPath);
+                        return true;
+                    } catch (err) {
+                        console.warn('Failed to load tinyFaceDetector models from local and CDN', err);
+                        return false;
+                    }
+                }
+            }
+
+            loadFaceApi().then(async () => {
+                const ok = await loadModels();
+                if (!ok) {
+                    if (statusEl) statusEl.textContent = 'Deteksi wajah tidak tersedia pada browser ini';
+                    if (captureBtn) captureBtn.disabled = false;
+                    return;
+                }
+
+                // start detection loop using face-api
+                if (detectionInterval) clearInterval(detectionInterval);
+                detectionInterval = setInterval(async function() {
+                    if (!video || video.readyState < 2) return;
+                    try {
+                        const options = new window.faceapi.TinyFaceDetectorOptions({
+                            inputSize: 160,
+                            scoreThreshold: 0.5
+                        });
+                        const result = await window.faceapi.detectSingleFace(video, options);
+                        if (result) {
+                            faceDetected = true;
+                            if (statusEl) {
+                                statusEl.textContent = 'Wajah terdeteksi ✓';
+                                statusEl.style.background = 'rgba(0,128,0,0.45)';
+                            }
+                            if (captureBtn) captureBtn.disabled = false;
+                        } else {
+                            faceDetected = false;
+                            if (statusEl) {
+                                statusEl.textContent = 'Arahkan wajah ke kotak panduan';
+                                statusEl.style.background = 'rgba(0,0,0,0.45)';
+                            }
+                            if (captureBtn) captureBtn.disabled = true;
+                        }
+                    } catch (err) {
+                        console.warn('face-api detection error', err);
+                    }
+                }, 400);
+            }).catch(err => {
+                console.warn('Failed to initialize face-api fallback', err);
+                if (statusEl) statusEl.textContent = 'Deteksi wajah tidak tersedia pada browser ini';
+                if (captureBtn) captureBtn.disabled = false;
+            });
+        }
+
+
 
         function capturePhoto() {
             const video = document.getElementById('camera');
@@ -684,7 +877,12 @@
             canvas.height = video.videoHeight || 480;
 
             const ctx = canvas.getContext('2d');
+            // Mirror the captured image horizontally so saved blob matches the mirrored preview
+            ctx.save();
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            ctx.restore();
 
             // Convert to blob with good quality for mobile
             canvas.toBlob(function(blob) {
@@ -834,6 +1032,19 @@
         .clickable-card:hover {
             opacity: 0.9;
             transform: scale(1.02);
+        }
+
+        /* Mirror camera preview so user sees a selfie-like view */
+        .camera-mirror {
+            transform: scaleX(-1);
+            -webkit-transform: scaleX(-1);
+            /* ensure any children (like video) keep proper smoothing */
+            backface-visibility: hidden;
+        }
+
+        /* Ensure captured-photo (img) is not mirrored because we flipped canvas during capture */
+        #captured-photo {
+            transform: none !important;
         }
     </style>
 @endpush

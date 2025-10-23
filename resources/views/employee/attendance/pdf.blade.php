@@ -188,7 +188,7 @@
         <table>
             <tr>
                 <td class="label">Nama Karyawan:</td>
-                <td>{{ $employee->name }}</td>
+                <td>{{ $employee->full_name }}</td>
                 <td class="label">Email:</td>
                 <td>{{ $employee->email }}</td>
             </tr>

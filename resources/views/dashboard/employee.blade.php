@@ -187,11 +187,11 @@
             @if ($todayAttendance)
                 <div class="row g-2">
                     <div class="col-6">
-                        <div class="card card-style mb-0 {{ $todayAttendance->check_in ? 'bg-green-dark' : 'bg-gray-dark' }}">
+                        <div class="rounded-s py-2 px-2 {{ $todayAttendance->check_in ? 'bg-green-dark border-green-dark' : 'bg-gray-dark border-grey-dark' }}">
                             <div class="content text-center py-2">
-                                <i class="bi bi-clock text-white font-20 d-block mb-1"></i>
-                                <h6 class="text-white mb-1 font-12">Check In</h6>
-                                <p class="text-white mb-0 font-11 font-600">
+                                <i class="bi bi-box-arrow-in-right text-white font-20 d-block mb-1"></i>
+                                <h6 class="text-white mb-1 font-10">Check In</h6>
+                                <p class="text-white mb-0 font-10 font-600">
                                     @if ($todayAttendance->check_in)
                                         {{ $todayAttendance->check_in->setTimezone('Asia/Jakarta')->format('H:i') }}
                                     @else
@@ -202,11 +202,11 @@
                         </div>
                     </div>
                     <div class="col-6">
-                        <div class="card card-style mb-0 {{ $todayAttendance->check_out ? 'bg-blue-dark' : 'bg-gray-dark' }}">
+                        <div class="rounded-s py-2 px-2 {{ $todayAttendance->check_out ? 'bg-blue-dark border-blue-dark' : 'bg-gray-dark border-grey-dark' }}">
                             <div class="content text-center py-2">
-                                <i class="bi bi-clock-history text-white font-20 d-block mb-1"></i>
-                                <h6 class="text-white mb-1 font-12">Check Out</h6>
-                                <p class="text-white mb-0 font-11 font-600">
+                                <i class="bi bi-box-arrow-right text-white font-20 d-block mb-1"></i>
+                                <h6 class="text-white mb-1 font-10">Check Out</h6>
+                                <p class="text-white mb-0 font-10 font-600">
                                     @if ($todayAttendance->check_out)
                                         {{ $todayAttendance->check_out->setTimezone('Asia/Jakarta')->format('H:i') }}
                                     @else

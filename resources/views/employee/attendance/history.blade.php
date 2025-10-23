@@ -258,7 +258,7 @@
                                             <h6 class="font-10 mb-1">Check In:</h6>
                                             <p class="font-9 mb-0">{{ $attendance->check_in->setTimezone('Asia/Jakarta')->format('H:i:s') }}</p>
                                             @if ($attendance->photo_in)
-                                                <img src="{{ asset('storage/' . $attendance->photo_in) }}" class="img-fluid rounded-s mt-1" style="max-height: 70px;" onclick="showPhoto('{{ asset('storage/' . $attendance->photo_in) }}', 'Check In')" data-bs-toggle="modal" data-bs-target="#photoModal">
+                                                <img src="{{ asset('storage/' . $attendance->photo_in) }}" class="img-fluid rounded-s mt-1" style="max-height: 70px;" onclick="showPhoto('{{ asset('storage/' . $attendance->photo_in) }}', 'Check In')">
                                             @endif
                                         </div>
                                     @endif
@@ -268,7 +268,7 @@
                                             <h6 class="font-10 mb-1">Check Out:</h6>
                                             <p class="font-9 mb-0">{{ $attendance->check_out->setTimezone('Asia/Jakarta')->format('H:i:s') }}</p>
                                             @if ($attendance->photo_out)
-                                                <img src="{{ asset('storage/' . $attendance->photo_out) }}" class="img-fluid rounded-s mt-1" style="max-height: 70px;" onclick="showPhoto('{{ asset('storage/' . $attendance->photo_out) }}', 'Check Out')" data-bs-toggle="modal" data-bs-target="#photoModal">
+                                                <img src="{{ asset('storage/' . $attendance->photo_out) }}" class="img-fluid rounded-s mt-1" style="max-height: 70px;" onclick="showPhoto('{{ asset('storage/' . $attendance->photo_out) }}', 'Check Out')">
                                             @endif
                                         </div>
                                     @endif
@@ -369,13 +369,92 @@
 
 @endsection
 
-
 @push('scripts')
     <script>
-        function showPhoto(photoUrl, title) {
-            document.getElementById('photoModalLabel').textContent = 'Foto ' + title;
-            document.getElementById('modalPhoto').src = photoUrl;
-        }
+        (function() {
+            // Create a single reusable modal instance and handlers to avoid duplicate backdrops
+            var modalEl = document.getElementById('photoModal');
+            if (modalEl && modalEl.parentNode !== document.body) {
+                document.body.appendChild(modalEl);
+            }
+            var modalInstance = null;
+            try {
+                modalInstance = new bootstrap.Modal(modalEl, {
+                    backdrop: true
+                });
+            } catch (e) {
+                // bootstrap not available yet
+                modalInstance = null;
+            }
+
+            function cleanup() {
+                // remove any lingering backdrop elements Bootstrap may have left behind
+                var backdrops = document.querySelectorAll('.modal-backdrop');
+                backdrops.forEach(function(b) {
+                    b.parentNode && b.parentNode.removeChild(b);
+                });
+                if (modalEl) {
+                    modalEl.style.zIndex = '';
+                    var img = document.getElementById('modalPhoto');
+                    if (img) img.src = '';
+                }
+                document.body.classList.remove('modal-open');
+                // remove padding-right that Bootstrap may set when modal opens
+                try {
+                    document.body.style.paddingRight = '';
+                } catch (e) {}
+            }
+
+            if (modalEl) {
+                modalEl.addEventListener('hidden.bs.modal', function() {
+                    cleanup();
+                });
+                // In case modal was closed by backdrop removal elsewhere, also cleanup on click of close
+                var closeBtn = modalEl.querySelector('[data-bs-dismiss="modal"]');
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', function() {
+                        cleanup();
+                    });
+                }
+            }
+
+            // Global handlers to ensure any modal backdrop is cleaned up
+            document.addEventListener('hidden.bs.modal', function(e) {
+                cleanup();
+            });
+
+            document.addEventListener('show.bs.modal', function(e) {
+                // ensure backdrop z-index is below our modal
+                var backdrops = document.querySelectorAll('.modal-backdrop');
+                backdrops.forEach(function(b) {
+                    b.style.zIndex = 99998;
+                });
+                if (modalEl) modalEl.style.zIndex = 99999;
+            });
+
+            window.showPhoto = function(photoUrl, title) {
+                if (!modalEl) return;
+                document.getElementById('photoModalLabel').textContent = 'Foto ' + title;
+                document.getElementById('modalPhoto').src = photoUrl;
+                // ensure z-index is above other UI
+                modalEl.style.zIndex = 99999;
+                // show modal using the existing instance if available
+                try {
+                    if (modalInstance) {
+                        modalInstance.show();
+                    } else {
+                        // fallback create temporary instance
+                        var tmp = new bootstrap.Modal(modalEl);
+                        tmp.show();
+                    }
+                } catch (e) {
+                    // no bootstrap available; as a fallback, simply make modal visible
+                    modalEl.classList.add('show');
+                    modalEl.style.display = 'block';
+                    document.body.classList.add('modal-open');
+                }
+            };
+        })();
 
         function toggleFilterType() {
             const filterType = document.getElementById('filterType').value;
