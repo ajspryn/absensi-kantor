@@ -13,8 +13,8 @@
     <!-- Header Info -->
     <div class="card card-style bg-primary-dark text-white shadow-xl mb-3">
         <div class="content">
-            <h4 class="text-white font-700 mb-2">Ringkasan Absensi Karyawan</h4>
-            <p class="text-white opacity-80 mb-2">
+            <h4 class="text-black font-700 mb-2">Ringkasan Absensi Karyawan</h4>
+            <p class="text-black opacity-80 mb-2">
                 Periode: {{ \Carbon\Carbon::parse($startDate)->format('d M Y') }} - {{ \Carbon\Carbon::parse($endDate)->format('d M Y') }}
             </p>
             @if ($departmentId)
@@ -62,9 +62,9 @@
     <div class="card card-style bg-white shadow-xl mb-3">
         <div class="content">
             <div class="d-flex gap-2">
-                <button onclick="exportSummaryPdf()" class="btn btn-danger">
+                <a href="{{ route('admin.attendance.reports.export-pdf', array_merge(request()->all(), ['type' => 'summary'])) }}" class="btn btn-danger" target="_blank">
                     <i class="bi bi-file-pdf"></i> Export PDF
-                </button>
+                </a>
                 <a href="{{ route('admin.attendance.reports.index', request()->all()) }}" class="btn btn-primary text-white">
                     <i class="bi bi-list-ul"></i> Lihat Detail
                 </a>
@@ -157,6 +157,23 @@
                     <a href="{{ route('admin.attendance.reports.index', array_merge(request()->all(), ['employee_id' => $summary['employee']->id])) }}" class="btn btn-sm btn-primary text-white">
                         <i class="bi bi-eye"></i> Lihat Detail
                     </a>
+                    <div class="mt-2">
+                        @if (!empty($summary['last_check_in']) && $summary['last_check_in']->latitude_in && $summary['last_check_in']->longitude_in)
+                            <div>
+                                <small class="text-muted">Check In:&nbsp;</small>
+                                <small>{{ number_format($summary['last_check_in']->latitude_in, 6) }}, {{ number_format($summary['last_check_in']->longitude_in, 6) }}</small>
+                                <a href="https://maps.google.com/?q={{ $summary['last_check_in']->latitude_in }},{{ $summary['last_check_in']->longitude_in }}" target="_blank" class="ms-2">Lihat di Maps</a>
+                            </div>
+                        @endif
+
+                        @if (!empty($summary['last_check_out']) && $summary['last_check_out']->latitude_out && $summary['last_check_out']->longitude_out)
+                            <div>
+                                <small class="text-muted">Check Out:&nbsp;</small>
+                                <small>{{ number_format($summary['last_check_out']->latitude_out, 6) }}, {{ number_format($summary['last_check_out']->longitude_out, 6) }}</small>
+                                <a href="https://maps.google.com/?q={{ $summary['last_check_out']->latitude_out }},{{ $summary['last_check_out']->longitude_out }}" target="_blank" class="ms-2">Lihat di Maps</a>
+                            </div>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>

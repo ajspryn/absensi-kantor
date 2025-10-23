@@ -14,7 +14,7 @@
 </head>
 
 <body class="theme-light" data-highlight="highlight-red" data-gradient="body-default">
-    <div id="preloader">
+    <div id="preloader" class="preloader-hide">
         <div class="spinner-border color-highlight" role="status"></div>
     </div>
     <div id="page">

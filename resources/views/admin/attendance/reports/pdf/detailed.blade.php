@@ -395,8 +395,7 @@
                                 return strval($a->employee_id) === strval($employee->id) && $attendanceDate === $dateYmd;
                             })
                             ->first();
-                        // DEBUG: tampilkan data absensi yang ditemukan untuk cell ini
-                        echo '<!-- EMP: ' . $employee->id . ' DATE: ' . $dateYmd . ' ROW: ' . ($row ? json_encode(['id' => $row->id, 'check_in' => $row->check_in, 'check_out' => $row->check_out, 'status' => $row->status]) : 'null') . ' -->';
+                        // (debug lines removed)
                         if ($row) {
                             if ($row->check_in) {
                                 $start = $employee->workSchedule->start_time ?? '08:00:00';
@@ -444,7 +443,7 @@
                     <td style="background:#f8d7da;color:#721c24;">{{ $totalRekap['A'] }}</td>
                     <td style="background:#cce5ff;color:#004085;">{{ $totalRekap['I'] }}</td>
                     <td style="background:#e2e3e5;color:#383d41;">{{ $totalRekap['C'] }}</td>
-                    <td>{{ count($dates) * $attendances->groupBy('employee_id')->count() }}</td>
+                    <td>{{ count($dates) * count($employees) }}</td>
                 </tr>
             @endif
         </tbody>

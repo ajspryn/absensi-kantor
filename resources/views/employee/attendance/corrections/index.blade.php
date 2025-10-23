@@ -54,7 +54,7 @@
                             <div class="mb-1"><a href="{{ asset('storage/' . $c->attachment_path) }}" target="_blank" class="btn btn-xs btn-outline-secondary"><i class="bi bi-paperclip"></i> Lihat Lampiran</a></div>
                         @endif
                         <div class="d-flex justify-content-end">
-                            <a href="{{ route('employee.attendance.corrections.show', $c) }}" class="btn btn-xs btn-outline-primary"><i class="bi bi-eye"></i> Detail</a>
+                            <a href="{{ route('employee.attendance.corrections.show', $c) }}" class="btn btn-xs btn-primary"><i class="bi bi-eye"></i> Detail</a>
                         </div>
                     </div>
                 </div>

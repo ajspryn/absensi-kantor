@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class AttendanceReportController extends Controller
 {
@@ -95,13 +96,29 @@ class AttendanceReportController extends Controller
         // Get filter parameters
         $startDate = $request->get('start_date', now()->startOfMonth()->format('Y-m-d'));
         $endDate = $request->get('end_date', now()->endOfMonth()->format('Y-m-d'));
+
+        // Normalize dates: ensure valid Y-m-d and startDate <= endDate
+        try {
+            $sd = Carbon::parse($startDate)->format('Y-m-d');
+            $ed = Carbon::parse($endDate)->format('Y-m-d');
+        } catch (\Exception $e) {
+            $sd = now()->startOfMonth()->format('Y-m-d');
+            $ed = now()->endOfMonth()->format('Y-m-d');
+        }
+        if ($sd > $ed) {
+            // swap
+            [$sd, $ed] = [$ed, $sd];
+        }
+        $startDate = $sd;
+        $endDate = $ed;
         $employeeId = $request->get('employee_id');
         $departmentId = $request->get('department_id');
         $status = $request->get('status'); // present, late, absent
 
         // Build query
         $query = Attendance::with(['employee.user', 'employee.department', 'employee.workSchedule'])
-            ->whereBetween('date', [$startDate, $endDate]);
+            ->whereDate('date', '>=', $startDate)
+            ->whereDate('date', '<=', $endDate);
 
         if ($employeeId) {
             $query->where('employee_id', $employeeId);
@@ -130,10 +147,14 @@ class AttendanceReportController extends Controller
 
         $attendances = $query->orderBy('date', 'desc')
             ->orderBy('check_in', 'asc')
-            ->paginate(50);
+            ->paginate(50)->withQueryString();
 
         // Get filter options
-        $employees = Employee::with('user')->orderBy('employee_id')->get();
+        $employeesQuery = Employee::with('user')->orderBy('employee_id');
+        if ($departmentId) {
+            $employeesQuery->where('department_id', $departmentId);
+        }
+        $employees = $employeesQuery->get();
         $departments = Department::orderBy('name')->get();
 
         // Calculate statistics
@@ -157,6 +178,20 @@ class AttendanceReportController extends Controller
         // Get filter parameters
         $startDate = $request->get('start_date', now()->startOfMonth()->format('Y-m-d'));
         $endDate = $request->get('end_date', now()->endOfMonth()->format('Y-m-d'));
+
+        // Normalize dates
+        try {
+            $sd = Carbon::parse($startDate)->format('Y-m-d');
+            $ed = Carbon::parse($endDate)->format('Y-m-d');
+        } catch (\Exception $e) {
+            $sd = now()->startOfMonth()->format('Y-m-d');
+            $ed = now()->endOfMonth()->format('Y-m-d');
+        }
+        if ($sd > $ed) {
+            [$sd, $ed] = [$ed, $sd];
+        }
+        $startDate = $sd;
+        $endDate = $ed;
         $departmentId = $request->get('department_id');
 
         // Get employees with their attendance summary
@@ -171,20 +206,64 @@ class AttendanceReportController extends Controller
         $employeeSummaries = [];
 
         foreach ($employees as $employee) {
-            $attendanceQuery = Attendance::where('employee_id', $employee->id)
-                ->whereBetween('date', [$startDate, $endDate]);
+            // Build list of scheduled dates for this employee according to their work schedule
+            $dates = [];
+            $period = Carbon::parse($startDate);
+            $end = Carbon::parse($endDate);
+            while ($period->lte($end)) {
+                $isWorkDay = false;
+                if ($employee->workSchedule) {
+                    // WorkSchedule::isWorkDay expects a date param
+                    $isWorkDay = $employee->workSchedule->isWorkDay($period->format('Y-m-d'));
+                } else {
+                    // Default: exclude weekends (Sunday=0, Saturday=6)
+                    $isWorkDay = !in_array($period->dayOfWeek, [0, 6]);
+                }
+
+                if ($isWorkDay) {
+                    $dates[] = $period->format('Y-m-d');
+                }
+
+                $period->addDay();
+            }
 
             $totalDays = Carbon::parse($startDate)->diffInDays(Carbon::parse($endDate)) + 1;
-            $workDays = $this->getWorkDays($startDate, $endDate);
+            $workDays = count($dates);
 
-            $presentDays = $attendanceQuery->clone()->whereNotNull('check_in')->count();
-            $lateDays = $attendanceQuery->clone()
-                ->whereNotNull('check_in')
-                ->whereRaw('check_in > TIME(COALESCE((SELECT start_time FROM work_schedules WHERE id = ?), "08:00:00"))', [$employee->work_schedule_id])
-                ->count();
-            $absentDays = $workDays - $presentDays;
+            if ($workDays > 0) {
+                // Compare only date part because DB may store datetime
+                $presentDays = Attendance::where('employee_id', $employee->id)
+                    ->whereIn(DB::raw('date(date)'), $dates)
+                    ->whereNotNull('check_in')
+                    ->count();
+
+                $startTime = $employee->workSchedule->start_time ?? '08:00:00';
+                $lateDays = Attendance::where('employee_id', $employee->id)
+                    ->whereIn(DB::raw('date(date)'), $dates)
+                    ->whereNotNull('check_in')
+                    ->whereRaw('TIME(check_in) > ?', [$startTime])
+                    ->count();
+            } else {
+                $presentDays = 0;
+                $lateDays = 0;
+            }
+
+            $absentDays = max(0, $workDays - $presentDays);
 
             $attendanceRate = $workDays > 0 ? round(($presentDays / $workDays) * 100, 1) : 0;
+
+            // Get last check-in and check-out attendances for this employee within the period (if any)
+            $lastIn = Attendance::where('employee_id', $employee->id)
+                ->whereIn(DB::raw('date(date)'), $dates)
+                ->whereNotNull('check_in')
+                ->orderBy('date', 'desc')
+                ->first();
+
+            $lastOut = Attendance::where('employee_id', $employee->id)
+                ->whereIn(DB::raw('date(date)'), $dates)
+                ->whereNotNull('check_out')
+                ->orderBy('date', 'desc')
+                ->first();
 
             $employeeSummaries[] = [
                 'employee' => $employee,
@@ -193,7 +272,9 @@ class AttendanceReportController extends Controller
                 'present_days' => $presentDays,
                 'late_days' => $lateDays,
                 'absent_days' => $absentDays,
-                'attendance_rate' => $attendanceRate
+                'attendance_rate' => $attendanceRate,
+                'last_check_in' => $lastIn,
+                'last_check_out' => $lastOut
             ];
         }
 
@@ -230,12 +311,27 @@ class AttendanceReportController extends Controller
             // Get same data as index method
             $startDate = $request->get('start_date', now()->startOfMonth()->format('Y-m-d'));
             $endDate = $request->get('end_date', now()->endOfMonth()->format('Y-m-d'));
+
+            // Normalize dates
+            try {
+                $sd = Carbon::parse($startDate)->format('Y-m-d');
+                $ed = Carbon::parse($endDate)->format('Y-m-d');
+            } catch (\Exception $e) {
+                $sd = now()->startOfMonth()->format('Y-m-d');
+                $ed = now()->endOfMonth()->format('Y-m-d');
+            }
+            if ($sd > $ed) {
+                [$sd, $ed] = [$ed, $sd];
+            }
+            $startDate = $sd;
+            $endDate = $ed;
             $employeeId = $request->get('employee_id');
             $departmentId = $request->get('department_id');
             $status = $request->get('status');
 
             $query = Attendance::with(['employee.user', 'employee.department', 'employee.workSchedule'])
-                ->whereBetween('date', [$startDate, $endDate]);
+                ->whereDate('date', '>=', $startDate)
+                ->whereDate('date', '<=', $endDate);
 
             // Hanya tambahkan filter employee_id jika memang user memilih satu karyawan saja
             if ($employeeId) {
@@ -252,6 +348,21 @@ class AttendanceReportController extends Controller
             // Untuk PDF, JANGAN filter status, ambil semua data absensi sesuai filter tanggal/karyawan/departemen
 
             // Untuk PDF, ambil semua data absensi tanpa paginasi
+            // However, if user requested a specific status filter, apply same logic as index
+            if ($status) {
+                switch ($status) {
+                    case 'present':
+                        $query->whereNotNull('check_in');
+                        break;
+                    case 'late':
+                        $query->whereNotNull('check_in')
+                            ->whereRaw('check_in > TIME(COALESCE((SELECT start_time FROM work_schedules WHERE id = (SELECT work_schedule_id FROM employees WHERE id = attendances.employee_id)), "08:00:00"))');
+                        break;
+                    case 'absent':
+                        $query->whereNull('check_in');
+                        break;
+                }
+            }
             $attendances = $query->orderBy('date', 'desc')->orderBy('check_in', 'asc')->get();
             // Ambil semua karyawan sesuai filter
             $employeesQuery = Employee::with(['user', 'department', 'workSchedule']);
@@ -288,6 +399,20 @@ class AttendanceReportController extends Controller
         // Get summary data (similar to summary method)
         $startDate = $request->get('start_date', now()->startOfMonth()->format('Y-m-d'));
         $endDate = $request->get('end_date', now()->endOfMonth()->format('Y-m-d'));
+
+        // Normalize dates
+        try {
+            $sd = Carbon::parse($startDate)->format('Y-m-d');
+            $ed = Carbon::parse($endDate)->format('Y-m-d');
+        } catch (\Exception $e) {
+            $sd = now()->startOfMonth()->format('Y-m-d');
+            $ed = now()->endOfMonth()->format('Y-m-d');
+        }
+        if ($sd > $ed) {
+            [$sd, $ed] = [$ed, $sd];
+        }
+        $startDate = $sd;
+        $endDate = $ed;
         $departmentId = $request->get('department_id');
 
         // Get employees with their attendance summary
@@ -302,18 +427,45 @@ class AttendanceReportController extends Controller
         $employeeSummaries = [];
 
         foreach ($employees as $employee) {
-            $attendanceQuery = Attendance::where('employee_id', $employee->id)
-                ->whereBetween('date', [$startDate, $endDate]);
+            // Build scheduled dates for this employee according to their work schedule
+            $dates = [];
+            $period = Carbon::parse($startDate);
+            $end = Carbon::parse($endDate);
+            while ($period->lte($end)) {
+                $isWorkDay = false;
+                if ($employee->workSchedule) {
+                    $isWorkDay = $employee->workSchedule->isWorkDay($period->format('Y-m-d'));
+                } else {
+                    $isWorkDay = !in_array($period->dayOfWeek, [0, 6]);
+                }
+
+                if ($isWorkDay) {
+                    $dates[] = $period->format('Y-m-d');
+                }
+
+                $period->addDay();
+            }
 
             $totalDays = Carbon::parse($startDate)->diffInDays(Carbon::parse($endDate)) + 1;
-            $workDays = $this->getWorkDays($startDate, $endDate);
+            $workDays = count($dates);
 
-            $presentDays = $attendanceQuery->clone()->whereNotNull('check_in')->count();
-            $lateDays = $attendanceQuery->clone()
-                ->whereNotNull('check_in')
-                ->whereRaw('check_in > TIME(COALESCE((SELECT start_time FROM work_schedules WHERE id = ?), "08:00:00"))', [$employee->work_schedule_id])
-                ->count();
-            $absentDays = $workDays - $presentDays;
+            if ($workDays > 0) {
+                $presentDays = Attendance::where('employee_id', $employee->id)
+                    ->whereIn(DB::raw('date(date)'), $dates)
+                    ->whereNotNull('check_in')
+                    ->count();
+
+                $startTime = $employee->workSchedule->start_time ?? '08:00:00';
+                $lateDays = Attendance::where('employee_id', $employee->id)
+                    ->whereIn(DB::raw('date(date)'), $dates)
+                    ->whereNotNull('check_in')
+                    ->whereRaw('TIME(check_in) > ?', [$startTime])
+                    ->count();
+            } else {
+                $presentDays = 0;
+                $lateDays = 0;
+            }
+            $absentDays = max(0, $workDays - $presentDays);
 
             $attendanceRate = $workDays > 0 ? round(($presentDays / $workDays) * 100, 1) : 0;
 
@@ -350,33 +502,55 @@ class AttendanceReportController extends Controller
 
     private function calculateStatistics($startDate, $endDate, $employeeId = null, $departmentId = null)
     {
-        $query = Attendance::whereBetween('date', [$startDate, $endDate]);
-
+        // Build employees list according to filters
+        $employeesQuery = Employee::query();
         if ($employeeId) {
-            $query->where('employee_id', $employeeId);
+            $employeesQuery->where('id', $employeeId);
         }
-
         if ($departmentId) {
-            $query->whereHas('employee', function ($q) use ($departmentId) {
-                $q->where('department_id', $departmentId);
-            });
+            $employeesQuery->where('department_id', $departmentId);
         }
 
-        $total = $query->count();
-        $present = $query->clone()->whereNotNull('check_in')->count();
-        $absent = $query->clone()->whereNull('check_in')->count();
-        $late = $query->clone()
-            ->whereNotNull('check_in')
-            ->whereRaw('check_in > TIME(COALESCE((SELECT start_time FROM work_schedules WHERE id = (SELECT work_schedule_id FROM employees WHERE id = attendances.employee_id)), "08:00:00"))')
-            ->count();
+        $employees = $employeesQuery->get();
+
+        // Total expected work days = number of employees * work days in period
+        $workDays = $this->getWorkDays($startDate, $endDate);
+        $totalExpected = count($employees) * $workDays;
+
+        $present = 0;
+        $late = 0;
+
+        foreach ($employees as $employee) {
+            // Count distinct attendance days with check_in for this employee
+            $presentCount = Attendance::where('employee_id', $employee->id)
+                ->whereDate('date', '>=', $startDate)
+                ->whereDate('date', '<=', $endDate)
+                ->whereNotNull('check_in')
+                ->count();
+
+            $present += $presentCount;
+
+            // Count late occurrences for this employee (compare check_in time to employee start_time)
+            $startTime = $employee->workSchedule->start_time ?? '08:00:00';
+            $lateCount = Attendance::where('employee_id', $employee->id)
+                ->whereDate('date', '>=', $startDate)
+                ->whereDate('date', '<=', $endDate)
+                ->whereNotNull('check_in')
+                ->whereRaw('TIME(check_in) > ?', [$startTime])
+                ->count();
+
+            $late += $lateCount;
+        }
+
+        $absent = max(0, $totalExpected - $present);
 
         return [
-            'total' => $total,
+            'total' => $totalExpected,
             'present' => $present,
             'absent' => $absent,
             'late' => $late,
-            'present_rate' => $total > 0 ? round(($present / $total) * 100, 1) : 0,
-            'absent_rate' => $total > 0 ? round(($absent / $total) * 100, 1) : 0,
+            'present_rate' => $totalExpected > 0 ? round(($present / $totalExpected) * 100, 1) : 0,
+            'absent_rate' => $totalExpected > 0 ? round(($absent / $totalExpected) * 100, 1) : 0,
             'late_rate' => $present > 0 ? round(($late / $present) * 100, 1) : 0
         ];
     }

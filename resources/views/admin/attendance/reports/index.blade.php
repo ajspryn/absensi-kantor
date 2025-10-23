@@ -48,6 +48,8 @@
                     </div>
                 </div>
 
+
+
                 <div class="row mb-3">
                     <div class="col-6">
                         <label class="form-label font-600">Department</label>
@@ -84,7 +86,9 @@
                                 <i class="bi bi-download"></i> Export
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" id="exportPdfBtn" href="#" target="_blank">Export Detail PDF</a></li>
+                                <li>
+                                    <a class="dropdown-item" id="exportPdfBtn" href="{{ route('admin.attendance.reports.export-pdf', array_merge(request()->all(), ['type' => 'detailed'])) }}" target="_blank">Export Detail PDF</a>
+                                </li>
                                 @push('scripts')
                                     <script>
                                         document.addEventListener('DOMContentLoaded', function() {
@@ -165,6 +169,7 @@
                                 <th class="font-600">Status</th>
                                 <th class="font-600">Schedule Status</th>
                                 <th class="font-600">Catatan</th>
+                                <th class="font-600">Lampiran</th>
                                 <th class="font-600">Lokasi</th>
                                 <th class="font-600">Aksi</th>
                             </tr>
@@ -222,7 +227,40 @@
                                         {{ $attendance->notes ?? '-' }}
                                     </td>
                                     <td>
-                                        {{ $attendance->location_name ?? '-' }}
+                                        <div class="d-flex flex-column">
+                                            @if ($attendance->photo_in)
+                                                <img src="{{ asset('storage/' . $attendance->photo_in) }}" class="img-fluid rounded-s mt-1" style="max-height:60px; cursor:pointer;" onclick="showPhoto('{{ asset('storage/' . $attendance->photo_in) }}', 'Check In')" data-bs-toggle="modal" data-bs-target="#adminPhotoModal">
+                                            @endif
+                                            @if ($attendance->photo_out)
+                                                <img src="{{ asset('storage/' . $attendance->photo_out) }}" class="img-fluid rounded-s mt-1" style="max-height:60px; cursor:pointer;" onclick="showPhoto('{{ asset('storage/' . $attendance->photo_out) }}', 'Check Out')" data-bs-toggle="modal" data-bs-target="#adminPhotoModal">
+                                            @endif
+                                            @if (!$attendance->photo_in && !$attendance->photo_out)
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if ($attendance->location_name)
+                                            <div>{{ $attendance->location_name }}</div>
+                                        @endif
+
+                                        @if ($attendance->latitude_in && $attendance->longitude_in)
+                                            <div class="font-11 text-success">
+                                                In: {{ number_format($attendance->latitude_in, 6) }}, {{ number_format($attendance->longitude_in, 6) }}
+                                                <a href="https://maps.google.com/?q={{ $attendance->latitude_in }},{{ $attendance->longitude_in }}" target="_blank" class="ms-2">Lihat di Maps</a>
+                                            </div>
+                                        @endif
+
+                                        @if ($attendance->latitude_out && $attendance->longitude_out)
+                                            <div class="font-11 text-primary">
+                                                Out: {{ number_format($attendance->latitude_out, 6) }}, {{ number_format($attendance->longitude_out, 6) }}
+                                                <a href="https://maps.google.com/?q={{ $attendance->latitude_out }},{{ $attendance->longitude_out }}" target="_blank" class="ms-2">Lihat di Maps</a>
+                                            </div>
+                                        @endif
+
+                                        @if (!$attendance->location_name && !$attendance->latitude_in && !$attendance->latitude_out)
+                                            <span class="text-muted">-</span>
+                                        @endif
                                     </td>
                                     <td>
                                         <button type="button" class="btn btn-sm btn-warning mb-1 edit-attendance-btn" data-id="{{ $attendance->id }}">Edit</button>
@@ -234,8 +272,13 @@
                 </div>
 
                 <!-- Pagination -->
-                <div class="d-flex justify-content-center mt-3">
-                    {{ $attendances->withQueryString()->links() }}
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div>
+                        <small class="text-muted">Menampilkan {{ $attendances->firstItem() ?? 0 }} - {{ $attendances->lastItem() ?? 0 }} dari {{ $attendances->total() }} hasil</small>
+                    </div>
+                    <div>
+                        {{ $attendances->appends(request()->query())->links('pagination.mobile') }}
+                    </div>
                 </div>
         </div>
     </div>
@@ -252,7 +295,29 @@
 @endsection
 
 @push('scripts')
+    <!-- Admin Photo Modal -->
+    <div class="modal fade" id="adminPhotoModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header py-2">
+                    <h6 class="modal-title font-14" id="adminPhotoModalLabel">Foto Absensi</h6>
+                    <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center p-2">
+                    <img id="adminModalPhoto" src="" class="img-fluid rounded-s" style="max-width: 100%;">
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        function showPhoto(photoUrl, title) {
+            const label = document.getElementById('adminPhotoModalLabel');
+            const img = document.getElementById('adminModalPhoto');
+            if (label) label.textContent = 'Foto ' + title;
+            if (img) img.src = photoUrl;
+        }
+
         function exportReport(type) {
             const form = document.getElementById('filterForm');
             const formData = new FormData(form);

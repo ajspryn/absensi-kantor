@@ -3,8 +3,18 @@
 @section('title', 'Ajukan Koreksi Absensi')
 
 @section('header')
+    @php
+        if (\Illuminate\Support\Facades\Route::has('employee.attendance.corrections.index')) {
+            $correctionsRouteUrl = route('employee.attendance.corrections.index');
+        } elseif (\Illuminate\Support\Facades\Route::has('attendance.corrections.index')) {
+            $correctionsRouteUrl = route('attendance.corrections.index');
+        } else {
+            $correctionsRouteUrl = url('/employee/attendance/corrections');
+        }
+    @endphp
+
     <div class="header-bar header-fixed header-app header-bar-detached">
-        <a data-back-button href="{{ route('employee.attendance.history') }}"><i class="bi bi-arrow-left font-16 color-theme ps-2"></i></a>
+        <a data-back-button href="{{ $correctionsRouteUrl }}"><i class="bi bi-arrow-left font-16 color-theme ps-2"></i></a>
         <a href="#" class="header-title color-theme font-14">Ajukan Koreksi Absensi</a>
     </div>
 @endsection
@@ -58,7 +68,7 @@
                     <small class="text-muted">Max 2 MB</small>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="{{ route('employee.attendance.history') }}" class="btn btn-sm btn-light">Batal</a>
+                    <a href="{{ $correctionsRouteUrl }}" class="btn btn-sm btn-light">Batal</a>
                     <button type="submit" class="btn btn-sm btn-primary">Kirim Pengajuan</button>
                 </div>
             </form>
