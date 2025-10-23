@@ -720,6 +720,8 @@
         let detectionInterval = null;
         let detectionCanvas = null;
         let detectionCtx = null;
+    // crop values for correct capture when object-fit: cover is used
+    let videoCrop = { sx: 0, sy: 0, sWidth: 0, sHeight: 0 };
 
         function initFaceDetection() {
             const video = document.getElementById('camera');
@@ -782,6 +784,52 @@
                     }
                 }, 350);
                 return;
+            }
+
+            // adjust face guide overlay and compute video crop
+            function adjustFaceGuide() {
+                const video = document.getElementById('camera');
+                const guide = document.getElementById('face-guide');
+                if (!video || !guide) return;
+
+                const rect = video.getBoundingClientRect();
+
+                // make guide sized relative to displayed video
+                const guideWidth = Math.round(rect.width * 0.6);
+                const guideHeight = Math.round(rect.height * 0.55);
+                guide.style.width = guideWidth + 'px';
+                guide.style.height = guideHeight + 'px';
+                // keep guide centered inside the relative container
+                guide.style.left = '50%';
+                guide.style.top = '50%';
+                guide.style.transform = 'translate(-50%, -50%)';
+
+                // compute source crop from intrinsic video size to displayed size (object-fit: cover)
+                const iw = video.videoWidth || rect.width;
+                const ih = video.videoHeight || rect.height;
+                const dw = rect.width;
+                const dh = rect.height;
+                if (iw && ih && dw && dh) {
+                    const scale = Math.max(iw / dw, ih / dh);
+                    const sWidth = Math.round(dw * scale);
+                    const sHeight = Math.round(dh * scale);
+                    const sx = Math.round((iw - sWidth) / 2);
+                    const sy = Math.round((ih - sHeight) / 2);
+                    videoCrop = { sx: sx, sy: sy, sWidth: sWidth, sHeight: sHeight };
+                }
+            }
+
+            // call adjustFaceGuide on relevant events
+            try {
+                const videoEl = document.getElementById('camera');
+                if (videoEl) {
+                    videoEl.addEventListener('loadedmetadata', adjustFaceGuide);
+                    videoEl.addEventListener('play', function() { setTimeout(adjustFaceGuide, 150); });
+                }
+                window.addEventListener('resize', adjustFaceGuide);
+                window.addEventListener('orientationchange', function() { setTimeout(adjustFaceGuide, 300); });
+            } catch (e) {
+                // ignore
             }
 
             // Fallback: try face-api.js (local /models first, then CDN)
@@ -881,7 +929,12 @@
             ctx.save();
             ctx.translate(canvas.width, 0);
             ctx.scale(-1, 1);
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            // draw using computed crop to respect object-fit: cover on mobile
+            if (videoCrop && videoCrop.sWidth && videoCrop.sHeight) {
+                ctx.drawImage(video, videoCrop.sx, videoCrop.sy, videoCrop.sWidth, videoCrop.sHeight, 0, 0, canvas.width, canvas.height);
+            } else {
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            }
             ctx.restore();
 
             // Convert to blob with good quality for mobile
