@@ -96,11 +96,11 @@ class AppSetting extends Model
      public static function getLogoUrl($default = null)
      {
           $logoPath = static::getSetting('app_logo');
-              if ($logoPath && file_exists(public_path('storage/' . $logoPath))) {
-                    $fullPath = public_path('storage/' . $logoPath);
-                    $mtime = filemtime($fullPath);
-                    return asset('storage/' . $logoPath) . '?v=' . $mtime;
-               }
+          if ($logoPath && file_exists(public_path('storage/' . $logoPath))) {
+               $fullPath = public_path('storage/' . $logoPath);
+               $mtime = filemtime($fullPath);
+               return asset('storage/' . $logoPath) . '?v=' . $mtime;
+          }
           return $default ?: asset('template/images/logos/logo.png');
      }
 
@@ -110,11 +110,11 @@ class AppSetting extends Model
      public static function getFaviconUrl($default = null)
      {
           $faviconPath = static::getSetting('app_favicon');
-              if ($faviconPath && file_exists(public_path('storage/' . $faviconPath))) {
-                    $fullPath = public_path('storage/' . $faviconPath);
-                    $mtime = filemtime($fullPath);
-                    return asset('storage/' . $faviconPath) . '?v=' . $mtime;
-               }
+          if ($faviconPath && file_exists(public_path('storage/' . $faviconPath))) {
+               $fullPath = public_path('storage/' . $faviconPath);
+               $mtime = filemtime($fullPath);
+               return asset('storage/' . $faviconPath) . '?v=' . $mtime;
+          }
           return $default ?: asset('template/images/favicons/favicon.ico');
      }
 }
