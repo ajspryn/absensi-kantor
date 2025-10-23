@@ -3,14 +3,24 @@ deployment:
   tasks:
     - export DEPLOYPATH=/home/u1527319/absensi
     - export WEBUSER=u1527319
+    - export DEPLOY_LOG="$DEPLOYPATH/deploy.log"
+    - mkdir -p "$(dirname "$DEPLOY_LOG")" || true
+    - touch "$DEPLOY_LOG" || true
+    - echo "[deploy] starting deploy at $(date)" >> "$DEPLOY_LOG" || true
 
     # Copy repository files to deploy path (overwrite)
     - mkdir -p "$DEPLOYPATH"
+    # Ensure storage directories exist and have correct permissions (storage is usually gitignored)
+    - mkdir -p "$DEPLOYPATH/storage/app/public" "$DEPLOYPATH/storage/framework/cache" "$DEPLOYPATH/storage/framework/sessions" "$DEPLOYPATH/storage/framework/views" "$DEPLOYPATH/storage/logs"
+    - chown -R $WEBUSER:www-data "$DEPLOYPATH/storage" || true
+    - chmod -R ug+rwx "$DEPLOYPATH/storage" "$DEPLOYPATH/bootstrap/cache" || true
     - /bin/cp -R app "$DEPLOYPATH/"
     - /bin/cp -R bootstrap "$DEPLOYPATH/"
     - /bin/cp -R config "$DEPLOYPATH/"
     - /bin/cp -R lang "$DEPLOYPATH/"
-    - /bin/cp -R public "$DEPLOYPATH/"
+    # Copy public but avoid overwriting public/storage (user uploads). Prefer rsync if available.
+    # If rsync isn't available, use a portable tar-based copy that excludes the storage directory.
+    - if command -v rsync >/dev/null 2>&1; then rsync -a --delete --exclude='storage' public/ "$DEPLOYPATH/public/" >> "$DEPLOY_LOG" 2>&1 || true; else (cd public && tar --exclude='./storage' -cf - .) | (cd "$DEPLOYPATH/public" && tar -xpf -) >> "$DEPLOY_LOG" 2>&1 || true; fi
     - /bin/cp -R resources "$DEPLOYPATH/"
     - /bin/cp -R routes "$DEPLOYPATH/"
     - /bin/cp -R tests "$DEPLOYPATH/" || true
@@ -40,9 +50,10 @@ deployment:
     - chown $WEBUSER:www-data "$DEPLOYPATH/database/database.sqlite" || true
     - chmod 664 "$DEPLOYPATH/database/database.sqlite" || true
 
-    # Set DB connection to sqlite in .env if not explicitly set
-    - 'if grep -q "^DB_CONNECTION=" "$DEPLOYPATH/.env"; then sed -i "s/^DB_CONNECTION=.*/DB_CONNECTION=sqlite/" "$DEPLOYPATH/.env" || true; else echo "DB_CONNECTION=sqlite" >> "$DEPLOYPATH/.env"; fi'
-    - 'if grep -q "^DB_DATABASE=" "$DEPLOYPATH/.env"; then sed -i "s|^DB_DATABASE=.*|DB_DATABASE=$DEPLOYPATH/database/database.sqlite|" "$DEPLOYPATH/.env" || true; else echo "DB_DATABASE=$DEPLOYPATH/database/database.sqlite" >> "$DEPLOYPATH/.env"; fi'
+    # Backup .env before any changes
+    - 'if [ -f "$DEPLOYPATH/.env" ]; then cp "$DEPLOYPATH/.env" "$DEPLOYPATH/.env.backup.$(date +%s)" >> "$DEPLOY_LOG" 2>&1 || true; fi'
+    # Set DB connection to sqlite in .env only if DEPLOY_USE_SQLITE=1 (safeguard)
+    - 'if [ "${DEPLOY_USE_SQLITE:-0}" = "1" ]; then if grep -q "^DB_CONNECTION=" "$DEPLOYPATH/.env"; then sed -i "s/^DB_CONNECTION=.*/DB_CONNECTION=sqlite/" "$DEPLOYPATH/.env" >> "$DEPLOY_LOG" 2>&1 || true; else echo "DB_CONNECTION=sqlite" >> "$DEPLOYPATH/.env"; fi; if grep -q "^DB_DATABASE=" "$DEPLOYPATH/.env"; then sed -i "s|^DB_DATABASE=.*|DB_DATABASE=$DEPLOYPATH/database/database.sqlite|" "$DEPLOYPATH/.env" >> "$DEPLOY_LOG" 2>&1 || true; else echo "DB_DATABASE=$DEPLOYPATH/database/database.sqlite" >> "$DEPLOYPATH/.env"; fi; fi'
 
     # Install composer deps if composer available and vendor not present
     - if [ ! -d "$DEPLOYPATH/vendor" ]; then if command -v composer >/dev/null 2>&1; then (cd "$DEPLOYPATH" && composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader) || true; fi; fi
@@ -55,9 +66,9 @@ deployment:
     - chown -R $WEBUSER:www-data "$DEPLOYPATH/bootstrap/cache" || true
     - chmod -R ug+rwx "$DEPLOYPATH/storage" "$DEPLOYPATH/bootstrap/cache" || true
 
-    # Generate app key if missing (only if APP_KEY is empty)
+    # Ensure APP_KEY line exists; generate key only if missing or empty to avoid regenerating on each deploy
     - 'if [ -f "$DEPLOYPATH/.env" ]; then grep -q "^APP_KEY=" "$DEPLOYPATH/.env" || echo "APP_KEY=" >> "$DEPLOYPATH/.env"; fi'
-    - 'if [ -f "$DEPLOYPATH/.env" ]; then (cd "$DEPLOYPATH" && php artisan key:generate --force) || true; fi'
+    - 'if [ -f "$DEPLOYPATH/.env" ]; then if ! grep -q "^APP_KEY=[[:space:]]*[^[:space:]]" "$DEPLOYPATH/.env"; then (cd "$DEPLOYPATH" && php artisan key:generate --force) || true; fi; fi'
 
     # Run migrations and seed (optional) — runs on sqlite file
     - '(cd "$DEPLOYPATH" && php artisan migrate --force) || true'
