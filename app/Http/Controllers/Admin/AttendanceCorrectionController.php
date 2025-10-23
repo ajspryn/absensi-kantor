@@ -18,6 +18,22 @@ class AttendanceCorrectionController extends Controller
         $query = AttendanceCorrection::with(['user', 'employee', 'attendance'])
             ->orderBy('created_at', 'desc');
 
+        // If current user is a manager (non-admin), restrict to their department
+        $current = Auth::user();
+        // If current user has role 'manager' but not 'admin', restrict to their department
+        if ($current && $current->role && strtolower($current->role->name) === 'manager' && strtolower($current->role->name) !== 'admin') {
+            $managerEmployee = $current->employee;
+            if ($managerEmployee && $managerEmployee->department_id) {
+                $deptId = $managerEmployee->department_id;
+                $query->whereHas('employee', function ($q) use ($deptId) {
+                    $q->where('department_id', $deptId);
+                });
+            } else {
+                // If manager has no department assigned, show none
+                $query->whereRaw('1 = 0');
+            }
+        }
+
         if ($status) {
             $query->where('status', $status);
         }
@@ -44,6 +60,11 @@ class AttendanceCorrectionController extends Controller
         // Authorization enforced via route middleware 'permission:attendance.corrections.approve'
         $user = Auth::user();
 
+        // Prevent self-approval: if submitter is this user (manager), disallow
+        if ($attendanceCorrection->user_id === $user->id) {
+            return redirect()->back()->with('error', 'Tidak dapat menyetujui pengajuan yang diajukan sendiri.');
+        }
+
         if ($attendanceCorrection->status === AttendanceCorrection::STATUS_PENDING) {
             $attendanceCorrection->update([
                 'status' => AttendanceCorrection::STATUS_MANAGER_APPROVED,
@@ -59,6 +80,11 @@ class AttendanceCorrectionController extends Controller
     {
         // Authorization enforced via route middleware 'permission:attendance.corrections.approve'
         $user = Auth::user();
+
+        // Prevent self-approval: if submitter is this user, disallow HR approval
+        if ($attendanceCorrection->user_id === $user->id) {
+            return redirect()->back()->with('error', 'Tidak dapat memverifikasi pengajuan yang diajukan sendiri.');
+        }
 
         if (in_array($attendanceCorrection->status, [AttendanceCorrection::STATUS_PENDING, AttendanceCorrection::STATUS_MANAGER_APPROVED])) {
             $attendanceCorrection->update([
@@ -105,6 +131,11 @@ class AttendanceCorrectionController extends Controller
         ]);
 
         $user = Auth::user();
+        // Prevent self-rejection: submitter should not reject their own request
+        if ($attendanceCorrection->user_id === $user->id) {
+            return redirect()->back()->with('error', 'Tidak dapat menolak pengajuan yang diajukan sendiri.');
+        }
+
         // Authorization enforced via route middleware 'permission:attendance.corrections.approve'
 
         $attendanceCorrection->update([

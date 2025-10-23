@@ -6,7 +6,7 @@
     @include('admin.header', [
         'title' => 'Koreksi Absensi',
         // Use an existing admin route as the back URL
-        'backUrl' => route('admin.attendance.index'),
+        'backUrl' => route('dashboard'),
     ])
 @endsection
 

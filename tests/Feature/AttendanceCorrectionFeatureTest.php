@@ -66,7 +66,7 @@ class AttendanceCorrectionFeatureTest extends TestCase
     public function test_hr_can_approve_and_update_attendance()
     {
         Notification::fake();
-        $hrRole = Role::factory()->create(['name' => 'hr', 'permissions' => ['attendance.corrections.approve']]);
+    $hrRole = Role::factory()->create(['name' => 'hr', 'permissions' => ['attendance.corrections.verify']]);
         $hr = User::factory()->create(['role_id' => $hrRole->id]);
         $employee = Employee::factory()->create();
         $attendance = Attendance::factory()->create(['employee_id' => $employee->id, 'date' => now()->toDateString()]);

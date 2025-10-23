@@ -34,7 +34,7 @@ class MigrateOldAbsensiData extends Command
                 'employee_id' => $oldUser->nip ?? $oldUser->id,
                 'full_name' => $oldUser->nama ?? $oldUser->username,
                 'phone' => $oldUser->no_hp ?? null,
-                'position' => $oldUser->jabatan ?? null,
+                // 'position' removed; migrate only to position_id when mapping exists
                 'hire_date' => $oldUser->tanggal_masuk ?? now(),
                 'salary' => $oldUser->gaji ?? 0,
                 'department_id' => 1,

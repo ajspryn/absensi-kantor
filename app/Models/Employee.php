@@ -16,7 +16,7 @@ class Employee extends Model
         'position_id',
         'work_schedule_id',
         'full_name',
-        'position',
+        // 'position' column removed from schema; use relation to Position or position_id instead
         'phone',
         'email',
         'address',

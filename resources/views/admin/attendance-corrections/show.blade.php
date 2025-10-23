@@ -60,27 +60,35 @@
 
                     @if ($attendanceCorrection->status !== 'approved' && $attendanceCorrection->status !== 'rejected')
                         <div class="d-flex gap-2 mt-3">
-                            <form method="POST" action="{{ route('admin.attendance-corrections.approve-manager', $attendanceCorrection) }}">
-                                @csrf
-                                @method('PATCH')
-                                <button type="submit" class="btn btn-sm btn-success">Setujui Manager</button>
-                            </form>
+                            {{-- Manager approval: only for users with approve permission who are managers, not the submitter, and when status is pending --}}
+                            @if (auth()->user()->hasPermission('attendance.corrections.approve') && auth()->user()->isManager() && $attendanceCorrection->status === 'pending' && auth()->id() !== $attendanceCorrection->user_id)
+                                <form method="POST" action="{{ route('admin.attendance-corrections.approve-manager', $attendanceCorrection) }}">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit" class="btn btn-sm btn-success">Setujui Manager</button>
+                                </form>
+                            @endif
 
-                            <form method="POST" action="{{ route('admin.attendance-corrections.approve-hr', $attendanceCorrection) }}">
-                                @csrf
-                                @method('PATCH')
-                                <button type="submit" class="btn btn-sm btn-primary">Setujui HR & Terapkan</button>
-                            </form>
+                            {{-- HR approval: only for users with verify permission, not the submitter, and when status is manager_approved --}}
+                            @if (auth()->user()->hasPermission('attendance.corrections.verify') && $attendanceCorrection->status === 'manager_approved' && auth()->id() !== $attendanceCorrection->user_id)
+                                <form method="POST" action="{{ route('admin.attendance-corrections.approve-hr', $attendanceCorrection) }}">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit" class="btn btn-sm btn-primary">Setujui HR & Terapkan</button>
+                                </form>
+                            @endif
                         </div>
 
-                        <div class="mt-3">
-                            <form method="POST" action="{{ route('admin.attendance-corrections.reject', $attendanceCorrection) }}" class="d-flex gap-2">
-                                @csrf
-                                @method('PATCH')
-                                <input type="text" name="reason" class="form-control form-control-sm" placeholder="Alasan penolakan" required>
-                                <button type="submit" class="btn btn-sm btn-outline-danger">Tolak</button>
-                            </form>
-                        </div>
+                        @if ((auth()->user()->hasPermission('attendance.corrections.approve') || auth()->user()->hasPermission('attendance.corrections.verify')) && auth()->id() !== $attendanceCorrection->user_id && in_array($attendanceCorrection->status, ['pending', 'manager_approved']))
+                            <div class="mt-3">
+                                <form method="POST" action="{{ route('admin.attendance-corrections.reject', $attendanceCorrection) }}" class="d-flex gap-2">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="text" name="reason" class="form-control form-control-sm" placeholder="Alasan penolakan" required>
+                                    <button type="submit" class="btn btn-sm btn-danger">Tolak</button>
+                                </form>
+                            </div>
+                        @endif
                     @elseif($attendanceCorrection->status === 'rejected')
                         <div class="alert alert-secondary mt-3">Ditolak oleh {{ $attendanceCorrection->rejectedBy?->name ?? $attendanceCorrection->rejected_by_id }}: {{ $attendanceCorrection->rejected_reason }}</div>
                     @endif

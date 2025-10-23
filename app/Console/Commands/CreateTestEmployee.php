@@ -61,7 +61,6 @@ class CreateTestEmployee extends Command
         ], [
             'employee_id' => 'EMP001',
             'full_name' => 'Test Employee',
-            'position' => 'Test Employee Position',
             'department_id' => $department->id,
             'position_id' => $position->id,
             'hire_date' => now(),

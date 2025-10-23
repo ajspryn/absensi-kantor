@@ -107,7 +107,7 @@ class EmployeesImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
                 'user_id' => $user->id,
                 'department_id' => $department ? $department->id : 1, // Default to department 1 if not found
                 'position_id' => $position ? $position->id : null,
-                'position' => $row['posisi'] ?? 'Staff', // Add required position field
+                // 'position' column removed; keep position relation via position_id
                 'full_name' => $row['nama_lengkap'],
                 'phone' => !empty($row['telepon']) ? (string)$row['telepon'] : null, // Convert to string
                 'email' => $row['email'],

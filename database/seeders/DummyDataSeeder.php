@@ -185,7 +185,6 @@ class DummyDataSeeder extends Seeder
                 $data = [
                     'user_id' => $u->id,
                     'department_id' => $dept->id,
-                    'position' => $pos->name,
                     'full_name' => $u->name,
                     'email' => $u->email,
                 ];

@@ -114,7 +114,7 @@ class EmployeeController extends Controller
                 'hire_date' => now(),
                 'is_active' => true,
                 'full_name' => $request->name,
-                'position' => $position ? $position->name : '',
+                // position column removed; rely on position_id relation and Position model for name
                 // Keep employee.email in sync with user.email to avoid inconsistent reads
                 'email' => $request->email,
             ]);

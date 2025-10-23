@@ -86,7 +86,7 @@
             @endif
         @endif
 
-        @if (auth()->user() && auth()->user()->hasPermission('attendance.corrections.approve') && auth()->user()->isManager())
+        @if (auth()->user() && ((auth()->user()->hasPermission('attendance.corrections.approve') && auth()->user()->isManager()) || auth()->user()->hasPermission('attendance.corrections.verify')))
             <a href="{{ route('admin.attendance-corrections.index') }}" class="d-flex py-1">
                 <div class="align-self-center position-relative">
                     <i class="bi bi-check2-square color-green-dark font-16"></i>

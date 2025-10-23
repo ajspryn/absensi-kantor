@@ -61,7 +61,8 @@ class Role extends Model
                 'attendance.checkout' => 'Check-out Absensi',
                 'attendance.reports' => 'Laporan Absensi',
                 'attendance.corrections.request' => 'Ajukan Koreksi Absensi',
-                'attendance.corrections.approve' => 'Setujui Koreksi Absensi'
+                'attendance.corrections.approve' => 'Setujui Koreksi Absensi',
+                'attendance.corrections.verify' => 'Verifikasi Koreksi Absensi'
             ],
             'schedules' => [
                 'schedules.view' => 'Lihat Jadwal Kerja',

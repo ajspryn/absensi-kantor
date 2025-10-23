@@ -215,11 +215,23 @@ Route::get('/attendance-corrections', function () {
     return redirect('/employee/attendance/corrections');
 })->name('attendance.corrections.index');
 
-// Attendance corrections (approval) accessible to Manager/HR/Admin by permission, but not restricted to role:admin
-Route::middleware(['auth', 'permission:attendance.corrections.approve'])->prefix('admin')->name('admin.')->group(function () {
+// Attendance corrections (approval) accessible to Manager/HR/Admin by permission (approve for manager, verify for HR)
+// Allow listing/showing to users who have either permission; action routes are protected individually below.
+Route::middleware(['auth', 'permission:attendance.corrections.approve,attendance.corrections.verify'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/attendance-corrections', [AdminAttendanceCorrectionController::class, 'index'])->name('attendance-corrections.index');
     Route::get('/attendance-corrections/{attendanceCorrection}', [AdminAttendanceCorrectionController::class, 'show'])->name('attendance-corrections.show');
-    Route::patch('/attendance-corrections/{attendanceCorrection}/approve-manager', [AdminAttendanceCorrectionController::class, 'approveManager'])->name('attendance-corrections.approve-manager');
-    Route::patch('/attendance-corrections/{attendanceCorrection}/approve-hr', [AdminAttendanceCorrectionController::class, 'approveHr'])->name('attendance-corrections.approve-hr');
-    Route::patch('/attendance-corrections/{attendanceCorrection}/reject', [AdminAttendanceCorrectionController::class, 'reject'])->name('attendance-corrections.reject');
+    // Manager approval (requires manager-level approve permission)
+    Route::patch('/attendance-corrections/{attendanceCorrection}/approve-manager', [AdminAttendanceCorrectionController::class, 'approveManager'])
+        ->middleware('permission:attendance.corrections.approve')
+        ->name('attendance-corrections.approve-manager');
+
+    // HR verification/approval (requires HR verify permission)
+    Route::patch('/attendance-corrections/{attendanceCorrection}/approve-hr', [AdminAttendanceCorrectionController::class, 'approveHr'])
+        ->middleware('permission:attendance.corrections.verify')
+        ->name('attendance-corrections.approve-hr');
+
+    // Reject can be done by either approver or verifier; allow both permissions
+    Route::patch('/attendance-corrections/{attendanceCorrection}/reject', [AdminAttendanceCorrectionController::class, 'reject'])
+        ->middleware('permission:attendance.corrections.approve,attendance.corrections.verify')
+        ->name('attendance-corrections.reject');
 });
