@@ -720,8 +720,13 @@
         let detectionInterval = null;
         let detectionCanvas = null;
         let detectionCtx = null;
-    // crop values for correct capture when object-fit: cover is used
-    let videoCrop = { sx: 0, sy: 0, sWidth: 0, sHeight: 0 };
+        // crop values for correct capture when object-fit: cover is used
+        let videoCrop = {
+            sx: 0,
+            sy: 0,
+            sWidth: 0,
+            sHeight: 0
+        };
 
         function initFaceDetection() {
             const video = document.getElementById('camera');
@@ -815,7 +820,12 @@
                     const sHeight = Math.round(dh * scale);
                     const sx = Math.round((iw - sWidth) / 2);
                     const sy = Math.round((ih - sHeight) / 2);
-                    videoCrop = { sx: sx, sy: sy, sWidth: sWidth, sHeight: sHeight };
+                    videoCrop = {
+                        sx: sx,
+                        sy: sy,
+                        sWidth: sWidth,
+                        sHeight: sHeight
+                    };
                 }
             }
 
@@ -824,10 +834,14 @@
                 const videoEl = document.getElementById('camera');
                 if (videoEl) {
                     videoEl.addEventListener('loadedmetadata', adjustFaceGuide);
-                    videoEl.addEventListener('play', function() { setTimeout(adjustFaceGuide, 150); });
+                    videoEl.addEventListener('play', function() {
+                        setTimeout(adjustFaceGuide, 150);
+                    });
                 }
                 window.addEventListener('resize', adjustFaceGuide);
-                window.addEventListener('orientationchange', function() { setTimeout(adjustFaceGuide, 300); });
+                window.addEventListener('orientationchange', function() {
+                    setTimeout(adjustFaceGuide, 300);
+                });
             } catch (e) {
                 // ignore
             }
