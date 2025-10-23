@@ -21,7 +21,7 @@ class MigrateOldAbsensiData extends Command
         $this->info('Migrasi user...');
         foreach ($oldUsers as $oldUser) {
             $user = User::firstOrCreate([
-                'email' => $oldUser->email ?? ($oldUser->username.'@old.com'),
+                'email' => $oldUser->email ?? ($oldUser->username . '@old.com'),
             ], [
                 'name' => $oldUser->nama ?? $oldUser->username,
                 'password' => Hash::make('password'),
