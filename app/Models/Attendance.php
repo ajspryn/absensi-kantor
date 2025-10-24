@@ -29,7 +29,7 @@ class Attendance extends Model
         'office_location_id',
         'location_name',
         'work_schedule_id',
-        'is_remote'
+
     ];
 
     protected function casts(): array
@@ -42,7 +42,6 @@ class Attendance extends Model
             'longitude_in' => 'decimal:8',
             'latitude_out' => 'decimal:8',
             'longitude_out' => 'decimal:8',
-            'is_remote' => 'boolean',
         ];
     }
 

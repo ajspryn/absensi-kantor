@@ -263,7 +263,6 @@ class Employee extends Model
                     'check_out_location' => null,
                     'check_in_address' => null,
                     'check_out_address' => null,
-                    'is_remote' => false,
                     'notes' => null,
                     'schedule_status' => 'absent',
                     'late_minutes' => null,

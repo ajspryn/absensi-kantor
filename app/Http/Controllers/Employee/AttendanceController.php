@@ -194,8 +194,8 @@ class AttendanceController extends Controller
             'notes' => 'nullable|string|max:255',
         ]);
 
-        // Re-validate location (double check)
-        $allowRemoteAttendance = AppSetting::getSetting('allow_remote_attendance', false);
+        // Re-validate location (double check) - prioritize per-employee setting
+        $allowRemoteAttendance = $employee->allow_remote_attendance ?? AppSetting::getSetting('allow_remote_attendance', false);
         $validLocation = null;
         $isRemote = false;
 
@@ -231,7 +231,6 @@ class AttendanceController extends Controller
         $attendance->photo_in = $photoPath;
         $attendance->notes = $request->notes;
         $attendance->status = 'present';
-        $attendance->is_remote = $isRemote;
         $attendance->work_schedule_id = $employee->work_schedule_id;
         $attendance->save();
 
@@ -280,8 +279,8 @@ class AttendanceController extends Controller
             'notes' => 'nullable|string|max:255',
         ]);
 
-        // Re-validate location (double check for check out)
-        $allowRemoteAttendance = AppSetting::getSetting('allow_remote_attendance', false);
+        // Re-validate location (double check for check out) - prioritize per-employee setting
+        $allowRemoteAttendance = $employee->allow_remote_attendance ?? AppSetting::getSetting('allow_remote_attendance', false);
         $validLocation = null;
         $isRemote = false;
 
@@ -312,10 +311,8 @@ class AttendanceController extends Controller
         $todayAttendance->photo_out = $photoPath;
         $todayAttendance->notes = $request->notes ? ($todayAttendance->notes . ' | ' . $request->notes) : $todayAttendance->notes;
 
-        // Update remote status if needed (for check out)
+        // Update office location name for check out (preserve human-friendly label)
         if ($isRemote) {
-            $todayAttendance->is_remote = true;
-            // Update office location name for check out if it's remote
             if ($validLocation) {
                 $todayAttendance->location_name = $validLocation->name . ' (Remote)';
             } else {
