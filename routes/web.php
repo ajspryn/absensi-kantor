@@ -201,6 +201,14 @@ Route::middleware('auth')->group(function () {
             Route::middleware('permission:schedules.view')->group(function () {
                 Route::get('/schedule', [EmployeeAttendanceController::class, 'schedule'])->name('schedule.index');
             });
+
+            // Daily Activities (employee)
+            Route::middleware('permission:daily_activities.create,daily_activities.view_own')->group(function () {
+                Route::get('/daily-activities', [\App\Http\Controllers\Employee\DailyActivityController::class, 'index'])->name('daily-activities.index');
+                Route::get('/daily-activities/create', [\App\Http\Controllers\Employee\DailyActivityController::class, 'create'])->name('daily-activities.create');
+                Route::post('/daily-activities', [\App\Http\Controllers\Employee\DailyActivityController::class, 'store'])->name('daily-activities.store');
+                Route::get('/daily-activities/{dailyActivity}', [\App\Http\Controllers\Employee\DailyActivityController::class, 'show'])->whereNumber('dailyActivity')->name('daily-activities.show');
+            });
         });
     });
 
@@ -234,4 +242,12 @@ Route::middleware(['auth', 'permission:attendance.corrections.approve,attendance
     Route::patch('/attendance-corrections/{attendanceCorrection}/reject', [AdminAttendanceCorrectionController::class, 'reject'])
         ->middleware('permission:attendance.corrections.approve,attendance.corrections.verify')
         ->name('attendance-corrections.reject');
+});
+
+// Manager routes: daily activity reporting for department managers
+Route::middleware(['auth', 'permission:daily_activities.view_department'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/daily-activities', [\App\Http\Controllers\Manager\DailyActivityReportController::class, 'index'])->name('daily-activities.index');
+    Route::get('/daily-activities/{dailyActivity}', [\App\Http\Controllers\Manager\DailyActivityReportController::class, 'show'])->whereNumber('dailyActivity')->name('daily-activities.show');
+    Route::patch('/daily-activities/{dailyActivity}/approve', [\App\Http\Controllers\Manager\DailyActivityReportController::class, 'approve'])->whereNumber('dailyActivity')->name('daily-activities.approve')->middleware('permission:daily_activities.approve');
+    Route::patch('/daily-activities/{dailyActivity}/reject', [\App\Http\Controllers\Manager\DailyActivityReportController::class, 'reject'])->whereNumber('dailyActivity')->name('daily-activities.reject')->middleware('permission:daily_activities.approve');
 });

@@ -64,6 +64,13 @@ class Role extends Model
                 'attendance.corrections.approve' => 'Setujui Koreksi Absensi',
                 'attendance.corrections.verify' => 'Verifikasi Koreksi Absensi'
             ],
+            'daily_activities' => [
+                'daily_activities.create' => 'Buat Daily Activity',
+                'daily_activities.view_own' => 'Lihat Daily Activity Sendiri',
+                'daily_activities.view_department' => 'Lihat Daily Activity Departemen',
+                'daily_activities.export' => 'Export Laporan Daily Activity',
+                'daily_activities.approve' => 'Setujui / Tolak Daily Activity'
+            ],
             'schedules' => [
                 'schedules.view' => 'Lihat Jadwal Kerja',
                 'schedules.create' => 'Tambah Jadwal Kerja',

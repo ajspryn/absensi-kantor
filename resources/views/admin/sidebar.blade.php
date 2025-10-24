@@ -35,6 +35,16 @@
                 <h5 class="pt-1 mb-0">Karyawan</h5>
             </div>
         </a>
+        @if (auth()->user() && auth()->user()->hasPermission('daily_activities.view_department'))
+            <a href="{{ route('admin.daily-activities.index') }}" class="d-flex py-1">
+                <div class="align-self-center">
+                    <i class="bi bi-journal-check color-blue-dark font-16"></i>
+                </div>
+                <div class="align-self-center ps-3">
+                    <h5 class="pt-1 mb-0">Laporan Daily Activity</h5>
+                </div>
+            </a>
+        @endif
         <div class="divider my-2"></div>
         <a href="{{ route('admin.positions.index') }}" class="d-flex py-1">
             <div class="align-self-center">
