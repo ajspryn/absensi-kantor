@@ -64,6 +64,17 @@
             </div>
         </a>
 
+        @if (auth()->user() && (auth()->user()->hasPermission('daily_activities.create') || auth()->user()->hasPermission('daily_activities.view_own')))
+            <a href="{{ route('employee.daily-activities.index') }}" class="d-flex py-1">
+                <div class="align-self-center">
+                    <i class="bi bi-journal-text color-teal-dark font-16"></i>
+                </div>
+                <div class="align-self-center ps-3">
+                    <h5 class="pt-1 mb-0">Daily Activity</h5>
+                </div>
+            </a>
+        @endif
+
         @if (auth()->user() && auth()->user()->hasPermission('attendance.corrections.request'))
             @php
                 $correctionsRoute = null;
@@ -93,6 +104,18 @@
                 </div>
                 <div class="align-self-center ps-3">
                     <h5 class="pt-1 mb-0">Persetujuan Koreksi Absensi</h5>
+                </div>
+            </a>
+        @endif
+
+        {{-- Shortcut bagi manager: akses Laporan Daily Activity dari area employee --}}
+        @if (auth()->user() && auth()->user()->hasPermission('daily_activities.view_department'))
+            <a href="{{ route('admin.daily-activities.index') }}" class="d-flex py-1">
+                <div class="align-self-center">
+                    <i class="bi bi-journal-check color-blue-dark font-16"></i>
+                </div>
+                <div class="align-self-center ps-3">
+                    <h5 class="pt-1 mb-0">Laporan Daily Activity (Departemen)</h5>
                 </div>
             </a>
         @endif
