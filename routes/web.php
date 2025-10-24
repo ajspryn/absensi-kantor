@@ -205,9 +205,15 @@ Route::middleware('auth')->group(function () {
             // Daily Activities (employee)
             Route::middleware('permission:daily_activities.create,daily_activities.view_own')->group(function () {
                 Route::get('/daily-activities', [\App\Http\Controllers\Employee\DailyActivityController::class, 'index'])->name('daily-activities.index');
+                Route::get('/daily-activities/export-csv', [\App\Http\Controllers\Employee\DailyActivityController::class, 'export'])->name('daily-activities.export');
                 Route::get('/daily-activities/create', [\App\Http\Controllers\Employee\DailyActivityController::class, 'create'])->name('daily-activities.create');
                 Route::post('/daily-activities', [\App\Http\Controllers\Employee\DailyActivityController::class, 'store'])->name('daily-activities.store');
                 Route::get('/daily-activities/{dailyActivity}', [\App\Http\Controllers\Employee\DailyActivityController::class, 'show'])->whereNumber('dailyActivity')->name('daily-activities.show');
+                Route::get('/daily-activities/{dailyActivity}/edit', [\App\Http\Controllers\Employee\DailyActivityController::class, 'edit'])->whereNumber('dailyActivity')->name('daily-activities.edit');
+                Route::match(['put', 'patch'], '/daily-activities/{dailyActivity}', [\App\Http\Controllers\Employee\DailyActivityController::class, 'update'])->whereNumber('dailyActivity')->name('daily-activities.update');
+                Route::delete('/daily-activities/{dailyActivity}', [\App\Http\Controllers\Employee\DailyActivityController::class, 'destroy'])->whereNumber('dailyActivity')->name('daily-activities.destroy');
+                Route::patch('/daily-activities/{dailyActivity}/tasks/{index}', [\App\Http\Controllers\Employee\DailyActivityController::class, 'updateTask'])->whereNumber('dailyActivity')->name('daily-activities.tasks.update');
+                Route::post('/daily-activities/{dailyActivity}/attachments', [\App\Http\Controllers\Employee\DailyActivityController::class, 'addAttachments'])->whereNumber('dailyActivity')->name('daily-activities.attachments.store');
             });
         });
     });
@@ -247,6 +253,7 @@ Route::middleware(['auth', 'permission:attendance.corrections.approve,attendance
 // Manager routes: daily activity reporting for department managers
 Route::middleware(['auth', 'permission:daily_activities.view_department'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/daily-activities', [\App\Http\Controllers\Manager\DailyActivityReportController::class, 'index'])->name('daily-activities.index');
+    Route::get('/daily-activities/export-csv', [\App\Http\Controllers\Manager\DailyActivityReportController::class, 'export'])->name('daily-activities.export');
     Route::get('/daily-activities/{dailyActivity}', [\App\Http\Controllers\Manager\DailyActivityReportController::class, 'show'])->whereNumber('dailyActivity')->name('daily-activities.show');
     Route::patch('/daily-activities/{dailyActivity}/approve', [\App\Http\Controllers\Manager\DailyActivityReportController::class, 'approve'])->whereNumber('dailyActivity')->name('daily-activities.approve')->middleware('permission:daily_activities.approve');
     Route::patch('/daily-activities/{dailyActivity}/reject', [\App\Http\Controllers\Manager\DailyActivityReportController::class, 'reject'])->whereNumber('dailyActivity')->name('daily-activities.reject')->middleware('permission:daily_activities.approve');

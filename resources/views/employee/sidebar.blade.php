@@ -108,6 +108,18 @@
             </a>
         @endif
 
+        {{-- Shortcut bagi manager: akses Laporan Daily Activity dari area employee --}}
+        @if (auth()->user() && auth()->user()->hasPermission('daily_activities.view_department'))
+            <a href="{{ route('admin.daily-activities.index') }}" class="d-flex py-1">
+                <div class="align-self-center">
+                    <i class="bi bi-journal-check color-blue-dark font-16"></i>
+                </div>
+                <div class="align-self-center ps-3">
+                    <h5 class="pt-1 mb-0">Laporan Daily Activity (Departemen)</h5>
+                </div>
+            </a>
+        @endif
+
         <a href="{{ route('employee.profile.index') }}" class="d-flex py-1">
             <div class="align-self-center">
                 <i class="bi bi-person-circle color-purple-dark font-16"></i>
