@@ -31,7 +31,7 @@
                         <div class="d-flex align-items-start justify-content-between">
                             <h6 class="mb-1 font-14">{{ $a->title }}</h6>
                             <div>
-                                @if($status === 'approved')
+                                @if ($status === 'approved')
                                     <span class="badge bg-success">APPROVED</span>
                                 @elseif($status === 'rejected')
                                     <span class="badge bg-danger">REJECTED</span>

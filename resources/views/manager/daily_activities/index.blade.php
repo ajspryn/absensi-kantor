@@ -15,8 +15,8 @@
                 <div class="col-6 col-sm-3">
                     <select name="employee_id" class="form-control">
                         <option value="">Semua Karyawan</option>
-                        @if(!empty($employees))
-                            @foreach($employees as $emp)
+                        @if (!empty($employees))
+                            @foreach ($employees as $emp)
                                 <option value="{{ $emp->id }}" {{ (string) request('employee_id') === (string) $emp->id ? 'selected' : '' }}>{{ $emp->full_name }}</option>
                             @endforeach
                         @endif
@@ -53,7 +53,7 @@
                     <div class="d-flex align-items-center gap-2 mt-1">
                         <div class="font-11">{{ $totalTasks > 0 ? "${completedTasks}/${totalTasks} tugas selesai" : 'Belum ada tugas' }}</div>
                         <div class="ms-auto">
-                            @if($status === 'approved')
+                            @if ($status === 'approved')
                                 <span class="badge bg-success">APPROVED</span>
                             @elseif($status === 'rejected')
                                 <span class="badge bg-danger">REJECTED</span>
@@ -103,7 +103,7 @@
                                     <td class="align-middle">{{ $a->start_time ?? '-' }} - {{ $a->end_time ?? '-' }}</td>
                                     <td class="align-middle">{{ $total > 0 ? "${completed}/${total}" : '-' }}</td>
                                     <td class="align-middle">
-                                        @if($status === 'approved')
+                                        @if ($status === 'approved')
                                             <span class="badge bg-success">APPROVED</span>
                                         @elseif($status === 'rejected')
                                             <span class="badge bg-danger">REJECTED</span>
