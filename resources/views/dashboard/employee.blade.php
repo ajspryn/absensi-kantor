@@ -13,7 +13,6 @@
 @endsection
 
 @section('footer')
-    <!-- Footer Bar-->
     @include('employee.footer')
 @endsection
 
