@@ -9,7 +9,7 @@
         </div>
         <div class="card-bottom p-3">
             <h1 class="color-white font-16 font-700 mb-n2">{{ $employee->full_name ?? auth()->user()->name }}</h1>
-            <p class="color-white font-12 opacity-70 mb-n1">{{ $employee->department->manager->name ?? 'Karyawan' }}</p>
+            <p class="color-white font-12 opacity-70 mb-n1">{{ $employee->department->name ?? 'Karyawan' }}</p>
         </div>
         <div class="card-overlay bg-gradient-fade rounded-0"></div>
     </div>
