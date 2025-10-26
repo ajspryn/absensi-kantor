@@ -150,4 +150,36 @@ class AttendanceCorrectionController extends Controller
 
         return redirect()->back()->with('success', 'Pengajuan koreksi telah ditolak.');
     }
+
+    // Admin edit form
+    public function edit(AttendanceCorrection $attendanceCorrection)
+    {
+        $attendanceCorrection->load(['user', 'employee', 'attendance']);
+        return view('admin.attendance-corrections.edit', compact('attendanceCorrection'));
+    }
+
+    // Update correction (admin)
+    public function update(Request $request, AttendanceCorrection $attendanceCorrection)
+    {
+        $validated = $request->validate([
+            'corrected_check_in' => 'nullable|date_format:H:i',
+            'corrected_check_out' => 'nullable|date_format:H:i',
+            'reason' => 'required|string|min:3',
+        ]);
+
+        $attendanceCorrection->update([
+            'corrected_check_in' => $validated['corrected_check_in'] ?? null,
+            'corrected_check_out' => $validated['corrected_check_out'] ?? null,
+            'reason' => $validated['reason'],
+        ]);
+
+        return redirect()->route('admin.attendance-corrections.show', $attendanceCorrection)->with('success', 'Koreksi absensi telah diperbarui.');
+    }
+
+    // Delete correction
+    public function destroy(AttendanceCorrection $attendanceCorrection)
+    {
+        $attendanceCorrection->delete();
+        return redirect()->route('admin.attendance-corrections.index')->with('success', 'Pengajuan koreksi berhasil dihapus.');
+    }
 }

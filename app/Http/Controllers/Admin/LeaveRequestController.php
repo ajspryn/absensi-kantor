@@ -120,4 +120,38 @@ class LeaveRequestController extends Controller
 
         return redirect()->back()->with('success', 'Pengajuan izin ditolak.');
     }
+
+    // Admin edit form
+    public function edit(LeaveRequest $leaveRequest)
+    {
+        $leaveRequest->load(['user', 'employee']);
+        return view('admin.leave-requests.edit', compact('leaveRequest'));
+    }
+
+    // Update leave request (admin)
+    public function update(Request $request, LeaveRequest $leaveRequest)
+    {
+        $validated = $request->validate([
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'type' => 'required|string|max:50',
+            'reason' => 'required|string|min:3',
+        ]);
+
+        $leaveRequest->update([
+            'start_date' => $validated['start_date'],
+            'end_date' => $validated['end_date'],
+            'type' => $validated['type'],
+            'reason' => $validated['reason'],
+        ]);
+
+        return redirect()->route('admin.leave-requests.show', $leaveRequest)->with('success', 'Pengajuan izin telah diperbarui.');
+    }
+
+    // Delete leave request
+    public function destroy(LeaveRequest $leaveRequest)
+    {
+        $leaveRequest->delete();
+        return redirect()->route('admin.leave-requests.index')->with('success', 'Pengajuan izin berhasil dihapus.');
+    }
 }

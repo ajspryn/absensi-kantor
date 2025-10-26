@@ -242,6 +242,9 @@ Route::get('/attendance-corrections', function () {
 Route::middleware(['auth', 'permission:attendance.corrections.approve,attendance.corrections.verify'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/attendance-corrections', [AdminAttendanceCorrectionController::class, 'index'])->name('attendance-corrections.index');
     Route::get('/attendance-corrections/{attendanceCorrection}', [AdminAttendanceCorrectionController::class, 'show'])->name('attendance-corrections.show');
+    Route::get('/attendance-corrections/{attendanceCorrection}/edit', [AdminAttendanceCorrectionController::class, 'edit'])->name('attendance-corrections.edit');
+    Route::match(['put', 'patch'], '/attendance-corrections/{attendanceCorrection}', [AdminAttendanceCorrectionController::class, 'update'])->name('attendance-corrections.update');
+    Route::delete('/attendance-corrections/{attendanceCorrection}', [AdminAttendanceCorrectionController::class, 'destroy'])->name('attendance-corrections.destroy');
     // Manager approval (requires manager-level approve permission)
     Route::patch('/attendance-corrections/{attendanceCorrection}/approve-manager', [AdminAttendanceCorrectionController::class, 'approveManager'])
         ->middleware('permission:attendance.corrections.approve')
@@ -262,6 +265,9 @@ Route::middleware(['auth', 'permission:attendance.corrections.approve,attendance
 Route::middleware(['auth', 'permission:leave.approve,leave.verify'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/leave-requests', [\App\Http\Controllers\Admin\LeaveRequestController::class, 'index'])->name('leave-requests.index');
     Route::get('/leave-requests/{leaveRequest}', [\App\Http\Controllers\Admin\LeaveRequestController::class, 'show'])->name('leave-requests.show');
+    Route::get('/leave-requests/{leaveRequest}/edit', [\App\Http\Controllers\Admin\LeaveRequestController::class, 'edit'])->name('leave-requests.edit');
+    Route::match(['put', 'patch'], '/leave-requests/{leaveRequest}', [\App\Http\Controllers\Admin\LeaveRequestController::class, 'update'])->name('leave-requests.update');
+    Route::delete('/leave-requests/{leaveRequest}', [\App\Http\Controllers\Admin\LeaveRequestController::class, 'destroy'])->name('leave-requests.destroy');
     // Approve (requires approve permission)
     Route::patch('/leave-requests/{leaveRequest}/approve', [\App\Http\Controllers\Admin\LeaveRequestController::class, 'approve'])
         ->middleware('permission:leave.approve')
