@@ -100,6 +100,13 @@
             </a>
         @endif
 
+        @if (auth()->user() && auth()->user()->hasPermission('daily_activities.view_department'))
+            <a href="{{ route('admin.daily-activities.index') }}" class="d-flex py-1 align-items-center {{ request()->routeIs('admin.daily-activities.*') ? 'active' : '' }}">
+                <i class="bi bi-journal-check color-blue-dark font-18"></i>
+                <div class="ps-3">Laporan Daily Activity (Departemen)</div>
+            </a>
+        @endif
+
         <div class="divider mb-2"></div>
         <div class="text-center pb-2">
             <form method="POST" action="{{ route('logout') }}" style="display:inline;">
