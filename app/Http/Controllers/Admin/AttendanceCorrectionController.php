@@ -65,6 +65,13 @@ class AttendanceCorrectionController extends Controller
             return redirect()->back()->with('error', 'Tidak dapat menyetujui pengajuan yang diajukan sendiri.');
         }
 
+        // Only allow department manager (as recorded on the employee's department) or admin to perform manager approval
+        $isAdmin = $user->role && strtolower($user->role->name) === 'admin';
+        $deptManagerId = optional($attendanceCorrection->employee->department)->manager_id;
+        if (!$isAdmin && $deptManagerId !== $user->id) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki wewenang manager untuk menyetujui pengajuan ini.');
+        }
+
         if ($attendanceCorrection->status === AttendanceCorrection::STATUS_PENDING) {
             $attendanceCorrection->update([
                 'status' => AttendanceCorrection::STATUS_MANAGER_APPROVED,

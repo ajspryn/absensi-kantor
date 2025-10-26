@@ -81,7 +81,12 @@
             <div class="content">
                 <h6 class="mb-3">Aksi</h6>
                 <div class="row g-2">
-                    @if ($leaveRequest->status === 'pending' && auth()->user()->role && auth()->user()->role->hasPermission('leave.approve') && auth()->id() !== $leaveRequest->user_id)
+                    @php
+                        $isDeptManager = optional($leaveRequest->employee->department)->manager_id === auth()->id();
+                        $isAdmin = auth()->user()->role && strtolower(auth()->user()->role->name) === 'admin';
+                    @endphp
+
+                    @if ($leaveRequest->status === 'pending' && auth()->user()->role && auth()->user()->role->hasPermission('leave.approve') && ($isDeptManager || $isAdmin) && auth()->id() !== $leaveRequest->user_id)
                         <div class="col-md-6">
                             <form method="POST" action="{{ route('admin.leave-requests.approve', $leaveRequest) }}">
                                 @csrf
@@ -91,7 +96,7 @@
                         </div>
                     @endif
 
-                    @if ($leaveRequest->status === 'approved' && auth()->user()->role && auth()->user()->role->hasPermission('leave.verify') && auth()->id() !== $leaveRequest->user_id)
+                    @if ($leaveRequest->status === 'approved' && auth()->user()->role && auth()->user()->role->hasPermission('leave.verify') && auth()->id() !== $leaveRequest->user_id && auth()->id() !== $leaveRequest->approver_id)
                         <div class="col-md-6">
                             <form method="POST" action="{{ route('admin.leave-requests.verify', $leaveRequest) }}">
                                 @csrf

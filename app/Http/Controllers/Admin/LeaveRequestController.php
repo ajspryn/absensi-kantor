@@ -65,6 +65,13 @@ class LeaveRequestController extends Controller
             return redirect()->back()->with('error', 'Tidak dapat menyetujui pengajuan yang diajukan sendiri.');
         }
 
+        // Only allow department manager (as recorded on the employee's department) or admin to perform approval
+        $isAdmin = $user->role && strtolower($user->role->name) === 'admin';
+        $deptManagerId = optional($leaveRequest->employee->department)->manager_id;
+        if (!$isAdmin && $deptManagerId !== $user->id) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki wewenang untuk menyetujui pengajuan ini.');
+        }
+
         if ($leaveRequest->status === LeaveRequest::STATUS_PENDING) {
             $leaveRequest->update([
                 'status' => LeaveRequest::STATUS_APPROVED,
@@ -84,6 +91,11 @@ class LeaveRequestController extends Controller
         // Prevent self-verification
         if ($leaveRequest->user_id === $user->id) {
             return redirect()->back()->with('error', 'Tidak dapat memverifikasi pengajuan yang diajukan sendiri.');
+        }
+
+        // Prevent the same user who approved from also verifying
+        if ($leaveRequest->approver_id && $leaveRequest->approver_id === $user->id) {
+            return redirect()->back()->with('error', 'Anda tidak dapat memverifikasi pengajuan yang Anda setujui sebagai approver.');
         }
 
         if ($leaveRequest->status === LeaveRequest::STATUS_APPROVED) {

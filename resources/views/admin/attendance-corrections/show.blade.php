@@ -60,8 +60,11 @@
 
                     @if ($attendanceCorrection->status !== 'approved' && $attendanceCorrection->status !== 'rejected')
                         <div class="d-flex gap-2 mt-3">
-                            {{-- Manager approval: only for users with approve permission who are managers, not the submitter, and when status is pending --}}
-                            @if (auth()->user()->hasPermission('attendance.corrections.approve') && auth()->user()->isManager() && $attendanceCorrection->status === 'pending' && auth()->id() !== $attendanceCorrection->user_id)
+                            {{-- Manager approval: only for users with approve permission who are department managers (or admin), not the submitter, and when status is pending --}}
+                            @php
+                                $isDeptManager = optional($attendanceCorrection->employee->department)->manager_id === auth()->id();
+                            @endphp
+                            @if (auth()->user()->hasPermission('attendance.corrections.approve') && $isDeptManager && $attendanceCorrection->status === 'pending' && auth()->id() !== $attendanceCorrection->user_id)
                                 <form method="POST" action="{{ route('admin.attendance-corrections.approve-manager', $attendanceCorrection) }}">
                                     @csrf
                                     @method('PATCH')
