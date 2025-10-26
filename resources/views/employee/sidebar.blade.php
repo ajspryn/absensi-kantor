@@ -28,106 +28,120 @@
 
         <div class="divider my-2"></div>
 
-        <a href="{{ route('dashboard') }}" class="d-flex py-1">
-            <div class="align-self-center">
-                <i class="bi bi-house-door color-blue-dark font-16"></i>
-            </div>
-            <div class="align-self-center ps-3">
-                <h5 class="pt-1 mb-0">Dashboard</h5>
-            </div>
-        </a>
-
-        <a href="{{ route('employee.attendance.index') }}" class="d-flex py-1">
-            <div class="align-self-center">
-                <i class="bi bi-camera color-green-dark font-16"></i>
-            </div>
-            <div class="align-self-center ps-3">
-                <h5 class="pt-1 mb-0">Absensi</h5>
-            </div>
-        </a>
-
-        <a href="{{ route('employee.schedule.index') }}" class="d-flex py-1">
-            <div class="align-self-center">
-                <i class="bi bi-calendar-week color-purple-dark font-16"></i>
-            </div>
-            <div class="align-self-center ps-3">
-                <h5 class="pt-1 mb-0">Jadwal Kerja</h5>
-            </div>
-        </a>
-
-        <a href="{{ route('employee.attendance.history') }}" class="d-flex py-1">
-            <div class="align-self-center">
-                <i class="bi bi-clock-history color-orange-dark font-16"></i>
-            </div>
-            <div class="align-self-center ps-3">
-                <h5 class="pt-1 mb-0">Riwayat Absensi</h5>
-            </div>
-        </a>
-
-        @if (auth()->user() && (auth()->user()->hasPermission('daily_activities.create') || auth()->user()->hasPermission('daily_activities.view_own')))
-            <a href="{{ route('employee.daily-activities.index') }}" class="d-flex py-1">
-                <div class="align-self-center">
-                    <i class="bi bi-journal-text color-teal-dark font-16"></i>
-                </div>
-                <div class="align-self-center ps-3">
-                    <h5 class="pt-1 mb-0">Daily Activity</h5>
+        {{-- Primary section: Utama --}}
+        <div class="mb-2">
+            <h6 class="mb-1 text-uppercase font-10 opacity-60">Utama</h6>
+            <a href="{{ route('dashboard') }}" class="d-flex py-1 align-items-center {{ request()->routeIs('dashboard') ? 'active' : '' }}" aria-current="{{ request()->routeIs('dashboard') ? 'page' : '' }}">
+                <i class="bi bi-house-door color-blue-dark font-18"></i>
+                <div class="ps-3">
+                    <div class="mb-0">Dashboard</div>
                 </div>
             </a>
-        @endif
+        </div>
 
-        @if (auth()->user() && auth()->user()->hasPermission('attendance.corrections.request'))
-            @php
-                $correctionsRoute = null;
-                if (\Illuminate\Support\Facades\Route::has('employee.attendance.corrections.index')) {
-                    $correctionsRoute = 'employee.attendance.corrections.index';
-                } elseif (\Illuminate\Support\Facades\Route::has('attendance.corrections.index')) {
-                    $correctionsRoute = 'attendance.corrections.index';
-                }
-            @endphp
+        {{-- Absensi section --}}
+        <div class="mb-2">
+            <h6 class="mb-1 text-uppercase font-10 opacity-60">Absensi</h6>
+            <a href="{{ route('employee.attendance.index') }}" class="d-flex py-1 align-items-center {{ request()->routeIs('employee.attendance.*') ? 'active' : '' }}">
+                <i class="bi bi-card-checklist color-green-dark font-18"></i>
+                <div class="ps-3">Absensi</div>
+            </a>
 
-            @if ($correctionsRoute)
-                <a href="{{ route($correctionsRoute) }}" class="d-flex py-1">
-                    <div class="align-self-center position-relative">
-                        <i class="bi bi-pencil-square color-blue-dark font-16"></i>
-                    </div>
-                    <div class="align-self-center ps-3">
-                        <h5 class="pt-1 mb-0">Koreksi Absensi Saya</h5>
-                    </div>
+            <a href="{{ route('employee.attendance.history') }}" class="d-flex py-1 align-items-center {{ request()->routeIs('employee.attendance.history') ? 'active' : '' }}">
+                <i class="bi bi-clock-history color-orange-dark font-18"></i>
+                <div class="ps-3">Riwayat Absensi</div>
+            </a>
+
+            <a href="{{ route('employee.schedule.index') }}" class="d-flex py-1 align-items-center {{ request()->routeIs('employee.schedule.*') ? 'active' : '' }}">
+                <i class="bi bi-calendar-check color-purple-dark font-18"></i>
+                <div class="ps-3">Jadwal Kerja</div>
+            </a>
+
+            @if (auth()->user() && auth()->user()->hasPermission('attendance.corrections.request'))
+                @php
+                    $correctionsRoute = null;
+                    if (\Illuminate\Support\Facades\Route::has('employee.attendance.corrections.index')) {
+                        $correctionsRoute = 'employee.attendance.corrections.index';
+                    } elseif (\Illuminate\Support\Facades\Route::has('attendance.corrections.index')) {
+                        $correctionsRoute = 'attendance.corrections.index';
+                    }
+                @endphp
+
+                @if ($correctionsRoute)
+                    <a href="{{ route($correctionsRoute) }}" class="d-flex py-1 align-items-center {{ request()->routeIs('employee.attendance.corrections.*') ? 'active' : '' }}">
+                        <i class="bi bi-pencil-square color-blue-dark font-18"></i>
+                        <div class="ps-3">Koreksi Absensi Saya</div>
+                    </a>
+                @endif
+            @endif
+
+            @if (auth()->user() && (auth()->user()->hasPermission('daily_activities.create') || auth()->user()->hasPermission('daily_activities.view_own')))
+                <a href="{{ route('employee.daily-activities.index') }}" class="d-flex py-1 align-items-center {{ request()->routeIs('employee.daily-activities.*') ? 'active' : '' }}">
+                    <i class="bi bi-clipboard-data color-teal-dark font-18"></i>
+                    <div class="ps-3">Daily Activity</div>
                 </a>
             @endif
-        @endif
+        </div>
 
-        @if (auth()->user() && ((auth()->user()->hasPermission('attendance.corrections.approve') && auth()->user()->isManager()) || auth()->user()->hasPermission('attendance.corrections.verify')))
-            <a href="{{ route('admin.attendance-corrections.index') }}" class="d-flex py-1">
-                <div class="align-self-center position-relative">
-                    <i class="bi bi-check2-square color-green-dark font-16"></i>
-                </div>
-                <div class="align-self-center ps-3">
-                    <h5 class="pt-1 mb-0">Persetujuan Koreksi Absensi</h5>
-                </div>
-            </a>
-        @endif
+        {{-- Shortcuts / Admin (if user has admin-ish permissions) --}}
+        @php
+            $hasAdminShortcuts = auth()->user() && (auth()->user()->hasPermission('leave.request') || auth()->user()->hasPermission('leave.approve') || auth()->user()->hasPermission('leave.verify') || auth()->user()->hasPermission('attendance.corrections.approve') || auth()->user()->hasPermission('attendance.corrections.verify') || auth()->user()->hasPermission('daily_activities.view_department'));
+        @endphp
 
-        {{-- Shortcut bagi manager: akses Laporan Daily Activity dari area employee --}}
-        @if (auth()->user() && auth()->user()->hasPermission('daily_activities.view_department'))
-            <a href="{{ route('admin.daily-activities.index') }}" class="d-flex py-1">
-                <div class="align-self-center">
-                    <i class="bi bi-journal-check color-blue-dark font-16"></i>
-                </div>
-                <div class="align-self-center ps-3">
-                    <h5 class="pt-1 mb-0">Laporan Daily Activity (Departemen)</h5>
-                </div>
-            </a>
-        @endif
+        @if ($hasAdminShortcuts)
+            <div class="mb-2">
+                <h6 class="mb-1 text-uppercase font-10 opacity-60">Shortcuts</h6>
 
-        <a href="{{ route('employee.profile.index') }}" class="d-flex py-1">
-            <div class="align-self-center">
-                <i class="bi bi-person-circle color-purple-dark font-16"></i>
+                @if (auth()->user() && auth()->user()->hasPermission('leave.request'))
+                    <a href="{{ route('employee.leave.requests.index') }}" class="d-flex py-1 align-items-center {{ request()->routeIs('employee.leave.requests.*') ? 'active' : '' }}">
+                        <i class="bi bi-calendar-plus color-red-dark font-18"></i>
+                        <div class="ps-3">Pengajuan Izin</div>
+                    </a>
+                @endif
+
+                @if (auth()->user() && (auth()->user()->hasPermission('leave.approve') || auth()->user()->hasPermission('leave.verify')))
+                    @php
+                        $leaveRoute = null;
+                        if (\Illuminate\Support\Facades\Route::has('admin.leave-requests.index')) {
+                            $leaveRoute = 'admin.leave-requests.index';
+                        }
+                    @endphp
+
+                    @if ($leaveRoute)
+                        <a href="{{ route($leaveRoute) }}" class="d-flex py-1 align-items-center {{ request()->routeIs('admin.leave-requests.*') ? 'active' : '' }}">
+                            <i class="bi bi-person-check color-red-dark font-18"></i>
+                            <div class="ps-3">Persetujuan Izin</div>
+                            @if (isset($pendingLeaveCount) && $pendingLeaveCount > 0)
+                                <span class="badge bg-danger ms-auto">{{ $pendingLeaveCount }}</span>
+                            @endif
+                        </a>
+                    @endif
+                @endif
+
+                @if (auth()->user() && ((auth()->user()->hasPermission('attendance.corrections.approve') && auth()->user()->isManager()) || auth()->user()->hasPermission('attendance.corrections.verify')))
+                    <a href="{{ route('admin.attendance-corrections.index') }}" class="d-flex py-1 align-items-center {{ request()->routeIs('admin.attendance-corrections.*') ? 'active' : '' }}">
+                        <i class="bi bi-check2-square color-green-dark font-18"></i>
+                        <div class="ps-3">Persetujuan Koreksi</div>
+                    </a>
+                @endif
+
+                @if (auth()->user() && auth()->user()->hasPermission('daily_activities.view_department'))
+                    <a href="{{ route('admin.daily-activities.index') }}" class="d-flex py-1 align-items-center {{ request()->routeIs('admin.daily-activities.*') ? 'active' : '' }}">
+                        <i class="bi bi-bar-chart-line color-blue-dark font-18"></i>
+                        <div class="ps-3">Laporan Daily Activity</div>
+                    </a>
+                @endif
             </div>
-            <div class="align-self-center ps-3">
-                <h5 class="pt-1 mb-0">Profil</h5>
-            </div>
-        </a>
+        @endif
+
+        {{-- Profile / Logout --}}
+        <div class="mb-2">
+            <h6 class="mb-1 text-uppercase font-10 opacity-60">Akun</h6>
+            <a href="{{ route('employee.profile.index') }}" class="d-flex py-1 align-items-center {{ request()->routeIs('employee.profile.*') ? 'active' : '' }}">
+                <i class="bi bi-person-circle color-purple-dark font-18"></i>
+                <div class="ps-3">Profil</div>
+            </a>
+        </div>
 
         <div class="divider mb-2"></div>
         <div class="text-center pb-2">

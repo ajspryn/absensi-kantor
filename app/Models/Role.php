@@ -64,6 +64,11 @@ class Role extends Model
                 'attendance.corrections.approve' => 'Setujui Koreksi Absensi',
                 'attendance.corrections.verify' => 'Verifikasi Koreksi Absensi'
             ],
+            'leave' => [
+                'leave.request' => 'Ajukan Izin',
+                'leave.approve' => 'Setujui Pengajuan Izin',
+                'leave.verify' => 'Verifikasi Pengajuan Izin'
+            ],
             'daily_activities' => [
                 'daily_activities.create' => 'Buat Daily Activity',
                 'daily_activities.view_own' => 'Lihat Daily Activity Sendiri',

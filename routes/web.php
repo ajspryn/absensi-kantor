@@ -197,6 +197,14 @@ Route::middleware('auth')->group(function () {
                 Route::get('/attendance/corrections/{correction}', [EmployeeAttendanceCorrectionController::class, 'show'])->name('attendance.corrections.show');
             });
 
+            // Leave requests (employee submit & history)
+            Route::middleware('permission:leave.request')->group(function () {
+                Route::get('/leave/requests', [\App\Http\Controllers\Employee\LeaveRequestController::class, 'index'])->name('leave.requests.index');
+                Route::get('/leave/requests/create', [\App\Http\Controllers\Employee\LeaveRequestController::class, 'create'])->name('leave.requests.create');
+                Route::post('/leave/requests', [\App\Http\Controllers\Employee\LeaveRequestController::class, 'store'])->name('leave.requests.store');
+                Route::get('/leave/requests/{leaveRequest}', [\App\Http\Controllers\Employee\LeaveRequestController::class, 'show'])->name('leave.requests.show');
+            });
+
             // Work Schedule routes
             Route::middleware('permission:schedules.view')->group(function () {
                 Route::get('/schedule', [EmployeeAttendanceController::class, 'schedule'])->name('schedule.index');
@@ -248,6 +256,26 @@ Route::middleware(['auth', 'permission:attendance.corrections.approve,attendance
     Route::patch('/attendance-corrections/{attendanceCorrection}/reject', [AdminAttendanceCorrectionController::class, 'reject'])
         ->middleware('permission:attendance.corrections.approve,attendance.corrections.verify')
         ->name('attendance-corrections.reject');
+});
+
+// Leave requests (approval) accessible to users with leave approve/verify permissions
+Route::middleware(['auth', 'permission:leave.approve,leave.verify'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/leave-requests', [\App\Http\Controllers\Admin\LeaveRequestController::class, 'index'])->name('leave-requests.index');
+    Route::get('/leave-requests/{leaveRequest}', [\App\Http\Controllers\Admin\LeaveRequestController::class, 'show'])->name('leave-requests.show');
+    // Approve (requires approve permission)
+    Route::patch('/leave-requests/{leaveRequest}/approve', [\App\Http\Controllers\Admin\LeaveRequestController::class, 'approve'])
+        ->middleware('permission:leave.approve')
+        ->name('leave-requests.approve');
+
+    // Verify (requires verify permission)
+    Route::patch('/leave-requests/{leaveRequest}/verify', [\App\Http\Controllers\Admin\LeaveRequestController::class, 'verify'])
+        ->middleware('permission:leave.verify')
+        ->name('leave-requests.verify');
+
+    // Reject can be done by either approver or verifier
+    Route::patch('/leave-requests/{leaveRequest}/reject', [\App\Http\Controllers\Admin\LeaveRequestController::class, 'reject'])
+        ->middleware('permission:leave.approve,leave.verify')
+        ->name('leave-requests.reject');
 });
 
 // Manager routes: daily activity reporting for department managers
