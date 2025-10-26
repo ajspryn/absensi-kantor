@@ -3,7 +3,7 @@
 @endphp
 <div id="menu-main" data-menu-active="nav-homes" class="offcanvas offcanvas-start offcanvas-detached rounded-m" style="width:280px;">
     <!-- Top card (styling similar to template) -->
-    <div class="card card-style bg-23 mb-3 rounded-m mt-3" data-card-height="120">
+    <div class="card card-style bg-23 mb-3 rounded-m mt-3" data-card-height="120" style="background-image: url('{{ $employee && $employee->photo ? asset('storage/' . $employee->photo) : asset('template/images/avatars/5s.png') }}'); background-size: cover; background-position: center;">
         <div class="card-top m-3">
             <a href="#" data-bs-dismiss="offcanvas" class="icon icon-xs bg-theme rounded-s color-theme float-end"><i class="bi bi-caret-left-fill"></i></a>
         </div>

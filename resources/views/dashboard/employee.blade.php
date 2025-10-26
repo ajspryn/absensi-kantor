@@ -122,7 +122,7 @@
                     <p class="mb-1 font-10 opacity-70">
                         <i class="bi bi-building pe-2 color-theme"></i>{{ optional($employee->department)->name ?? '-' }}
                         <span class="badge bg-highlight rounded-xl font-8 px-2 py-1 ms-1">
-                            {{ $employee->position_name ?? '-' }}
+                            {{ $employee->position->name ?? '-' }}
                         </span>
                     </p>
 
