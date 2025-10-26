@@ -285,10 +285,14 @@ Route::middleware(['auth', 'permission:leave.approve,leave.verify'])->prefix('ad
 });
 
 // Manager routes: daily activity reporting for department managers
-Route::middleware(['auth', 'permission:daily_activities.view_department'])->prefix('admin')->name('admin.')->group(function () {
+// Admin & Manager routes: daily activity reporting
+// Allow users with either department view or global view permission to access these routes
+Route::middleware(['auth', 'permission:daily_activities.view_department,daily_activities.view_all'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/daily-activities', [\App\Http\Controllers\Manager\DailyActivityReportController::class, 'index'])->name('daily-activities.index');
     Route::get('/daily-activities/export-csv', [\App\Http\Controllers\Manager\DailyActivityReportController::class, 'export'])->name('daily-activities.export');
     Route::get('/daily-activities/{dailyActivity}', [\App\Http\Controllers\Manager\DailyActivityReportController::class, 'show'])->whereNumber('dailyActivity')->name('daily-activities.show');
     Route::patch('/daily-activities/{dailyActivity}/approve', [\App\Http\Controllers\Manager\DailyActivityReportController::class, 'approve'])->whereNumber('dailyActivity')->name('daily-activities.approve')->middleware('permission:daily_activities.approve');
     Route::patch('/daily-activities/{dailyActivity}/reject', [\App\Http\Controllers\Manager\DailyActivityReportController::class, 'reject'])->whereNumber('dailyActivity')->name('daily-activities.reject')->middleware('permission:daily_activities.approve');
+    // Allow deleting a daily activity (admin with delete permission)
+    Route::delete('/daily-activities/{dailyActivity}', [\App\Http\Controllers\Manager\DailyActivityReportController::class, 'destroy'])->whereNumber('dailyActivity')->name('daily-activities.destroy')->middleware('permission:daily_activities.delete');
 });

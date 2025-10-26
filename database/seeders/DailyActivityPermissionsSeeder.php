@@ -16,6 +16,8 @@ class DailyActivityPermissionsSeeder extends Seeder
           $permissions = [
                'daily_activities.create',
                'daily_activities.view_own',
+               // allow admin roles to view everything when granted
+               'daily_activities.view_all',
           ];
 
           // Give these to the default role (if exists)
@@ -31,6 +33,15 @@ class DailyActivityPermissionsSeeder extends Seeder
           foreach ($managerRoles as $r) {
                $role = json_decode($r->permissions ?? '[]', true);
                $add = ['daily_activities.view_department', 'daily_activities.export'];
+               $merged = array_values(array_unique(array_merge($role, $add)));
+               DB::table('roles')->where('id', $r->id)->update(['permissions' => json_encode($merged)]);
+          }
+
+          // Ensure admin role(s) get global view permission so they can see all activities
+          $adminRoles = DB::table('roles')->where('name', 'like', '%Admin%')->get();
+          foreach ($adminRoles as $r) {
+               $role = json_decode($r->permissions ?? '[]', true);
+               $add = ['daily_activities.view_all', 'daily_activities.export', 'daily_activities.delete'];
                $merged = array_values(array_unique(array_merge($role, $add)));
                DB::table('roles')->where('id', $r->id)->update(['permissions' => json_encode($merged)]);
           }

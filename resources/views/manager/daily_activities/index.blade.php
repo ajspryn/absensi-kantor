@@ -64,7 +64,16 @@
                     </div>
                     <div class="d-flex justify-content-between align-items-center mt-2">
                         <div class="font-11">{{ $a->start_time ?? '-' }} - {{ $a->end_time ?? '-' }}</div>
-                        <a href="{{ route('admin.daily-activities.show', $a->id) }}" class="btn btn-xs bg-blue-dark text-white rounded-s font-10 px-3 py-2">Lihat</a>
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('admin.daily-activities.show', $a->id) }}" class="btn btn-xs bg-blue-dark text-white rounded-s font-10 px-3 py-2">Lihat</a>
+                            @if (auth()->user() && auth()->user()->hasPermission('daily_activities.delete'))
+                                <form method="POST" action="{{ route('admin.daily-activities.destroy', $a->id) }}" onsubmit="return confirm('Yakin ingin menghapus activity ini?');" style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-xs bg-danger text-white rounded-s font-10 px-3 py-2">Hapus</button>
+                                </form>
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>
@@ -112,7 +121,16 @@
                                         @endif
                                     </td>
                                     <td class="align-middle text-end">
-                                        <a href="{{ route('admin.daily-activities.show', $a->id) }}" class="btn btn-sm bg-blue-dark">Lihat</a>
+                                        <div class="d-inline-flex">
+                                            <a href="{{ route('admin.daily-activities.show', $a->id) }}" class="btn btn-sm bg-blue-dark me-2">Lihat</a>
+                                            @if (auth()->user() && auth()->user()->hasPermission('daily_activities.delete'))
+                                                <form method="POST" action="{{ route('admin.daily-activities.destroy', $a->id) }}" onsubmit="return confirm('Yakin ingin menghapus activity ini?');" style="display:inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm bg-danger">Hapus</button>
+                                                </form>
+                                            @endif
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach

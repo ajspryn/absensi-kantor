@@ -1,60 +1,44 @@
 @php
     $employee = $employee ?? optional(auth()->user())->employee;
 @endphp
-<div id="menu-main" class="offcanvas offcanvas-start offcanvas-detached rounded-m" style="width:280px;">
-    <div class="content">
-        <div class="d-flex pb-2">
-            <div class="align-self-center">
-                <h1 class="mb-0">Menu</h1>
-            </div>
-            <div class="align-self-center ms-auto">
-                <a href="#" class="ps-4" data-bs-dismiss="offcanvas">
-                    <i class="bi bi-x color-red-dark font-26 line-height-xl"></i>
-                </a>
-            </div>
+<div id="menu-main" data-menu-active="nav-homes" class="offcanvas offcanvas-start offcanvas-detached rounded-m" style="width:280px;">
+    <!-- Top card (styling similar to template) -->
+    <div class="card card-style bg-23 mb-3 rounded-m mt-3" data-card-height="120">
+        <div class="card-top m-3">
+            <a href="#" data-bs-dismiss="offcanvas" class="icon icon-xs bg-theme rounded-s color-theme float-end"><i class="bi bi-caret-left-fill"></i></a>
         </div>
-        <div class="divider mb-2"></div>
-
-        <!-- Profile Section -->
-        <div class="d-flex py-2">
-            <div class="align-self-center">
-                <img src="{{ $employee && $employee->photo ? asset('storage/' . $employee->photo) : asset('template/images/avatars/5s.png') }}" width="40" height="40" class="rounded-circle" alt="Avatar">
-            </div>
-            <div class="align-self-center ps-3">
-                <h5 class="mb-0">{{ $employee->full_name ?? auth()->user()->name }}</h5>
-                <p class="mb-0 font-11 opacity-70">{{ $employee->position_name ?? 'Karyawan' }}</p>
-            </div>
+        <div class="card-bottom p-3">
+            <h1 class="color-white font-16 font-700 mb-n2">{{ $employee->full_name ?? auth()->user()->name }}</h1>
+            <p class="color-white font-12 opacity-70 mb-n1">{{ $employee->position_name ?? 'Karyawan' }}</p>
         </div>
+        <div class="card-overlay bg-gradient-fade rounded-0"></div>
+    </div>
 
-        <div class="divider my-2"></div>
-
-        {{-- Primary section: Utama --}}
-        <div class="mb-2">
-            <h6 class="mb-1 text-uppercase font-10 opacity-60">Utama</h6>
-            <a href="{{ route('dashboard') }}" class="d-flex py-1 align-items-center {{ request()->routeIs('dashboard') ? 'active' : '' }}" aria-current="{{ request()->routeIs('dashboard') ? 'page' : '' }}">
-                <i class="bi bi-house-door color-blue-dark font-18"></i>
-                <div class="ps-3">
-                    <div class="mb-0">Dashboard</div>
-                </div>
-            </a>
-        </div>
-
-        {{-- Absensi section --}}
-        <div class="mb-2">
-            <h6 class="mb-1 text-uppercase font-10 opacity-60">Absensi</h6>
-            <a href="{{ route('employee.attendance.index') }}" class="d-flex py-1 align-items-center {{ request()->routeIs('employee.attendance.*') ? 'active' : '' }}">
-                <i class="bi bi-card-checklist color-green-dark font-18"></i>
-                <div class="ps-3">Absensi</div>
+    <span class="menu-divider">NAVIGATION</span>
+    <div class="menu-list">
+        <div class="card card-style rounded-m p-3 py-2 mb-0">
+            <a href="{{ route('dashboard') }}" id="nav-homes" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                <i class="gradient-blue shadow-bg shadow-bg-xs bi bi-house-fill"></i>
+                <span>Dashboard</span>
+                <i class="bi bi-chevron-right"></i>
             </a>
 
-            <a href="{{ route('employee.attendance.history') }}" class="d-flex py-1 align-items-center {{ request()->routeIs('employee.attendance.history') ? 'active' : '' }}">
-                <i class="bi bi-clock-history color-orange-dark font-18"></i>
-                <div class="ps-3">Riwayat Absensi</div>
+            <a href="{{ route('employee.attendance.index') }}" id="nav-attendance" class="{{ request()->routeIs('employee.attendance.*') ? 'active' : '' }}">
+                <i class="gradient-green shadow-bg shadow-bg-xs bi bi-card-checklist"></i>
+                <span>Absensi</span>
+                <i class="bi bi-chevron-right"></i>
             </a>
 
-            <a href="{{ route('employee.schedule.index') }}" class="d-flex py-1 align-items-center {{ request()->routeIs('employee.schedule.*') ? 'active' : '' }}">
-                <i class="bi bi-calendar-check color-purple-dark font-18"></i>
-                <div class="ps-3">Jadwal Kerja</div>
+            <a href="{{ route('employee.attendance.history') }}" id="nav-history" class="{{ request()->routeIs('employee.attendance.history') ? 'active' : '' }}">
+                <i class="gradient-orange shadow-bg shadow-bg-xs bi bi-clock-history"></i>
+                <span>Riwayat Absensi</span>
+                <i class="bi bi-chevron-right"></i>
+            </a>
+
+            <a href="{{ route('employee.schedule.index') }}" id="nav-schedule" class="{{ request()->routeIs('employee.schedule.*') ? 'active' : '' }}">
+                <i class="gradient-magenta shadow-bg shadow-bg-xs bi bi-calendar-check"></i>
+                <span>Jadwal Kerja</span>
+                <i class="bi bi-chevron-right"></i>
             </a>
 
             @if (auth()->user() && auth()->user()->hasPermission('attendance.corrections.request'))
@@ -68,34 +52,37 @@
                 @endphp
 
                 @if ($correctionsRoute)
-                    <a href="{{ route($correctionsRoute) }}" class="d-flex py-1 align-items-center {{ request()->routeIs('employee.attendance.corrections.*') ? 'active' : '' }}">
-                        <i class="bi bi-pencil-square color-blue-dark font-18"></i>
-                        <div class="ps-3">Koreksi Absensi Saya</div>
+                    <a href="{{ route($correctionsRoute) }}" id="nav-corrections" class="{{ request()->routeIs('employee.attendance.corrections.*') ? 'active' : '' }}">
+                        <i class="gradient-blue shadow-bg shadow-bg-xs bi bi-pencil-square"></i>
+                        <span>Koreksi Absensi Saya</span>
+                        <i class="bi bi-chevron-right"></i>
                     </a>
                 @endif
             @endif
 
             @if (auth()->user() && (auth()->user()->hasPermission('daily_activities.create') || auth()->user()->hasPermission('daily_activities.view_own')))
-                <a href="{{ route('employee.daily-activities.index') }}" class="d-flex py-1 align-items-center {{ request()->routeIs('employee.daily-activities.*') ? 'active' : '' }}">
-                    <i class="bi bi-clipboard-data color-teal-dark font-18"></i>
-                    <div class="ps-3">Daily Activity</div>
+                <a href="{{ route('employee.daily-activities.index') }}" id="nav-daily" class="{{ request()->routeIs('employee.daily-activities.*') ? 'active' : '' }}">
+                    <i class="gradient-teal shadow-bg shadow-bg-xs bi bi-clipboard-data"></i>
+                    <span>Daily Activity</span>
+                    <i class="bi bi-chevron-right"></i>
                 </a>
             @endif
         </div>
+    </div>
 
-        {{-- Shortcuts / Admin (if user has admin-ish permissions) --}}
-        @php
-            $hasAdminShortcuts = auth()->user() && (auth()->user()->hasPermission('leave.request') || auth()->user()->hasPermission('leave.approve') || auth()->user()->hasPermission('leave.verify') || auth()->user()->hasPermission('attendance.corrections.approve') || auth()->user()->hasPermission('attendance.corrections.verify') || auth()->user()->hasPermission('daily_activities.view_department'));
-        @endphp
+    @php
+        $hasAdminShortcuts = auth()->user() && (auth()->user()->hasPermission('leave.request') || auth()->user()->hasPermission('leave.approve') || auth()->user()->hasPermission('leave.verify') || auth()->user()->hasPermission('attendance.corrections.approve') || auth()->user()->hasPermission('attendance.corrections.verify') || auth()->user()->hasPermission('daily_activities.view_department'));
+    @endphp
 
-        @if ($hasAdminShortcuts)
-            <div class="mb-2">
-                <h6 class="mb-1 text-uppercase font-10 opacity-60">Shortcuts</h6>
-
+    @if ($hasAdminShortcuts)
+        <span class="menu-divider mt-4">SHORTCUTS</span>
+        <div class="menu-list">
+            <div class="card card-style rounded-m p-3 py-2 mb-0">
                 @if (auth()->user() && auth()->user()->hasPermission('leave.request'))
-                    <a href="{{ route('employee.leave.requests.index') }}" class="d-flex py-1 align-items-center {{ request()->routeIs('employee.leave.requests.*') ? 'active' : '' }}">
-                        <i class="bi bi-calendar-plus color-red-dark font-18"></i>
-                        <div class="ps-3">Pengajuan Izin</div>
+                    <a href="{{ route('employee.leave.requests.index') }}" class="{{ request()->routeIs('employee.leave.requests.*') ? 'active' : '' }}">
+                        <i class="gradient-red shadow-bg shadow-bg-xs bi bi-calendar-plus"></i>
+                        <span>Pengajuan Izin</span>
+                        <i class="bi bi-chevron-right"></i>
                     </a>
                 @endif
 
@@ -108,49 +95,54 @@
                     @endphp
 
                     @if ($leaveRoute)
-                        <a href="{{ route($leaveRoute) }}" class="d-flex py-1 align-items-center {{ request()->routeIs('admin.leave-requests.*') ? 'active' : '' }}">
-                            <i class="bi bi-person-check color-red-dark font-18"></i>
-                            <div class="ps-3">Persetujuan Izin</div>
+                        <a href="{{ route($leaveRoute) }}" class="{{ request()->routeIs('admin.leave-requests.*') ? 'active' : '' }}">
+                            <i class="gradient-red shadow-bg shadow-bg-xs bi bi-person-check"></i>
+                            <span>Persetujuan Izin</span>
                             @if (isset($pendingLeaveCount) && $pendingLeaveCount > 0)
-                                <span class="badge bg-danger ms-auto">{{ $pendingLeaveCount }}</span>
+                                <em class="badge badge-s bg-red-dark ms-auto">{{ $pendingLeaveCount }}</em>
                             @endif
+                            <i class="bi bi-chevron-right"></i>
                         </a>
                     @endif
                 @endif
 
                 @if (auth()->user() && ((auth()->user()->hasPermission('attendance.corrections.approve') && auth()->user()->isManager()) || auth()->user()->hasPermission('attendance.corrections.verify')))
-                    <a href="{{ route('admin.attendance-corrections.index') }}" class="d-flex py-1 align-items-center {{ request()->routeIs('admin.attendance-corrections.*') ? 'active' : '' }}">
-                        <i class="bi bi-check2-square color-green-dark font-18"></i>
-                        <div class="ps-3">Persetujuan Koreksi</div>
+                    <a href="{{ route('admin.attendance-corrections.index') }}" class="{{ request()->routeIs('admin.attendance-corrections.*') ? 'active' : '' }}">
+                        <i class="gradient-green shadow-bg shadow-bg-xs bi bi-check2-square"></i>
+                        <span>Persetujuan Koreksi</span>
+                        <i class="bi bi-chevron-right"></i>
                     </a>
                 @endif
 
                 @if (auth()->user() && auth()->user()->hasPermission('daily_activities.view_department'))
-                    <a href="{{ route('admin.daily-activities.index') }}" class="d-flex py-1 align-items-center {{ request()->routeIs('admin.daily-activities.*') ? 'active' : '' }}">
-                        <i class="bi bi-bar-chart-line color-blue-dark font-18"></i>
-                        <div class="ps-3">Laporan Daily Activity</div>
+                    <a href="{{ route('admin.daily-activities.index') }}" class="{{ request()->routeIs('admin.daily-activities.*') ? 'active' : '' }}">
+                        <i class="gradient-blue shadow-bg shadow-bg-xs bi bi-bar-chart-line"></i>
+                        <span>Laporan Daily Activity</span>
+                        <i class="bi bi-chevron-right"></i>
                     </a>
                 @endif
             </div>
-        @endif
+        </div>
+    @endif
 
-        {{-- Profile / Logout --}}
-        <div class="mb-2">
-            <h6 class="mb-1 text-uppercase font-10 opacity-60">Akun</h6>
-            <a href="{{ route('employee.profile.index') }}" class="d-flex py-1 align-items-center {{ request()->routeIs('employee.profile.*') ? 'active' : '' }}">
-                <i class="bi bi-person-circle color-purple-dark font-18"></i>
-                <div class="ps-3">Profil</div>
+    <span class="menu-divider mt-4">AKUN</span>
+    <div class="menu-list">
+        <div class="card card-style rounded-m p-3 py-2 mb-0">
+            <a href="{{ route('employee.profile.index') }}" class="{{ request()->routeIs('employee.profile.*') ? 'active' : '' }}">
+                <i class="gradient-mint shadow-bg shadow-bg-xs bi bi-person-circle"></i>
+                <span>Profil</span>
+                <i class="bi bi-chevron-right"></i>
             </a>
         </div>
+    </div>
 
-        <div class="divider mb-2"></div>
-        <div class="text-center pb-2">
-            <form method="POST" action="{{ route('logout') }}" style="display:inline;">
-                @csrf
-                <button type="submit" class="btn btn-sm btn-danger w-100">
-                    <i class="bi bi-box-arrow-right me-2"></i> Logout
-                </button>
-            </form>
-        </div>
+    <div class="menu-divider mb-6 mt-4"></div>
+    <div class="text-center p-3 py-2 mb-0">
+        <form method="POST" action="{{ route('logout') }}" style="display:inline;">
+            @csrf
+            <button type="submit" class="btn btn-sm btn-danger w-100">
+                <i class="bi bi-box-arrow-right me-2"></i> Logout
+            </button>
+        </form>
     </div>
 </div>

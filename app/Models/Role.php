@@ -72,7 +72,11 @@ class Role extends Model
             'daily_activities' => [
                 'daily_activities.create' => 'Buat Daily Activity',
                 'daily_activities.view_own' => 'Lihat Daily Activity Sendiri',
+                // allow viewing department-scoped reports
                 'daily_activities.view_department' => 'Lihat Daily Activity Departemen',
+                // global view across all departments (admin)
+                'daily_activities.view_all' => 'Lihat Semua Daily Activity',
+                'daily_activities.delete' => 'Hapus Daily Activity',
                 'daily_activities.export' => 'Export Laporan Daily Activity',
                 'daily_activities.approve' => 'Setujui / Tolak Daily Activity'
             ],

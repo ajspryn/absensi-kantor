@@ -14,15 +14,22 @@ class DailyActivityReportController extends Controller
     {
         $user = Auth::user();
         $employee = $user->employee;
+        // allow users with a global view permission to see all activities
+        $canViewAll = $user->role && $user->role->hasPermission('daily_activities.view_all');
 
-        if (!$employee) {
+        if (!$employee && !$canViewAll) {
             abort(403);
         }
 
-        // Manager should only see activities for employees in their department
-        $query = DailyActivity::whereHas('employee', function ($q) use ($employee) {
-            $q->where('department_id', $employee->department_id);
-        });
+        // If user can view all activities (admin), don't restrict by department.
+        if ($canViewAll) {
+            $query = DailyActivity::query();
+        } else {
+            // Manager should only see activities for employees in their department
+            $query = DailyActivity::whereHas('employee', function ($q) use ($employee) {
+                $q->where('department_id', $employee->department_id);
+            });
+        }
 
         // Date filtering: use whereDate so records with time components are matched
         if ($request->filled('start_date') && $request->filled('end_date')) {
@@ -48,10 +55,15 @@ class DailyActivityReportController extends Controller
 
         $activities = $query->with('employee')->orderBy('date', 'desc')->paginate(25)->withQueryString();
 
-        // Provide list of employees in the manager's department so the view can show a name select
-        $employees = Employee::where('department_id', $employee->department_id)
-            ->orderBy('full_name')
-            ->get();
+        // Provide list of employees for the view. If user can view all, show all employees;
+        // otherwise show employees in the manager's department.
+        if ($canViewAll) {
+            $employees = Employee::orderBy('full_name')->get();
+        } else {
+            $employees = Employee::where('department_id', $employee->department_id)
+                ->orderBy('full_name')
+                ->get();
+        }
 
         return view('manager.daily_activities.index', compact('activities', 'employees'));
     }
@@ -62,13 +74,19 @@ class DailyActivityReportController extends Controller
         $user = Auth::user();
         $employee = $user->employee;
 
-        if (!$employee) {
+        $canViewAll = $user->role && $user->role->hasPermission('daily_activities.view_all');
+
+        if (!$employee && !$canViewAll) {
             abort(403);
         }
 
-        $query = DailyActivity::whereHas('employee', function ($q) use ($employee) {
-            $q->where('department_id', $employee->department_id);
-        });
+        if ($canViewAll) {
+            $query = DailyActivity::query();
+        } else {
+            $query = DailyActivity::whereHas('employee', function ($q) use ($employee) {
+                $q->where('department_id', $employee->department_id);
+            });
+        }
 
         // Date filtering for export: same logic as index
         if ($request->filled('start_date') && $request->filled('end_date')) {
@@ -116,7 +134,13 @@ class DailyActivityReportController extends Controller
         $user = Auth::user();
         $employee = $user->employee;
 
-        if (!$employee || $dailyActivity->employee->department_id !== $employee->department_id) {
+        $canViewAll = $user->role && $user->role->hasPermission('daily_activities.view_all');
+
+        if (!$employee && !$canViewAll) {
+            abort(403);
+        }
+
+        if (!$canViewAll && $dailyActivity->employee->department_id !== $employee->department_id) {
             abort(403);
         }
 
@@ -132,7 +156,14 @@ class DailyActivityReportController extends Controller
         // fetch manager employee record explicitly to avoid relation caching issues in tests
         $employee = \App\Models\Employee::where('user_id', $user->id)->first();
 
-        if (!$employee || !$dailyActivity->employee || $dailyActivity->employee->department_id !== $employee->department_id) {
+        $canViewAll = $user->role && $user->role->hasPermission('daily_activities.view_all');
+
+        if ((!$employee && !$canViewAll) || !$dailyActivity->employee) {
+            abort(403);
+        }
+
+        // allow approve if manager of the department or user can view all and has approve permission
+        if (!$canViewAll && $dailyActivity->employee->department_id !== $employee->department_id) {
             abort(403);
         }
 
@@ -154,7 +185,13 @@ class DailyActivityReportController extends Controller
         $user = Auth::user();
         $employee = $user->employee;
 
-        if (!$employee || $dailyActivity->employee->department_id !== $employee->department_id) {
+        $canViewAll = $user->role && $user->role->hasPermission('daily_activities.view_all');
+
+        if ((!$employee && !$canViewAll) || !$dailyActivity->employee) {
+            abort(403);
+        }
+
+        if (!$canViewAll && $dailyActivity->employee->department_id !== $employee->department_id) {
             abort(403);
         }
 
@@ -166,5 +203,33 @@ class DailyActivityReportController extends Controller
         $dailyActivity->save();
 
         return redirect()->back()->with('success', 'Activity rejected');
+    }
+
+    /**
+     * Destroy (delete) a daily activity. Admins with view_all + delete permission or
+     * managers with department access + delete permission can remove an activity.
+     */
+    public function destroy(Request $request, DailyActivity $dailyActivity)
+    {
+        $user = Auth::user();
+        $employee = $user->employee;
+
+        $canViewAll = $user->role && $user->role->hasPermission('daily_activities.view_all');
+
+        if ((!$employee && !$canViewAll) || !$dailyActivity->employee) {
+            abort(403);
+        }
+
+        if (!$canViewAll && $dailyActivity->employee->department_id !== $employee->department_id) {
+            abort(403);
+        }
+
+        if (!($user->role && $user->role->hasPermission('daily_activities.delete'))) {
+            abort(403);
+        }
+
+        $dailyActivity->delete();
+
+        return redirect()->route('admin.daily-activities.index')->with('success', 'Activity deleted');
     }
 }
