@@ -41,6 +41,14 @@
                 <i class="bi bi-chevron-right"></i>
             </a>
 
+            @if (auth()->user() && auth()->user()->hasPermission('leave.request'))
+                <a href="{{ route('employee.leave.requests.index') }}" class="{{ request()->routeIs('employee.leave.requests.*') ? 'active-item' : '' }}">
+                    <i class="gradient-red shadow-bg shadow-bg-xs bi bi-calendar-plus"></i>
+                    <span>Pengajuan Izin</span>
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            @endif
+
             @if (auth()->user() && auth()->user()->hasPermission('attendance.corrections.request'))
                 @php
                     $correctionsRoute = null;
@@ -78,14 +86,6 @@
         <span class="menu-divider mt-4">SHORTCUTS</span>
         <div class="menu-list">
             <div class="card card-style rounded-m p-3 py-2 mb-0">
-                @if (auth()->user() && auth()->user()->hasPermission('leave.request'))
-                    <a href="{{ route('employee.leave.requests.index') }}" class="{{ request()->routeIs('employee.leave.requests.*') ? 'active-item' : '' }}">
-                        <i class="gradient-red shadow-bg shadow-bg-xs bi bi-calendar-plus"></i>
-                        <span>Pengajuan Izin</span>
-                        <i class="bi bi-chevron-right"></i>
-                    </a>
-                @endif
-
                 @if (auth()->user() && (auth()->user()->hasPermission('leave.approve') || auth()->user()->hasPermission('leave.verify')))
                     @php
                         $leaveRoute = null;
