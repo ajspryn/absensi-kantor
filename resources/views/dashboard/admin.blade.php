@@ -24,7 +24,6 @@
 @endsection
 
 @section('sidebar')
-    <!-- Main Sidebar-->
     @include('admin.sidebar')
 @endsection
 
