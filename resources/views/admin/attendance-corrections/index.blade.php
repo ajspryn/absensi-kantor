@@ -70,7 +70,7 @@
 
                         <div class="d-flex justify-content-end">
                             <a href="{{ route('admin.attendance-corrections.show', $c) }}" class="btn btn-sm btn-primary rounded-s me-2"><i class="bi bi-eye me-1"></i>Detail</a>
-                            @if (auth()->user() && (auth()->user()->hasPermission('attendance.corrections.approve') || auth()->user()->hasPermission('attendance.corrections.verify')))
+                            @if (auth()->user() && auth()->user()->isAdmin())
                                 <a href="{{ route('admin.attendance-corrections.edit', $c) }}" class="btn btn-sm btn-secondary rounded-s me-2"><i class="bi bi-pencil me-1"></i>Edit</a>
                                 <form action="{{ route('admin.attendance-corrections.destroy', $c) }}" method="POST" onsubmit="return confirm('Hapus pengajuan koreksi ini?');">
                                     @csrf

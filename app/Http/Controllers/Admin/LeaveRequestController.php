@@ -124,6 +124,12 @@ class LeaveRequestController extends Controller
     // Admin edit form
     public function edit(LeaveRequest $leaveRequest)
     {
+        // Only allow admins to access edit form
+        $user = Auth::user();
+        if (!$user || !$user->role || strtolower($user->role->name) !== 'admin') {
+            abort(403, 'Unauthorized');
+        }
+
         $leaveRequest->load(['user', 'employee']);
         return view('admin.leave-requests.edit', compact('leaveRequest'));
     }
@@ -138,6 +144,12 @@ class LeaveRequestController extends Controller
             'reason' => 'required|string|min:3',
         ]);
 
+        // Only admins can update via admin edit
+        $user = Auth::user();
+        if (!$user || !$user->role || strtolower($user->role->name) !== 'admin') {
+            abort(403, 'Unauthorized');
+        }
+
         $leaveRequest->update([
             'start_date' => $validated['start_date'],
             'end_date' => $validated['end_date'],
@@ -151,6 +163,12 @@ class LeaveRequestController extends Controller
     // Delete leave request
     public function destroy(LeaveRequest $leaveRequest)
     {
+        // Only admins can delete leave requests via admin interface
+        $user = Auth::user();
+        if (!$user || !$user->role || strtolower($user->role->name) !== 'admin') {
+            abort(403, 'Unauthorized');
+        }
+
         $leaveRequest->delete();
         return redirect()->route('admin.leave-requests.index')->with('success', 'Pengajuan izin berhasil dihapus.');
     }

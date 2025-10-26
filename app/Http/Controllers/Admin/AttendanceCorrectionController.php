@@ -154,6 +154,12 @@ class AttendanceCorrectionController extends Controller
     // Admin edit form
     public function edit(AttendanceCorrection $attendanceCorrection)
     {
+        // Only allow admins to access edit form
+        $user = Auth::user();
+        if (!$user || !$user->role || strtolower($user->role->name) !== 'admin') {
+            abort(403, 'Unauthorized');
+        }
+
         $attendanceCorrection->load(['user', 'employee', 'attendance']);
         return view('admin.attendance-corrections.edit', compact('attendanceCorrection'));
     }
@@ -167,6 +173,12 @@ class AttendanceCorrectionController extends Controller
             'reason' => 'required|string|min:3',
         ]);
 
+        // Only admins can update via admin edit
+        $user = Auth::user();
+        if (!$user || !$user->role || strtolower($user->role->name) !== 'admin') {
+            abort(403, 'Unauthorized');
+        }
+
         $attendanceCorrection->update([
             'corrected_check_in' => $validated['corrected_check_in'] ?? null,
             'corrected_check_out' => $validated['corrected_check_out'] ?? null,
@@ -179,6 +191,12 @@ class AttendanceCorrectionController extends Controller
     // Delete correction
     public function destroy(AttendanceCorrection $attendanceCorrection)
     {
+        // Only admins can delete corrections
+        $user = Auth::user();
+        if (!$user || !$user->role || strtolower($user->role->name) !== 'admin') {
+            abort(403, 'Unauthorized');
+        }
+
         $attendanceCorrection->delete();
         return redirect()->route('admin.attendance-corrections.index')->with('success', 'Pengajuan koreksi berhasil dihapus.');
     }
