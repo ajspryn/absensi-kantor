@@ -37,7 +37,7 @@
                         <i class="bi bi-shield-check color-white font-36"></i>
                     </div>
                 </div>
-                <div class="flex-grow-1">
+                <div class="flex-1">
                     <h1 class="font-800 font-18 mb-1 color-dark-dark">Selamat Datang, Admin!</h1>
                     <h2 class="font-600 font-14 mb-2 color-blue-dark">Dashboard Sistem Absensi</h2>
                     <div class="d-flex align-items-center mb-2">
@@ -247,7 +247,7 @@
                             <div class="align-self-center">
                                 <i class="bi bi-exclamation-triangle-fill color-white font-24 me-3"></i>
                             </div>
-                            <div class="align-self-center flex-grow-1">
+                            <div class="align-self-center flex-1">
                                 <h6 class="mb-1 color-white font-700 font-13">Permintaan Reset Password</h6>
                                 <p class="mb-0 font-11 color-white opacity-80">{{ $pendingResetRequests->count() }} permintaan menunggu persetujuan</p>
                             </div>
