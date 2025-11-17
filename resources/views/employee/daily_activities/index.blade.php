@@ -7,9 +7,9 @@
         <div class="content py-2">
             <div class="d-flex align-items-center justify-content-between mb-2">
                 <h4 class="font-700 mb-0 font-15">Daily Activities</h4>
-                <a href="{{ route('employee.daily-activities.create') }}" class="btn btn-sm bg-blue-dark">Tambah Activity</a>
+                <small class="color-theme opacity-70">Menampilkan: Hari ini</small>
             </div>
-
+            <a href="{{ route('employee.daily-activities.create') }}" class="btn btn-sm bg-blue-dark">Tambah Activity</a>
         </div>
     </div>
     @if (session('success'))

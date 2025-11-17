@@ -5,12 +5,16 @@
 @section('content')
     <div class="card card-style mb-3">
         <div class="content py-2">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <h4 class="font-700 mb-0 font-15">Laporan Daily Activities</h4>
+                <small class="color-theme opacity-70">Default: Hari ini</small>
+            </div>
             <form method="get" class="row g-2 mb-0">
                 <div class="col-6 col-sm-3">
-                    <input type="date" name="start_date" class="form-control" value="{{ request('start_date') }}">
+                    <input type="date" name="start_date" class="form-control" value="{{ request('start_date', today()->format('Y-m-d')) }}">
                 </div>
                 <div class="col-6 col-sm-3">
-                    <input type="date" name="end_date" class="form-control" value="{{ request('end_date') }}">
+                    <input type="date" name="end_date" class="form-control" value="{{ request('end_date', today()->format('Y-m-d')) }}">
                 </div>
                 <div class="col-6 col-sm-3">
                     <select name="employee_id" class="form-control">

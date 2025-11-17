@@ -32,6 +32,7 @@ class DailyActivityReportController extends Controller
         }
 
         // Date filtering: use whereDate so records with time components are matched
+        // Default: show today's activities if no filter is applied
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $start = $request->start_date;
             $end = $request->end_date;
@@ -47,6 +48,9 @@ class DailyActivityReportController extends Controller
             $query->whereDate('date', $request->start_date);
         } elseif ($request->filled('end_date')) {
             $query->whereDate('date', $request->end_date);
+        } else {
+            // Default: show today's activities
+            $query->whereDate('date', today());
         }
 
         if ($request->filled('employee_id')) {

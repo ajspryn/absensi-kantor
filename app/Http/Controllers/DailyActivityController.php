@@ -13,7 +13,7 @@ class DailyActivityController extends Controller
      */
     public function index(Request $request)
     {
-        $query = DailyActivity::with('employee')->where('status', 'approved');
+        $query = DailyActivity::with('employee')->whereIn('status', ['completed', 'approved']);
 
         // Optional filters
         if ($request->has('employee_id')) {
