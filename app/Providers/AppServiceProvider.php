@@ -7,6 +7,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Console\Events\CommandStarting;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\View;
+use App\Models\PasswordResetRequest;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,6 +25,17 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Share pending reset requests count with admin views
+        View::composer(['admin.*', 'dashboard.admin', 'layouts.admin'], function ($view) {
+            $pendingResetRequests = PasswordResetRequest::with('user')
+                ->pending()
+                ->notExpired()
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $view->with('pendingResetRequests', $pendingResetRequests);
+        });
+
         // Prevent accidental destructive database artisan commands in production.
         // If APP_ENV=production and ALLOW_PROD_DB_COMMANDS is not truthy, block commands
         // like migrate:fresh, migrate:refresh, migrate:reset, migrate:rollback and db:wipe.

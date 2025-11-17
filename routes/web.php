@@ -197,6 +197,14 @@ Route::middleware('auth')->group(function () {
                 Route::get('/attendance/corrections/{correction}', [EmployeeAttendanceCorrectionController::class, 'show'])->name('attendance.corrections.show');
             });
 
+            // Leave requests (employee submit & history)
+            Route::middleware('permission:leave.request')->group(function () {
+                Route::get('/leave/requests', [\App\Http\Controllers\Employee\LeaveRequestController::class, 'index'])->name('leave.requests.index');
+                Route::get('/leave/requests/create', [\App\Http\Controllers\Employee\LeaveRequestController::class, 'create'])->name('leave.requests.create');
+                Route::post('/leave/requests', [\App\Http\Controllers\Employee\LeaveRequestController::class, 'store'])->name('leave.requests.store');
+                Route::get('/leave/requests/{leaveRequest}', [\App\Http\Controllers\Employee\LeaveRequestController::class, 'show'])->name('leave.requests.show');
+            });
+
             // Work Schedule routes
             Route::middleware('permission:schedules.view')->group(function () {
                 Route::get('/schedule', [EmployeeAttendanceController::class, 'schedule'])->name('schedule.index');
@@ -234,6 +242,9 @@ Route::get('/attendance-corrections', function () {
 Route::middleware(['auth', 'permission:attendance.corrections.approve,attendance.corrections.verify'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/attendance-corrections', [AdminAttendanceCorrectionController::class, 'index'])->name('attendance-corrections.index');
     Route::get('/attendance-corrections/{attendanceCorrection}', [AdminAttendanceCorrectionController::class, 'show'])->name('attendance-corrections.show');
+    Route::get('/attendance-corrections/{attendanceCorrection}/edit', [AdminAttendanceCorrectionController::class, 'edit'])->name('attendance-corrections.edit');
+    Route::match(['put', 'patch'], '/attendance-corrections/{attendanceCorrection}', [AdminAttendanceCorrectionController::class, 'update'])->name('attendance-corrections.update');
+    Route::delete('/attendance-corrections/{attendanceCorrection}', [AdminAttendanceCorrectionController::class, 'destroy'])->name('attendance-corrections.destroy');
     // Manager approval (requires manager-level approve permission)
     Route::patch('/attendance-corrections/{attendanceCorrection}/approve-manager', [AdminAttendanceCorrectionController::class, 'approveManager'])
         ->middleware('permission:attendance.corrections.approve')
@@ -250,11 +261,38 @@ Route::middleware(['auth', 'permission:attendance.corrections.approve,attendance
         ->name('attendance-corrections.reject');
 });
 
+// Leave requests (approval) accessible to users with leave approve/verify permissions
+Route::middleware(['auth', 'permission:leave.approve,leave.verify'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/leave-requests', [\App\Http\Controllers\Admin\LeaveRequestController::class, 'index'])->name('leave-requests.index');
+    Route::get('/leave-requests/{leaveRequest}', [\App\Http\Controllers\Admin\LeaveRequestController::class, 'show'])->name('leave-requests.show');
+    Route::get('/leave-requests/{leaveRequest}/edit', [\App\Http\Controllers\Admin\LeaveRequestController::class, 'edit'])->name('leave-requests.edit');
+    Route::match(['put', 'patch'], '/leave-requests/{leaveRequest}', [\App\Http\Controllers\Admin\LeaveRequestController::class, 'update'])->name('leave-requests.update');
+    Route::delete('/leave-requests/{leaveRequest}', [\App\Http\Controllers\Admin\LeaveRequestController::class, 'destroy'])->name('leave-requests.destroy');
+    // Approve (requires approve permission)
+    Route::patch('/leave-requests/{leaveRequest}/approve', [\App\Http\Controllers\Admin\LeaveRequestController::class, 'approve'])
+        ->middleware('permission:leave.approve')
+        ->name('leave-requests.approve');
+
+    // Verify (requires verify permission)
+    Route::patch('/leave-requests/{leaveRequest}/verify', [\App\Http\Controllers\Admin\LeaveRequestController::class, 'verify'])
+        ->middleware('permission:leave.verify')
+        ->name('leave-requests.verify');
+
+    // Reject can be done by either approver or verifier
+    Route::patch('/leave-requests/{leaveRequest}/reject', [\App\Http\Controllers\Admin\LeaveRequestController::class, 'reject'])
+        ->middleware('permission:leave.approve,leave.verify')
+        ->name('leave-requests.reject');
+});
+
 // Manager routes: daily activity reporting for department managers
-Route::middleware(['auth', 'permission:daily_activities.view_department'])->prefix('admin')->name('admin.')->group(function () {
+// Admin & Manager routes: daily activity reporting
+// Allow users with either department view or global view permission to access these routes
+Route::middleware(['auth', 'permission:daily_activities.view_department,daily_activities.view_all'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/daily-activities', [\App\Http\Controllers\Manager\DailyActivityReportController::class, 'index'])->name('daily-activities.index');
     Route::get('/daily-activities/export-csv', [\App\Http\Controllers\Manager\DailyActivityReportController::class, 'export'])->name('daily-activities.export');
     Route::get('/daily-activities/{dailyActivity}', [\App\Http\Controllers\Manager\DailyActivityReportController::class, 'show'])->whereNumber('dailyActivity')->name('daily-activities.show');
     Route::patch('/daily-activities/{dailyActivity}/approve', [\App\Http\Controllers\Manager\DailyActivityReportController::class, 'approve'])->whereNumber('dailyActivity')->name('daily-activities.approve')->middleware('permission:daily_activities.approve');
     Route::patch('/daily-activities/{dailyActivity}/reject', [\App\Http\Controllers\Manager\DailyActivityReportController::class, 'reject'])->whereNumber('dailyActivity')->name('daily-activities.reject')->middleware('permission:daily_activities.approve');
+    // Allow deleting a daily activity (admin with delete permission)
+    Route::delete('/daily-activities/{dailyActivity}', [\App\Http\Controllers\Manager\DailyActivityReportController::class, 'destroy'])->whereNumber('dailyActivity')->name('daily-activities.destroy')->middleware('permission:daily_activities.delete');
 });

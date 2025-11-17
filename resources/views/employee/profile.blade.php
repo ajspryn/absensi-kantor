@@ -74,7 +74,7 @@
                 </div>
 
                 <h3 class="font-700 mb-1 font-15">{{ $employee->full_name }}</h3>
-                <p class="mb-1 font-11 opacity-70">{{ $employee->position_name ?? '-' }}</p>
+                <p class="mb-1 font-11 opacity-70">{{ $employee->position->name ?? '-' }}</p>
                 <p class="mb-0 font-10 opacity-70">{{ optional($employee->department)->name ?? '-' }}</p>
 
                 <div class="d-flex justify-content-center mt-2">

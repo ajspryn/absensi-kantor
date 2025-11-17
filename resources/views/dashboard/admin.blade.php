@@ -24,148 +24,7 @@
 @endsection
 
 @section('sidebar')
-    <!-- Main Sidebar-->
-    <div id="menu-main" class="offcanvas offcanvas-start offcanvas-detached rounded-m" style="width:280px;">
-        <div class="content">
-            <div class="d-flex pb-2">
-                <div class="align-self-center">
-                    <h1 class="mb-0">Menu</h1>
-                </div>
-                <div class="align-self-center ms-auto">
-                    <a href="#" class="ps-4" data-bs-dismiss="offcanvas">
-                        <i class="bi bi-x color-red-dark font-26 line-height-xl"></i>
-                    </a>
-                </div>
-            </div>
-            <div class="divider mb-2"></div>
-
-            <a href="{{ route('dashboard') }}" class="d-flex py-1">
-                <div class="align-self-center">
-                    <i class="bi bi-house-door color-blue-dark font-16"></i>
-                </div>
-                <div class="align-self-center ps-3">
-                    <h5 class="pt-1 mb-0">Dashboard</h5>
-                </div>
-            </a>
-
-            <a href="{{ route('admin.employees.index') }}" class="d-flex py-1">
-                <div class="align-self-center">
-                    <i class="bi bi-people color-green-dark font-16"></i>
-                </div>
-                <div class="align-self-center ps-3">
-                    <h5 class="pt-1 mb-0">Kelola Karyawan</h5>
-                </div>
-            </a>
-
-            <a href="{{ route('admin.departments.index') }}" class="d-flex py-1">
-                <div class="align-self-center">
-                    <i class="bi bi-building color-brown-dark font-16"></i>
-                </div>
-                <div class="align-self-center ps-3">
-                    <h5 class="pt-1 mb-0">Departemen</h5>
-                </div>
-            </a>
-
-            <a href="{{ route('admin.positions.index') }}" class="d-flex py-1">
-                <div class="align-self-center">
-                    <i class="bi bi-briefcase color-teal-dark font-16"></i>
-                </div>
-                <div class="align-self-center ps-3">
-                    <h5 class="pt-1 mb-0">Posisi</h5>
-                </div>
-            </a>
-
-            <a href="{{ route('admin.roles.index') }}" class="d-flex py-1">
-                <div class="align-self-center">
-                    <i class="bi bi-shield-check text-purple font-16"></i>
-                </div>
-                <div class="align-self-center ps-3">
-                    <h5 class="pt-1 mb-0">Role & Permissions</h5>
-                </div>
-            </a>
-
-            <a href="{{ route('admin.office-locations.index') }}" class="d-flex py-1">
-                <div class="align-self-center">
-                    <i class="bi bi-geo-alt text-purple font-16"></i>
-                </div>
-                <div class="align-self-center ps-3">
-                    <h5 class="pt-1 mb-0">Lokasi Kantor</h5>
-                </div>
-            </a>
-
-            <a href="{{ route('admin.work-schedules.index') }}" class="d-flex py-1">
-                <div class="align-self-center">
-                    <i class="bi bi-calendar-week color-blue-dark font-16"></i>
-                </div>
-                <div class="align-self-center ps-3">
-                    <h5 class="pt-1 mb-0">Jadwal Kerja</h5>
-                </div>
-            </a>
-
-            <a href="{{ route('admin.password-reset.index') }}" class="d-flex py-1">
-                <div class="align-self-center">
-                    <i class="bi bi-key color-orange-dark font-16"></i>
-                </div>
-                <div class="align-self-center ps-3">
-                    <h5 class="pt-1 mb-0">Reset Password</h5>
-                </div>
-                @if ($pendingResetRequests->count() > 0)
-                    <div class="align-self-center ms-auto">
-                        <span class="badge bg-red-dark font-11">{{ $pendingResetRequests->count() }}</span>
-                    </div>
-                @endif
-            </a>
-
-            <div class="divider my-2"></div>
-            <h6 class="font-600 font-12 opacity-70 mb-2">Pengaturan</h6>
-
-            <a href="{{ route('admin.settings.index') }}" class="d-flex py-1">
-                <div class="align-self-center">
-                    <i class="bi bi-gear color-blue-dark font-16"></i>
-                </div>
-                <div class="align-self-center ps-3">
-                    <h5 class="pt-1 mb-0">Pengaturan Umum</h5>
-                </div>
-            </a>
-
-            <div class="divider my-2"></div>
-            <h6 class="font-600 font-12 opacity-70 mb-2">Absensi & Laporan</h6>
-
-            <a href="{{ route('admin.attendance.index') }}" class="d-flex py-1">
-                <div class="align-self-center">
-                    <i class="bi bi-calendar-check color-orange-dark font-16"></i>
-                </div>
-                <div class="align-self-center ps-3">
-                    <h5 class="pt-1 mb-0">Data Absensi</h5>
-                </div>
-                <div class="align-self-center ms-auto">
-                    <span class="badge bg-green-dark rounded-xl">Real-time</span>
-                </div>
-            </a>
-
-            <a href="{{ route('admin.attendance.reports.index') }}" class="d-flex py-1">
-                <div class="align-self-center">
-                    <i class="bi bi-graph-up color-blue-dark font-16"></i>
-                </div>
-                <div class="align-self-center ps-3">
-                    <h5 class="pt-1 mb-0">Laporan Absensi</h5>
-                </div>
-                <div class="align-self-center ms-auto">
-                    <span class="badge bg-blue-dark rounded-xl">Analytics</span>
-                </div>
-            </a>
-
-            <div class="divider mb-2"></div>
-            <div class="text-center pb-2">
-                <form method="POST" action="{{ route('logout') }}" style="display:inline;">
-                    @csrf
-                    <button type="submit" class="btn btn-sm btn-danger w-100">
-                        <i class="bi bi-box-arrow-right me-2"></i> Logout
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
+    @include('admin.sidebar')
 @endsection
 
 @section('content')
@@ -178,7 +37,7 @@
                         <i class="bi bi-shield-check color-white font-36"></i>
                     </div>
                 </div>
-                <div class="flex-grow-1">
+                <div class="flex-1">
                     <h1 class="font-800 font-18 mb-1 color-dark-dark">Selamat Datang, Admin!</h1>
                     <h2 class="font-600 font-14 mb-2 color-blue-dark">Dashboard Sistem Absensi</h2>
                     <div class="d-flex align-items-center mb-2">
@@ -388,7 +247,7 @@
                             <div class="align-self-center">
                                 <i class="bi bi-exclamation-triangle-fill color-white font-24 me-3"></i>
                             </div>
-                            <div class="align-self-center flex-grow-1">
+                            <div class="align-self-center flex-1">
                                 <h6 class="mb-1 color-white font-700 font-13">Permintaan Reset Password</h6>
                                 <p class="mb-0 font-11 color-white opacity-80">{{ $pendingResetRequests->count() }} permintaan menunggu persetujuan</p>
                             </div>
@@ -468,4 +327,5 @@
             </div>
         </div>
     </div>
+
 @endsection

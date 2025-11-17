@@ -65,6 +65,13 @@ class AttendanceCorrectionController extends Controller
             return redirect()->back()->with('error', 'Tidak dapat menyetujui pengajuan yang diajukan sendiri.');
         }
 
+        // Only allow department manager (as recorded on the employee's department) or admin to perform manager approval
+        $isAdmin = $user->role && strtolower($user->role->name) === 'admin';
+        $deptManagerId = optional($attendanceCorrection->employee->department)->manager_id;
+        if (!$isAdmin && $deptManagerId !== $user->id) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki wewenang manager untuk menyetujui pengajuan ini.');
+        }
+
         if ($attendanceCorrection->status === AttendanceCorrection::STATUS_PENDING) {
             $attendanceCorrection->update([
                 'status' => AttendanceCorrection::STATUS_MANAGER_APPROVED,
@@ -149,5 +156,55 @@ class AttendanceCorrectionController extends Controller
         $attendanceCorrection->user?->notify(new AttendanceCorrectionDecision($attendanceCorrection));
 
         return redirect()->back()->with('success', 'Pengajuan koreksi telah ditolak.');
+    }
+
+    // Admin edit form
+    public function edit(AttendanceCorrection $attendanceCorrection)
+    {
+        // Only allow admins to access edit form
+        $user = Auth::user();
+        if (!$user || !$user->role || strtolower($user->role->name) !== 'admin') {
+            abort(403, 'Unauthorized');
+        }
+
+        $attendanceCorrection->load(['user', 'employee', 'attendance']);
+        return view('admin.attendance-corrections.edit', compact('attendanceCorrection'));
+    }
+
+    // Update correction (admin)
+    public function update(Request $request, AttendanceCorrection $attendanceCorrection)
+    {
+        $validated = $request->validate([
+            'corrected_check_in' => 'nullable|date_format:H:i',
+            'corrected_check_out' => 'nullable|date_format:H:i',
+            'reason' => 'required|string|min:3',
+        ]);
+
+        // Only admins can update via admin edit
+        $user = Auth::user();
+        if (!$user || !$user->role || strtolower($user->role->name) !== 'admin') {
+            abort(403, 'Unauthorized');
+        }
+
+        $attendanceCorrection->update([
+            'corrected_check_in' => $validated['corrected_check_in'] ?? null,
+            'corrected_check_out' => $validated['corrected_check_out'] ?? null,
+            'reason' => $validated['reason'],
+        ]);
+
+        return redirect()->route('admin.attendance-corrections.show', $attendanceCorrection)->with('success', 'Koreksi absensi telah diperbarui.');
+    }
+
+    // Delete correction
+    public function destroy(AttendanceCorrection $attendanceCorrection)
+    {
+        // Only admins can delete corrections
+        $user = Auth::user();
+        if (!$user || !$user->role || strtolower($user->role->name) !== 'admin') {
+            abort(403, 'Unauthorized');
+        }
+
+        $attendanceCorrection->delete();
+        return redirect()->route('admin.attendance-corrections.index')->with('success', 'Pengajuan koreksi berhasil dihapus.');
     }
 }

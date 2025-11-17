@@ -29,5 +29,8 @@ class DatabaseSeeder extends Seeder
             'role_id' => 2, // employee role
             'password' => bcrypt('password'),
         ]);
+
+        // Seed daily activities
+        $this->call(DailyActivitySeeder::class);
     }
 }

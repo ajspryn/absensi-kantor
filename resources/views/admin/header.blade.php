@@ -2,7 +2,8 @@
     // Props: $title, $backUrl, $menuTarget, $rightHtml
     $title = $title ?? (trim($__env->yieldContent('title')) ?: 'Admin');
     $backUrl = $backUrl ?? url()->previous();
-    $menuTarget = $menuTarget ?? '#admin-menu-main';
+    // default to the main menu id used by the app
+    $menuTarget = $menuTarget ?? '#menu-main';
 @endphp
 <div class="header-bar header-fixed header-app header-bar-detached" style="backdrop-filter: saturate(180%) blur(8px);">
     <div class="d-flex align-items-center w-100">
@@ -13,7 +14,7 @@
         @if (!empty($rightHtml))
             {!! $rightHtml !!}
         @else
-            <a href="#" data-bs-toggle="offcanvas" data-bs-target="{{ $menuTarget }}"><i class="bi bi-list font-16 color-theme"></i></a>
+            <a href="#" data-bs-toggle="offcanvas" data-bs-target="{{ $menuTarget }}"><i class="gradient-blue shadow-bg shadow-bg-xs bi bi-list font-16"></i></a>
         @endif
     </div>
     <div class="mt-2 px-3 d-none" id="admin-subtitle-slot"></div>

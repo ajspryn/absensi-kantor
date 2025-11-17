@@ -19,53 +19,6 @@
 
     @include('admin.partials.alerts')
 
-    <!-- Stats Row -->
-    <div class="card card-style shadow-m mb-3">
-        <div class="content">
-            <div class="row g-3 mb-2">
-                <div class="col">
-                    <div class="card card-style bg-light h-100 p-3">
-                        <div class="d-flex align-items-center">
-                            <div class="bg-warning-dark rounded-circle d-inline-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;">
-                                <i class="bi bi-hourglass-split color-white font-16"></i>
-                            </div>
-                            <div>
-                                <small class="text-muted d-block">Pending</small>
-                                <strong class="h4 mb-0">{{ $stats['pending'] }}</strong>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card card-style bg-light h-100 p-3">
-                        <div class="d-flex align-items-center">
-                            <div class="bg-success-dark rounded-circle d-inline-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;">
-                                <i class="bi bi-check2-circle color-white font-16"></i>
-                            </div>
-                            <div>
-                                <small class="text-muted d-block">Disetujui</small>
-                                <strong class="h4 mb-0">{{ $stats['approved'] }}</strong>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card card-style bg-light h-100 p-3">
-                        <div class="d-flex align-items-center">
-                            <div class="bg-danger-dark rounded-circle d-inline-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;">
-                                <i class="bi bi-x-circle color-white font-16"></i>
-                            </div>
-                            <div>
-                                <small class="text-muted d-block">Ditolak</small>
-                                <strong class="h4 mb-0">{{ $stats['rejected'] }}</strong>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Filter Card -->
     <form method="GET" class="card card-style shadow-sm mb-3 p-3">
         <div class="row g-2 align-items-end">
@@ -117,6 +70,14 @@
 
                         <div class="d-flex justify-content-end">
                             <a href="{{ route('admin.attendance-corrections.show', $c) }}" class="btn btn-sm btn-primary rounded-s me-2"><i class="bi bi-eye me-1"></i>Detail</a>
+                            @if (auth()->user() && auth()->user()->isAdmin())
+                                <a href="{{ route('admin.attendance-corrections.edit', $c) }}" class="btn btn-sm btn-secondary rounded-s me-2"><i class="bi bi-pencil me-1"></i>Edit</a>
+                                <form action="{{ route('admin.attendance-corrections.destroy', $c) }}" method="POST" onsubmit="return confirm('Hapus pengajuan koreksi ini?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger rounded-s"><i class="bi bi-trash me-1"></i>Hapus</button>
+                                </form>
+                            @endif
                         </div>
                     </div>
                 </div>
