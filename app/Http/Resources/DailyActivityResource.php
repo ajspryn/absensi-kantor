@@ -29,16 +29,16 @@ class DailyActivityResource extends JsonResource
             'updated_at' => $this->updated_at,
             'employee' => $this->whenLoaded('employee'),
             // Add file URLs
-            'employee_photo_url' => $this->when(
-                $this->employee && $this->employee->photo,
-                url("api/files/employee-photos/{$this->employee->photo}")
-            ),
-            'attachment_urls' => $this->when(
-                $this->attachments && is_array($this->attachments),
-                collect($this->attachments)->map(function ($attachment) {
+            'employee_photo_url' => $this->whenLoaded('employee', function () {
+                return $this->employee && $this->employee->photo
+                    ? url("api/files/employee-photos/{$this->employee->photo}")
+                    : null;
+            }),
+            'attachment_urls' => $this->attachments && is_array($this->attachments)
+                ? collect($this->attachments)->map(function ($attachment) {
                     return url("api/files/daily-activity-attachments/{$attachment}");
                 })->toArray()
-            ),
+                : null,
         ];
     }
 }

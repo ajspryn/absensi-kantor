@@ -13,14 +13,14 @@ class FileController extends Controller
       */
      public function getEmployeePhoto($filename)
      {
-          $path = "public/employee_photos/{$filename}";
+          $path = "employee_photos/{$filename}";
 
-          if (!Storage::exists($path)) {
+          if (!Storage::disk('public')->exists($path)) {
                return response()->json(['error' => 'File not found'], 404);
           }
 
-          $file = Storage::get($path);
-          $mimeType = Storage::mimeType($path);
+          $file = Storage::disk('public')->get($path);
+          $mimeType = Storage::disk('public')->mimeType($path);
 
           return Response::make($file, 200, [
                'Content-Type' => $mimeType,
@@ -33,14 +33,14 @@ class FileController extends Controller
       */
      public function getDailyActivityAttachment($filename)
      {
-          $path = "public/daily_activity_attachments/{$filename}";
+          $path = "daily_activity_attachments/{$filename}";
 
-          if (!Storage::exists($path)) {
+          if (!Storage::disk('public')->exists($path)) {
                return response()->json(['error' => 'File not found'], 404);
           }
 
-          $file = Storage::get($path);
-          $mimeType = Storage::mimeType($path);
+          $file = Storage::disk('public')->get($path);
+          $mimeType = Storage::disk('public')->mimeType($path);
 
           return Response::make($file, 200, [
                'Content-Type' => $mimeType,

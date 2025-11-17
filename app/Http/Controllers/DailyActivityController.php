@@ -30,6 +30,9 @@ class DailyActivityController extends Controller
 
         $activities = $query->orderBy('date', 'desc')->paginate(15);
 
+        // Ensure employee relation is loaded for all items
+        $activities->load('employee');
+
         return DailyActivityResource::collection($activities);
     }
 
