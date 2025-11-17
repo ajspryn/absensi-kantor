@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DailyActivity;
+use App\Http\Resources\DailyActivityResource;
 use Illuminate\Http\Request;
 
 class DailyActivityController extends Controller
@@ -27,26 +28,9 @@ class DailyActivityController extends Controller
             $query->where('status', $request->status);
         }
 
-        $activities = $query->paginate(15);
+        $activities = $query->orderBy('date', 'desc')->paginate(15);
 
-        // Add file URLs to response
-        $activities->getCollection()->transform(function ($activity) {
-            // Add full URLs for employee photo
-            if ($activity->employee && $activity->employee->photo) {
-                $activity->employee->photo_url = url("api/files/employee-photos/{$activity->employee->photo}");
-            }
-
-            // Add full URLs for attachments
-            if ($activity->attachments && is_array($activity->attachments)) {
-                $activity->attachment_urls = array_map(function ($attachment) {
-                    return url("api/files/daily-activity-attachments/{$attachment}");
-                }, $activity->attachments);
-            }
-
-            return $activity;
-        });
-
-        return response()->json($activities);
+        return DailyActivityResource::collection($activities);
     }
 
     /**
