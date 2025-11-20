@@ -19,7 +19,16 @@ class AttendanceReportController extends Controller
     public function edit($id)
     {
         $attendance = \App\Models\Attendance::findOrFail($id);
-        return response()->json($attendance);
+
+        // Format data for frontend form inputs
+        $data = [
+            'id' => $attendance->id,
+            'date' => $attendance->date->format('Y-m-d'),
+            'check_in' => $attendance->check_in ? $attendance->check_in->format('H:i') : null,
+            'check_out' => $attendance->check_out ? $attendance->check_out->format('H:i') : null,
+        ];
+
+        return response()->json($data);
     }
 
     // Update attendance from sidebar form
