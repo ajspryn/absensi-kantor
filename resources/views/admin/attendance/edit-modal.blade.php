@@ -8,6 +8,10 @@
             @csrf
             <input type="hidden" name="attendance_id" id="attendance_id">
             <div class="mb-3">
+                <label for="date" class="form-label">Tanggal</label>
+                <input type="date" class="form-control" name="date" id="date" required>
+            </div>
+            <div class="mb-3">
                 <label for="check_in" class="form-label">Check In</label>
                 <input type="time" class="form-control" name="check_in" id="check_in">
             </div>

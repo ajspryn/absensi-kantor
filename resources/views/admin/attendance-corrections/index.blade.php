@@ -90,7 +90,7 @@
     </div>
 
     <div class="mt-3">
-        {{ $corrections->links() }}
+        {{ $corrections->appends(request()->query())->links('pagination.mobile') }}
     </div>
 
 @endsection

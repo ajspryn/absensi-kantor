@@ -346,6 +346,8 @@
                         .then(response => response.json())
                         .then(data => {
                             document.getElementById('attendance_id').value = data.id;
+                            // Format date from ISO string
+                            document.getElementById('date').value = data.date ? new Date(data.date).toISOString().substring(0, 10) : '';
                             // Format time from ISO string if available
                             document.getElementById('check_in').value = data.check_in ? new Date(data.check_in).toISOString().substring(11, 16) : '';
                             document.getElementById('check_out').value = data.check_out ? new Date(data.check_out).toISOString().substring(11, 16) : '';

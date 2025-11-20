@@ -28,6 +28,7 @@ class AttendanceReportController extends Controller
         // Validasi input
         $request->validate([
             'attendance_id' => 'required|exists:attendances,id',
+            'date' => 'required|date',
             'check_in' => 'nullable|date_format:H:i',
             'check_out' => 'nullable|date_format:H:i'
         ]);
@@ -35,15 +36,31 @@ class AttendanceReportController extends Controller
         try {
             $attendance = \App\Models\Attendance::findOrFail($request->attendance_id);
 
+            // Check for duplicate attendance on the new date (excluding current record)
+            $existingAttendance = \App\Models\Attendance::where('employee_id', $attendance->employee_id)
+                ->where('date', $request->date)
+                ->where('id', '!=', $request->attendance_id)
+                ->first();
+
+            if ($existingAttendance) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Karyawan sudah memiliki absensi pada tanggal ' . $request->date
+                ], 422);
+            }
+
+            // Update date first
+            $attendance->date = $request->date;
+
             // Update fields
             if ($request->check_in) {
-                $attendance->check_in = \Carbon\Carbon::parse($attendance->date)->setTimeFromTimeString($request->check_in);
+                $attendance->check_in = \Carbon\Carbon::parse($request->date)->setTimeFromTimeString($request->check_in);
             } else {
                 $attendance->check_in = null;
             }
 
             if ($request->check_out) {
-                $attendance->check_out = \Carbon\Carbon::parse($attendance->date)->setTimeFromTimeString($request->check_out);
+                $attendance->check_out = \Carbon\Carbon::parse($request->date)->setTimeFromTimeString($request->check_out);
             } else {
                 $attendance->check_out = null;
             }
@@ -74,6 +91,8 @@ class AttendanceReportController extends Controller
                 $attendance->working_hours = null;
             }
 
+            // Save the attendance record first
+            $attendance->save();
 
             // Update working_hours dan schedule_status otomatis
             $attendance->calculateWorkingHours();
