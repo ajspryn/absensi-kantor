@@ -22,6 +22,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::post('login', [AuthController::class, 'apiLogin']);
+Route::middleware('jwt.auth')->post('refresh', [AuthController::class, 'apiRefresh']);
 Route::middleware('jwt.auth')->post('logout', [AuthController::class, 'apiLogout']);
 
 Route::middleware('jwt.auth')->apiResource('daily-activities', DailyActivityController::class);

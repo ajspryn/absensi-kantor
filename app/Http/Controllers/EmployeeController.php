@@ -86,7 +86,24 @@ class EmployeeController extends Controller
             'department_id' => 'required|exists:departments,id',
             'position_id' => 'required|exists:positions,id',
             'work_schedule_id' => 'required|exists:work_schedules,id',
+            // optional profile fields
+            'nik_ktp' => 'nullable|string|max:50',
+            'address_ktp' => 'nullable|string',
+            'address_domisili' => 'nullable|string',
+            'mobile' => 'nullable|string|max:30',
+            'gender' => 'nullable|in:M,F',
+            'birth_place' => 'nullable|string|max:255',
+            'birth_date' => 'nullable|date',
+            'health_condition' => 'nullable|string',
+            'education_history' => 'nullable|string',
         ]);
+
+        // If emergency contacts are submitted, require at least 2 entries
+        if ($request->has('emergency') && is_array($request->input('emergency'))) {
+            if (count(array_filter($request->input('emergency'), function($r){ return !empty($r['name'] ?? null); })) < 2) {
+                return back()->withInput()->withErrors(['emergency' => 'Harap masukkan minimal 2 kontak darurat.']);
+            }
+        }
 
         DB::beginTransaction();
         try {
@@ -104,6 +121,18 @@ class EmployeeController extends Controller
                 'is_active' => true,
             ]);
 
+            // Handle photo upload if provided
+            $photoPath = null;
+            if ($request->hasFile('photo')) {
+                $photoPath = $request->file('photo')->store('employee_photos', 'public');
+            }
+
+            // Prepare JSON fields if any
+            $education = $this->parseJsonField($request->input('education_history'));
+            $training = $this->parseJsonField($request->input('training_history'));
+            $family = $this->parseJsonField($request->input('family_structure'));
+            $emergency = $this->parseJsonField($request->input('emergency_contact'));
+
             $position = \App\Models\Position::find($request->position_id);
             Employee::create([
                 'employee_id' => $request->employee_id,
@@ -114,9 +143,21 @@ class EmployeeController extends Controller
                 'hire_date' => now(),
                 'is_active' => true,
                 'full_name' => $request->name,
-                // position column removed; rely on position_id relation and Position model for name
-                // Keep employee.email in sync with user.email to avoid inconsistent reads
                 'email' => $request->email,
+                'photo' => $photoPath,
+                // optional profile fields
+                'nik_ktp' => $request->input('nik_ktp'),
+                'address_ktp' => $request->input('address_ktp'),
+                'address_domisili' => $request->input('address_domisili'),
+                'mobile' => $request->input('mobile'),
+                'gender' => $request->input('gender'),
+                'birth_place' => $request->input('birth_place'),
+                'birth_date' => $request->input('birth_date'),
+                'health_condition' => $request->input('health_condition'),
+                'education_history' => $education,
+                'training_history' => $training,
+                'family_structure' => $family,
+                'emergency_contact' => $emergency,
             ]);
 
             DB::commit();
@@ -164,6 +205,26 @@ class EmployeeController extends Controller
             'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'is_active' => 'boolean',
             'allow_remote_attendance' => 'boolean',
+            // Extended profile fields
+            'nik_ktp' => 'nullable|string|max:50',
+            'jabatan' => 'nullable|string|max:255',
+            'address_ktp' => 'nullable|string',
+            'address_domisili' => 'nullable|string',
+            'mobile' => 'nullable|string|max:30',
+            'gender' => 'nullable|in:M,F',
+            'height_cm' => 'nullable|integer|min:0',
+            'weight_kg' => 'nullable|integer|min:0',
+            'hobby' => 'nullable|string|max:255',
+            'birth_place' => 'nullable|string|max:255',
+            'birth_date' => 'nullable|date',
+            'marital_status' => 'nullable|string|max:50',
+            'residence_status' => 'nullable|string|max:50',
+            'health_condition' => 'nullable|string',
+            'degenerative_diseases' => 'nullable|string',
+            'education_history' => 'nullable|string',
+            'training_history' => 'nullable|string',
+            'family_structure' => 'nullable|string',
+            'emergency_contact' => 'nullable|string',
         ]);
 
         DB::beginTransaction();
@@ -196,6 +257,25 @@ class EmployeeController extends Controller
                 'position_id' => $request->position_id,
                 'full_name' => $request->full_name,
                 'phone' => $request->phone,
+                'nik_ktp' => $request->input('nik_ktp'),
+                'jabatan' => $request->input('jabatan'),
+                'address_ktp' => $request->input('address_ktp'),
+                'address_domisili' => $request->input('address_domisili'),
+                'mobile' => $request->input('mobile'),
+                'gender' => $request->input('gender'),
+                'height_cm' => $request->input('height_cm'),
+                'weight_kg' => $request->input('weight_kg'),
+                'hobby' => $request->input('hobby'),
+                'birth_place' => $request->input('birth_place'),
+                'birth_date' => $request->input('birth_date'),
+                'marital_status' => $request->input('marital_status'),
+                'residence_status' => $request->input('residence_status'),
+                'health_condition' => $request->input('health_condition'),
+                'degenerative_diseases' => $request->input('degenerative_diseases'),
+                'education_history' => $this->parseJsonField($request->input('education_history')),
+                'training_history' => $this->parseJsonField($request->input('training_history')),
+                'family_structure' => $this->parseJsonField($request->input('family_structure')),
+                'emergency_contact' => $this->parseJsonField($request->input('emergency_contact')),
                 'hire_date' => $request->hire_date,
                 'salary' => $request->salary,
                 'photo' => $photoPath,
@@ -212,6 +292,33 @@ class EmployeeController extends Controller
             DB::rollback();
             return back()->withInput()->with('error', 'Gagal mengupdate karyawan: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Try to parse a JSON-like field submitted from the form.
+     * If the value is valid JSON and decodes to an array, return the array.
+     * Otherwise return a fallback array with a single 'raw' key containing the string (if present), or null.
+     */
+    private function parseJsonField($value)
+    {
+        if (is_null($value) || $value === '') {
+            return null;
+        }
+
+        // Try decode
+        $decoded = null;
+        try {
+            $decoded = json_decode($value, true);
+        } catch (\Throwable $e) {
+            $decoded = null;
+        }
+
+        if (is_array($decoded)) {
+            return $decoded;
+        }
+
+        // If not valid JSON, store as raw text so UI can migrate later
+        return ['raw' => $value];
     }
 
     public function destroy(Employee $employee)
@@ -357,12 +464,46 @@ class EmployeeController extends Controller
 
         if ($user && $user->employee) {
             $employee = $user->employee;
-            $required = ['employee_id', 'full_name', 'department_id', 'position_id'];
+            // Use the same comprehensive required list the UI checks for
+            $required = [
+                'employee_id',
+                'full_name',
+                'department_id',
+                'position_id',
+                'work_schedule_id',
+                'email',
+                'phone',
+                'mobile',
+                'address',
+                'address_ktp',
+                'address_domisili',
+                'nik_ktp',
+                'gender',
+                'birth_place',
+                'birth_date',
+                'marital_status',
+                'residence_status',
+                'hire_date',
+                'photo',
+                'education_history',
+                'training_history',
+                'family_structure',
+                'emergency_contact'
+            ];
+
             $missing = false;
             foreach ($required as $field) {
-                if (is_null($employee->{$field}) || $employee->{$field} === '') {
-                    $missing = true;
-                    break;
+                $val = $employee->{$field} ?? null;
+                if (is_array($val) || $val instanceof \Illuminate\Contracts\Support\Arrayable) {
+                    if (empty($val)) {
+                        $missing = true;
+                        break;
+                    }
+                } else {
+                    if (empty($val) && !is_numeric($val)) {
+                        $missing = true;
+                        break;
+                    }
                 }
             }
 
@@ -411,8 +552,34 @@ class EmployeeController extends Controller
             'position_id' => 'required|exists:positions,id',
             'full_name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
+            'mobile' => 'nullable|string|max:30',
+            'email' => 'nullable|email',
             'hire_date' => 'required|date',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:4096',
+            // personal
+            'nik_ktp' => 'nullable|digits_between:1,20',
+            'birth_place' => 'nullable|string|max:255',
+            'birth_date' => 'nullable|date',
+            'gender' => 'nullable|in:M,F',
+            'height_cm' => 'nullable|integer|min:0',
+            'weight_kg' => 'nullable|integer|min:0',
+            'hobby' => 'nullable|string|max:255',
+            'marital_status' => 'nullable|string|max:50',
+            'residence_status' => 'nullable|string|max:50',
+            // health
+            'health_condition' => 'nullable|string',
+            'degenerative_diseases' => 'nullable|string',
+            'has_medical_history' => 'nullable|boolean',
+            // JSON/text areas (allow string or JSON)
+            'education_history' => 'nullable|string',
+            'training_history' => 'nullable|string',
+            'family_structure' => 'nullable|string',
+            'emergency_contact' => 'nullable|string',
+            // financing
+            'has_credit_issue' => 'nullable|in:0,1,yes,no,YA,TIDAK,Yes,No',
+            'credit_institution' => 'nullable|string|max:255',
+            'credit_plafond' => 'nullable|numeric',
+            'credit_monthly_installment' => 'nullable|numeric',
         ]);
 
         DB::beginTransaction();
@@ -429,9 +596,32 @@ class EmployeeController extends Controller
                     'department_id' => $request->department_id,
                     'full_name' => $request->full_name,
                     'phone' => $request->phone,
+                    'mobile' => $request->mobile,
+                    'address' => $request->input('address'),
+                    'address_ktp' => $request->input('address_ktp'),
+                    'address_domisili' => $request->input('address_domisili'),
                     'hire_date' => $request->hire_date,
                     'email' => $user->email,
                     'is_active' => true,
+                    // personal
+                    'nik_ktp' => $request->input('nik_ktp'),
+                    'birth_place' => $request->input('birth_place'),
+                    'birth_date' => $request->input('birth_date'),
+                    'gender' => $request->input('gender'),
+                    'height_cm' => $request->input('height_cm'),
+                    'weight_kg' => $request->input('weight_kg'),
+                    'hobby' => $request->input('hobby'),
+                    'marital_status' => $request->input('marital_status'),
+                    'residence_status' => $request->input('residence_status'),
+                    // health
+                    'health_condition' => $request->input('health_condition'),
+                    'degenerative_diseases' => $request->input('degenerative_diseases'),
+                    'has_medical_history' => $request->input('has_medical_history') ? 1 : 0,
+                    // financing
+                    'has_credit_issue' => $request->input('has_credit_issue'),
+                    'credit_institution' => $request->input('credit_institution'),
+                    'credit_plafond' => $request->input('credit_plafond'),
+                    'credit_monthly_installment' => $request->input('credit_monthly_installment'),
                 ];
 
                 // keep both position_id and position string consistent
@@ -444,13 +634,77 @@ class EmployeeController extends Controller
                 }
 
                 if ($photoPath) {
-                    if ($employee->photo) {
-                        Storage::disk('public')->delete($employee->photo);
-                    }
+                    if ($employee->photo) { Storage::disk('public')->delete($employee->photo); }
                     $updateData['photo'] = $photoPath;
                 }
 
+                // Parse JSON-like fields
+                $updateData['education_history'] = $this->parseJsonField($request->input('education_history'));
+                $updateData['training_history'] = $this->parseJsonField($request->input('training_history'));
+                $updateData['family_structure'] = $this->parseJsonField($request->input('family_structure'));
+                $updateData['emergency_contact'] = $this->parseJsonField($request->input('emergency_contact'));
+
                 $employee->update($updateData);
+
+                // Sync repeatable related records if provided (update case)
+                if ($request->has('education') && is_array($request->input('education'))) {
+                    $employee->educationRecords()->delete();
+                    foreach ($request->input('education') as $row) {
+                        if (empty($row['school_name']) && empty($row['major'])) continue;
+                        $employee->educationRecords()->create([
+                            'school_name' => $row['school_name'] ?? null,
+                            'city' => $row['city'] ?? null,
+                            'major' => $row['major'] ?? null,
+                            'start_year' => $row['start_year'] ?? null,
+                            'end_year' => $row['end_year'] ?? null,
+                            'status' => $row['status'] ?? null,
+                        ]);
+                    }
+                }
+
+                if ($request->has('training') && is_array($request->input('training'))) {
+                    $employee->trainingRecords()->delete();
+                    foreach ($request->input('training') as $row) {
+                        if (empty($row['course_name'])) continue;
+                        $employee->trainingRecords()->create([
+                            'course_name' => $row['course_name'] ?? null,
+                            'organizer' => $row['organizer'] ?? null,
+                            'city' => $row['city'] ?? null,
+                            'duration' => $row['duration'] ?? null,
+                            'year' => $row['year'] ?? null,
+                            'paid_by' => $row['paid_by'] ?? null,
+                        ]);
+                    }
+                }
+
+                if ($request->has('family') && is_array($request->input('family'))) {
+                    $employee->familyMembers()->delete();
+                    foreach ($request->input('family') as $row) {
+                        if (empty($row['name'])) continue;
+                        $employee->familyMembers()->create([
+                            'relation' => $row['relation'] ?? null,
+                            'name' => $row['name'] ?? null,
+                            'gender' => $row['gender'] ?? null,
+                            'last_education' => $row['last_education'] ?? null,
+                            'last_job' => $row['last_job'] ?? null,
+                            'age' => $row['age'] ?? null,
+                        ]);
+                    }
+                }
+
+                if ($request->has('emergency') && is_array($request->input('emergency'))) {
+                    $employee->emergencyContacts()->delete();
+                    foreach ($request->input('emergency') as $idx => $row) {
+                        if (empty($row['name'])) continue;
+                        $employee->emergencyContacts()->create([
+                            'name' => $row['name'] ?? null,
+                            'address' => $row['address'] ?? null,
+                            'relation' => $row['relation'] ?? null,
+                            'phone' => $row['phone'] ?? null,
+                            'priority' => ($row['priority'] ?? ($idx+1)),
+                        ]);
+                    }
+                }
             } else {
                 // create new
                 $positionName = null;
@@ -458,8 +712,7 @@ class EmployeeController extends Controller
                     $pos = Position::find($request->position_id);
                     $positionName = $pos ? $pos->name : null;
                 }
-
-                Employee::create([
+                $createData = [
                     'employee_id' => $request->employee_id,
                     'user_id' => $user->id,
                     'department_id' => $request->department_id,
@@ -467,11 +720,98 @@ class EmployeeController extends Controller
                     'position' => $positionName,
                     'full_name' => $request->full_name,
                     'phone' => $request->phone,
+                    'mobile' => $request->mobile,
+                    'address' => $request->input('address'),
+                    'address_ktp' => $request->input('address_ktp'),
+                    'address_domisili' => $request->input('address_domisili'),
                     'hire_date' => $request->hire_date,
                     'photo' => $photoPath,
-                    'email' => $user->email, // ensure employee.email set when user completes profile
+                    'email' => $user->email,
                     'is_active' => true,
-                ]);
+                    'nik_ktp' => $request->input('nik_ktp'),
+                    'birth_place' => $request->input('birth_place'),
+                    'birth_date' => $request->input('birth_date'),
+                    'gender' => $request->input('gender'),
+                    'height_cm' => $request->input('height_cm'),
+                    'weight_kg' => $request->input('weight_kg'),
+                    'hobby' => $request->input('hobby'),
+                    'marital_status' => $request->input('marital_status'),
+                    'residence_status' => $request->input('residence_status'),
+                    'health_condition' => $request->input('health_condition'),
+                    'degenerative_diseases' => $request->input('degenerative_diseases'),
+                    'has_medical_history' => $request->input('has_medical_history') ? 1 : 0,
+                    'has_credit_issue' => $request->input('has_credit_issue'),
+                    'credit_institution' => $request->input('credit_institution'),
+                    'credit_plafond' => $request->input('credit_plafond'),
+                    'credit_monthly_installment' => $request->input('credit_monthly_installment'),
+                ];
+
+                $createData['education_history'] = $this->parseJsonField($request->input('education_history'));
+                $createData['training_history'] = $this->parseJsonField($request->input('training_history'));
+                $createData['family_structure'] = $this->parseJsonField($request->input('family_structure'));
+                $createData['emergency_contact'] = $this->parseJsonField($request->input('emergency_contact'));
+
+                $employee = Employee::create($createData);
+
+                // Sync repeatable related records if provided
+                if ($request->has('education') && is_array($request->input('education'))) {
+                    $employee->educationRecords()->delete();
+                    foreach ($request->input('education') as $row) {
+                        if (empty($row['school_name']) && empty($row['major'])) continue;
+                        $employee->educationRecords()->create([
+                            'school_name' => $row['school_name'] ?? null,
+                            'city' => $row['city'] ?? null,
+                            'major' => $row['major'] ?? null,
+                            'start_year' => $row['start_year'] ?? null,
+                            'end_year' => $row['end_year'] ?? null,
+                            'status' => $row['status'] ?? null,
+                        ]);
+                    }
+                }
+
+                if ($request->has('training') && is_array($request->input('training'))) {
+                    $employee->trainingRecords()->delete();
+                    foreach ($request->input('training') as $row) {
+                        if (empty($row['course_name'])) continue;
+                        $employee->trainingRecords()->create([
+                            'course_name' => $row['course_name'] ?? null,
+                            'organizer' => $row['organizer'] ?? null,
+                            'city' => $row['city'] ?? null,
+                            'duration' => $row['duration'] ?? null,
+                            'year' => $row['year'] ?? null,
+                            'paid_by' => $row['paid_by'] ?? null,
+                        ]);
+                    }
+                }
+
+                if ($request->has('family') && is_array($request->input('family'))) {
+                    $employee->familyMembers()->delete();
+                    foreach ($request->input('family') as $row) {
+                        if (empty($row['name'])) continue;
+                        $employee->familyMembers()->create([
+                            'relation' => $row['relation'] ?? null,
+                            'name' => $row['name'] ?? null,
+                            'gender' => $row['gender'] ?? null,
+                            'last_education' => $row['last_education'] ?? null,
+                            'last_job' => $row['last_job'] ?? null,
+                            'age' => $row['age'] ?? null,
+                        ]);
+                    }
+                }
+
+                if ($request->has('emergency') && is_array($request->input('emergency'))) {
+                    $employee->emergencyContacts()->delete();
+                    foreach ($request->input('emergency') as $idx => $row) {
+                        if (empty($row['name'])) continue;
+                        $employee->emergencyContacts()->create([
+                            'name' => $row['name'] ?? null,
+                            'address' => $row['address'] ?? null,
+                            'relation' => $row['relation'] ?? null,
+                            'phone' => $row['phone'] ?? null,
+                            'priority' => ($row['priority'] ?? ($idx+1)),
+                        ]);
+                    }
+                }
             }
 
             DB::commit();

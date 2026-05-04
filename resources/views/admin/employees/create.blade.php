@@ -20,7 +20,7 @@
     <div class="card card-style shadow-m mb-3">
         <div class="content">
             @include('admin.partials.alerts')
-            <form action="{{ route('admin.employees.store') }}" method="POST" id="employeeForm">
+            <form action="{{ route('admin.employees.store') }}" method="POST" id="employeeForm" enctype="multipart/form-data">
                 @csrf
 
                 <!-- Data Personal -->
@@ -129,6 +129,62 @@
                     <div class="mb-3">
                         <label for="password_confirmation" class="form-label font-600">Konfirmasi Password <span class="color-red-dark">*</span></label>
                         <input type="password" class="form-control rounded-xl" id="password_confirmation" name="password_confirmation" placeholder="Ulangi password" required>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <h6 class="font-600 mb-3 color-brown">
+                        <i class="bi bi-person-badge me-2"></i>Profil Lengkap
+                    </h6>
+
+                    <div class="mb-3">
+                        <label class="form-label font-600">NIK / KTP</label>
+                        <input type="text" class="form-control rounded-xl" name="nik_ktp" value="{{ old('nik_ktp') }}" placeholder="NIK / Nomor KTP">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label font-600">Alamat Sesuai KTP</label>
+                        <textarea class="form-control rounded-xl" name="address_ktp" placeholder="Alamat sesuai KTP">{{ old('address_ktp') }}</textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label font-600">Alamat Domisili</label>
+                        <textarea class="form-control rounded-xl" name="address_domisili" placeholder="Alamat domisili">{{ old('address_domisili') }}</textarea>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <label class="form-label font-600">HP / Mobile</label>
+                            <input type="text" class="form-control rounded-xl" name="mobile" value="{{ old('mobile') }}" placeholder="08...">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label font-600">Jenis Kelamin</label>
+                            <select class="form-select rounded-xl" name="gender">
+                                <option value="">-- Pilih --</option>
+                                <option value="M" {{ old('gender') == 'M' ? 'selected' : '' }}>Pria</option>
+                                <option value="F" {{ old('gender') == 'F' ? 'selected' : '' }}>Wanita</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mt-3">
+                        <div class="col-6">
+                            <label class="form-label font-600">Tempat Lahir</label>
+                            <input type="text" class="form-control rounded-xl" name="birth_place" value="{{ old('birth_place') }}">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label font-600">Tanggal Lahir</label>
+                            <input type="date" class="form-control rounded-xl" name="birth_date" value="{{ old('birth_date') }}">
+                        </div>
+                    </div>
+
+                    <div class="mb-3 mt-3">
+                        <label class="form-label font-600">Kondisi Kesehatan / Penyakit</label>
+                        <textarea class="form-control rounded-xl" name="health_condition" placeholder="Kondisi kesehatan atau catatan">{{ old('health_condition') }}</textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label font-600">Riwayat Pendidikan (JSON atau teks)</label>
+                        <textarea class="form-control rounded-xl" name="education_history" placeholder='Contoh: [{"name":"S1 Teknik","year":2015}]'>{{ old('education_history') }}</textarea>
                     </div>
                 </div>
 

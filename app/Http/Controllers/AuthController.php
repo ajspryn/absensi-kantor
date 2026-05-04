@@ -9,6 +9,8 @@ use App\Models\User;
 use App\Models\ActivityLog;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
 
 class AuthController extends Controller
 {
@@ -118,6 +120,24 @@ class AuthController extends Controller
             return response()->json(['message' => 'Successfully logged out']);
         } catch (JWTException $e) {
             return response()->json(['error' => 'Failed to logout'], 500);
+        }
+    }
+
+    public function apiRefresh(Request $request)
+    {
+        try {
+            $newToken = JWTAuth::parseToken()->refresh();
+
+            return response()->json([
+                'token' => $newToken,
+                'user' => JWTAuth::user(),
+            ]);
+        } catch (TokenExpiredException $e) {
+            return response()->json(['error' => 'Token expired'], 401);
+        } catch (TokenInvalidException $e) {
+            return response()->json(['error' => 'Token invalid'], 401);
+        } catch (JWTException $e) {
+            return response()->json(['error' => 'Could not refresh token'], 500);
         }
     }
 }

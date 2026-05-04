@@ -25,17 +25,51 @@ class Employee extends Model
         'is_active',
         'allow_remote_attendance',
         'photo',
+        // Extended profile fields
+        'nik_ktp',
+        'jabatan',
+        'address_ktp',
+        'address_domisili',
+        'mobile',
+        'gender',
+        'height_cm',
+        'weight_kg',
+        'hobby',
+        'birth_place',
+        'birth_date',
+        'marital_status',
+        'residence_status',
+        'health_condition',
+        'degenerative_diseases',
+        'has_medical_history',
+        'education_history',
+        'training_history',
+        'family_structure',
+        'emergency_contact',
+        'commitment_notes',
+        'financing_notes',
+        'has_credit_issue',
+        'credit_institution',
+        'credit_plafond',
+        'credit_monthly_installment',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'hire_date' => 'date',
-            'salary' => 'decimal:2',
-            'is_active' => 'boolean',
-            'allow_remote_attendance' => 'boolean',
-        ];
-    }
+    protected $casts = [
+        'hire_date' => 'date',
+        'salary' => 'decimal:2',
+        'is_active' => 'boolean',
+        'allow_remote_attendance' => 'boolean',
+        // Extended casts
+        'birth_date' => 'date',
+        'has_medical_history' => 'boolean',
+        'has_credit_issue' => 'boolean',
+        'education_history' => 'array',
+        'training_history' => 'array',
+        'family_structure' => 'array',
+        'emergency_contact' => 'array',
+        'credit_plafond' => 'decimal:2',
+        'credit_monthly_installment' => 'decimal:2',
+    ];
 
     // Relationships
     public function user()
@@ -56,6 +90,26 @@ class Employee extends Model
     public function attendances()
     {
         return $this->hasMany(Attendance::class);
+    }
+
+    public function educationRecords()
+    {
+        return $this->hasMany(EducationRecord::class);
+    }
+
+    public function trainingRecords()
+    {
+        return $this->hasMany(TrainingRecord::class);
+    }
+
+    public function familyMembers()
+    {
+        return $this->hasMany(FamilyMember::class);
+    }
+
+    public function emergencyContacts()
+    {
+        return $this->hasMany(EmergencyContact::class);
     }
 
     public function workSchedules()

@@ -42,6 +42,177 @@
         </div>
         <div class="card card-style mb-3">
             <div class="content">
+                <h6 class="font-600 mb-3 color-brown">
+                    <i class="bi bi-person-badge me-2"></i>Profil Lengkap
+                </h6>
+                <div class="row g-2">
+                    <div class="col-12 col-md-6">
+                        <div class="form-custom form-label form-icon mb-3">
+                            <i class="bi bi-credit-card-2-front font-14"></i>
+                            <input type="text" class="form-control rounded-xl" name="nik_ktp" value="{{ old('nik_ktp', $employee->nik_ktp) }}" placeholder="NIK / Nomor KTP" />
+                            <label class="badge bg-theme text-white px-2 py-1 mb-1" style="font-size:13px;">NIK / KTP</label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="form-custom form-label form-icon mb-3">
+                            <i class="bi bi-briefcase font-14"></i>
+                            <input type="text" class="form-control rounded-xl" name="jabatan" value="{{ old('jabatan', $employee->jabatan) }}" placeholder="Jabatan (deskripsi)" />
+                            <label class="badge bg-theme text-white px-2 py-1 mb-1" style="font-size:13px;">Jabatan (deskripsi)</label>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-custom form-label form-icon mb-3">
+                            <i class="bi bi-geo-alt font-14"></i>
+                            <textarea class="form-control rounded-xl" name="address_ktp" placeholder="Alamat sesuai KTP">{{ old('address_ktp', $employee->address_ktp) }}</textarea>
+                            <label class="badge bg-theme text-white px-2 py-1 mb-1" style="font-size:13px;">Alamat Sesuai KTP</label>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-custom form-label form-icon mb-3">
+                            <i class="bi bi-house-door font-14"></i>
+                            <textarea class="form-control rounded-xl" name="address_domisili" placeholder="Alamat Domisili">{{ old('address_domisili', $employee->address_domisili) }}</textarea>
+                            <label class="badge bg-theme text-white px-2 py-1 mb-1" style="font-size:13px;">Alamat Domisili</label>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <div class="form-custom form-label form-icon mb-3">
+                            <i class="bi bi-phone font-14"></i>
+                            <input type="text" class="form-control rounded-xl" name="mobile" value="{{ old('mobile', $employee->mobile) }}" placeholder="HP / Mobile" />
+                            <label class="badge bg-theme text-white px-2 py-1 mb-1" style="font-size:13px;">HP / Mobile</label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="form-custom form-label form-icon mb-3">
+                            <i class="bi bi-gender-ambiguous font-14"></i>
+                            <select class="form-select rounded-xl" name="gender">
+                                <option value="">-- Pilih Jenis Kelamin --</option>
+                                <option value="M" {{ old('gender', $employee->gender) == 'M' ? 'selected' : '' }}>Pria</option>
+                                <option value="F" {{ old('gender', $employee->gender) == 'F' ? 'selected' : '' }}>Wanita</option>
+                            </select>
+                            <label class="badge bg-theme text-white px-2 py-1 mb-1" style="font-size:13px;">Jenis Kelamin</label>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-3">
+                        <div class="form-custom form-label form-icon mb-3">
+                            <i class="bi bi-arrows-expand font-14"></i>
+                            <input type="number" class="form-control rounded-xl" name="height_cm" value="{{ old('height_cm', $employee->height_cm) }}" placeholder="Tinggi (cm)" />
+                            <label class="badge bg-theme text-white px-2 py-1 mb-1" style="font-size:13px;">Tinggi (cm)</label>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="form-custom form-label form-icon mb-3">
+                            <i class="bi bi-balance-scale font-14"></i>
+                            <input type="number" class="form-control rounded-xl" name="weight_kg" value="{{ old('weight_kg', $employee->weight_kg) }}" placeholder="Berat (kg)" />
+                            <label class="badge bg-theme text-white px-2 py-1 mb-1" style="font-size:13px;">Berat (kg)</label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="form-custom form-label form-icon mb-3">
+                            <i class="bi bi-heart font-14"></i>
+                            <input type="text" class="form-control rounded-xl" name="hobby" value="{{ old('hobby', $employee->hobby) }}" placeholder="Hobby" />
+                            <label class="badge bg-theme text-white px-2 py-1 mb-1" style="font-size:13px;">Hobby</label>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-6">
+                        <div class="form-custom form-label form-icon mb-3">
+                            <i class="bi bi-geo-alt-fill font-14"></i>
+                            <input type="text" class="form-control rounded-xl" name="birth_place" value="{{ old('birth_place', $employee->birth_place) }}" placeholder="Tempat Lahir" />
+                            <label class="badge bg-theme text-white px-2 py-1 mb-1" style="font-size:13px;">Tempat Lahir</label>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-6">
+                        <div class="form-custom form-label form-icon mb-3">
+                            <i class="bi bi-calendar2-date font-14"></i>
+                            <input type="date" class="form-control rounded-xl" name="birth_date" value="{{ old('birth_date', optional($employee->birth_date)->format('Y-m-d')) }}" />
+                            <label class="badge bg-theme text-white px-2 py-1 mb-1" style="font-size:13px;">Tanggal Lahir</label>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-6">
+                        <div class="form-custom form-label form-icon mb-3">
+                            <i class="bi bi-person-lines-fill font-14"></i>
+                            <select class="form-select rounded-xl" name="marital_status">
+                                <option value="">-- Pilih Status Perkawinan --</option>
+                                <option value="belum" {{ old('marital_status', $employee->marital_status) == 'belum' ? 'selected' : '' }}>Belum Menikah</option>
+                                <option value="menikah" {{ old('marital_status', $employee->marital_status) == 'menikah' ? 'selected' : '' }}>Menikah</option>
+                                <option value="cerai_hidup" {{ old('marital_status', $employee->marital_status) == 'cerai_hidup' ? 'selected' : '' }}>Cerai Hidup</option>
+                                <option value="cerai_mati" {{ old('marital_status', $employee->marital_status) == 'cerai_mati' ? 'selected' : '' }}>Cerai Mati</option>
+                            </select>
+                            <label class="badge bg-theme text-white px-2 py-1 mb-1" style="font-size:13px;">Status Perkawinan</label>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-6">
+                        <div class="form-custom form-label form-icon mb-3">
+                            <i class="bi bi-house-door-fill font-14"></i>
+                            <select class="form-select rounded-xl" name="residence_status">
+                                <option value="">-- Pilih Status Tempat Tinggal --</option>
+                                <option value="milik_sendiri" {{ old('residence_status', $employee->residence_status) == 'milik_sendiri' ? 'selected' : '' }}>Milik Sendiri</option>
+                                <option value="milik_orang_tua" {{ old('residence_status', $employee->residence_status) == 'milik_orang_tua' ? 'selected' : '' }}>Milik Orang Tua</option>
+                                <option value="sewa" {{ old('residence_status', $employee->residence_status) == 'sewa' ? 'selected' : '' }}>Sewa</option>
+                                <option value="lainnya" {{ old('residence_status', $employee->residence_status) == 'lainnya' ? 'selected' : '' }}>Lainnya</option>
+                            </select>
+                            <label class="badge bg-theme text-white px-2 py-1 mb-1" style="font-size:13px;">Status Tempat Tinggal</label>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-custom form-label form-icon mb-3">
+                            <i class="bi bi-clipboard-heart font-14"></i>
+                            <textarea class="form-control rounded-xl" name="health_condition" placeholder="Kondisi Kesehatan dan catatan">{{ old('health_condition', $employee->health_condition) }}</textarea>
+                            <label class="badge bg-theme text-white px-2 py-1 mb-1" style="font-size:13px;">Kondisi Kesehatan</label>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-custom form-label form-icon mb-3">
+                            <i class="bi bi-activity font-14"></i>
+                            <textarea class="form-control rounded-xl" name="degenerative_diseases" placeholder="Penyakit degeneratif (pisahkan koma jika lebih dari satu)">{{ old('degenerative_diseases', $employee->degenerative_diseases) }}</textarea>
+                            <label class="badge bg-theme text-white px-2 py-1 mb-1" style="font-size:13px;">Penyakit Degeneratif / Kronis</label>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-custom form-label form-icon mb-3">
+                            <i class="bi bi-journal-text font-14"></i>
+                            <textarea class="form-control rounded-xl" name="education_history" placeholder="Riwayat pendidikan (format JSON atau teks)">{{ old('education_history', optional($employee)->education_history ? json_encode($employee->education_history, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE) : '') }}</textarea>
+                            <label class="badge bg-theme text-white px-2 py-1 mb-1" style="font-size:13px;">Riwayat Pendidikan (JSON)</label>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-custom form-label form-icon mb-3">
+                            <i class="bi bi-award font-14"></i>
+                            <textarea class="form-control rounded-xl" name="training_history" placeholder="Kursus / Training (format JSON atau teks)">{{ old('training_history', optional($employee)->training_history ? json_encode($employee->training_history, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE) : '') }}</textarea>
+                            <label class="badge bg-theme text-white px-2 py-1 mb-1" style="font-size:13px;">Kursus / Training (JSON)</label>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-custom form-label form-icon mb-3">
+                            <i class="bi bi-people-fill font-14"></i>
+                            <textarea class="form-control rounded-xl" name="family_structure" placeholder="Susunan keluarga (format JSON atau teks)">{{ old('family_structure', optional($employee)->family_structure ? json_encode($employee->family_structure, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE) : '') }}</textarea>
+                            <label class="badge bg-theme text-white px-2 py-1 mb-1" style="font-size:13px;">Susunan Keluarga (JSON)</label>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-custom form-label form-icon mb-3">
+                            <i class="bi bi-phone-vibrate font-14"></i>
+                            <textarea class="form-control rounded-xl" name="emergency_contact" placeholder="Orang yang dapat dihubungi (format JSON atau teks)">{{ old('emergency_contact', optional($employee)->emergency_contact ? json_encode($employee->emergency_contact, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE) : '') }}</textarea>
+                            <label class="badge bg-theme text-white px-2 py-1 mb-1" style="font-size:13px;">Kontak Darurat (JSON)</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card card-style mb-3">
+            <div class="content">
                 <h6 class="font-600 mb-3 color-green-dark">
                     <i class="bi bi-building me-2"></i>Data Organisasi
                 </h6>

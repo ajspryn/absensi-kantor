@@ -22,7 +22,7 @@
     </div>
 </div>
 
-@endsection@endsection
+@endsection
 
 
 
@@ -425,6 +425,57 @@
 </div>
 
 <!-- Submit Buttons --> </div>
+
+    <!-- Profil Lengkap (opsional) -->
+    <div class="card card-style">
+        <div class="content">
+            <h5 class="font-700 mb-2">Profil Lengkap (Opsional)</h5>
+            <div class="mb-3">
+                <label class="form-label">NIK / KTP</label>
+                <input type="text" class="form-control rounded-s" name="nik_ktp" value="{{ old('nik_ktp') }}" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Alamat Sesuai KTP</label>
+                <textarea class="form-control rounded-s" name="address_ktp">{{ old('address_ktp') }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Alamat Domisili</label>
+                <textarea class="form-control rounded-s" name="address_domisili">{{ old('address_domisili') }}</textarea>
+            </div>
+            <div class="row">
+                <div class="col-6">
+                    <label class="form-label">HP / Mobile</label>
+                    <input type="text" class="form-control rounded-s" name="mobile" value="{{ old('mobile') }}" />
+                </div>
+                <div class="col-6">
+                    <label class="form-label">Jenis Kelamin</label>
+                    <select name="gender" class="form-control rounded-s">
+                        <option value="">-- Pilih --</option>
+                        <option value="M" {{ old('gender') == 'M' ? 'selected' : '' }}>Pria</option>
+                        <option value="F" {{ old('gender') == 'F' ? 'selected' : '' }}>Wanita</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-6">
+                    <label class="form-label">Tempat Lahir</label>
+                    <input type="text" class="form-control rounded-s" name="birth_place" value="{{ old('birth_place') }}" />
+                </div>
+                <div class="col-6">
+                    <label class="form-label">Tanggal Lahir</label>
+                    <input type="date" class="form-control rounded-s" name="birth_date" value="{{ old('birth_date') }}" />
+                </div>
+            </div>
+            <div class="mb-3 mt-3">
+                <label class="form-label">Kondisi Kesehatan</label>
+                <textarea class="form-control rounded-s" name="health_condition">{{ old('health_condition') }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Riwayat Pendidikan (JSON atau teks)</label>
+                <textarea class="form-control rounded-s" name="education_history">{{ old('education_history') }}</textarea>
+            </div>
+        </div>
+    </div>
 
 <div class="card card-style">@endsection
 

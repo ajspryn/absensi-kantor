@@ -133,6 +133,39 @@
                 <span>Profil</span>
                 <i class="bi bi-chevron-right"></i>
             </a>
+            @php
+                // If any required employee profile field is missing, show quick link to complete profile
+                $needsComplete = false;
+                $empCheck = $employee ?? optional(auth()->user())->employee;
+                if (!$empCheck) {
+                    $needsComplete = true;
+                } else {
+                    // Require all important profile fields to be filled
+                    $required = [
+                        'employee_id','full_name','department_id','position_id','work_schedule_id',
+                        'email','phone','mobile','address','address_ktp','address_domisili','nik_ktp',
+                        'gender','birth_place','birth_date','marital_status','residence_status',
+                        'hire_date','photo','education_history','training_history','family_structure','emergency_contact'
+                    ];
+
+                    foreach ($required as $f) {
+                        $val = $empCheck->{$f} ?? null;
+                        // treat json/array fields as incomplete when empty
+                        if (is_array($val) || $val instanceof \Illuminate\Contracts\Support\Arrayable) {
+                            if (empty($val)) { $needsComplete = true; break; }
+                        } else {
+                            if (empty($val) && !is_numeric($val)) { $needsComplete = true; break; }
+                        }
+                    }
+                }
+            @endphp
+            @if ($needsComplete)
+                <a href="{{ route('employee.profile.complete') }}" class="mt-2 bg-yellow-light rounded-xl p-2 text-start d-block">
+                    <i class="bi bi-person-check color-yellow-dark me-2"></i>
+                    <span class="font-13">Lengkapi Profil</span>
+                    <i class="bi bi-chevron-right float-end"></i>
+                </a>
+            @endif
         </div>
     </div>
 

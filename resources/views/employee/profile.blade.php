@@ -204,6 +204,37 @@
                     </button>
                 </div>
             </div>
+            @php
+                $needsComplete = false;
+                $empCheck = $employee ?? optional(auth()->user())->employee;
+                if (!$empCheck) {
+                    $needsComplete = true;
+                } else {
+                    $required = [
+                        'employee_id','full_name','department_id','position_id','work_schedule_id',
+                        'email','phone','mobile','address','address_ktp','address_domisili','nik_ktp',
+                        'gender','birth_place','birth_date','marital_status','residence_status',
+                        'hire_date','photo','education_history','training_history','family_structure','emergency_contact'
+                    ];
+                    foreach ($required as $f) {
+                        $val = $empCheck->{$f} ?? null;
+                        if (is_array($val) || $val instanceof \Illuminate\Contracts\Support\Arrayable) {
+                            if (empty($val)) { $needsComplete = true; break; }
+                        } else {
+                            if (empty($val) && !is_numeric($val)) { $needsComplete = true; break; }
+                        }
+                    }
+                }
+            @endphp
+            @if ($needsComplete)
+                <div class="row g-2 mt-2">
+                    <div class="col-12">
+                        <a href="{{ route('employee.profile.complete') }}" class="btn btn-full btn-m bg-blue-dark text-white text-uppercase font-700 rounded-s">
+                            <i class="bi bi-person-check pe-2"></i>Lengkapi Profil
+                        </a>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 
