@@ -59,15 +59,22 @@ class StoreProfileRequest extends FormRequest
             'degenerative_diseases' => 'nullable|string',
             'has_medical_history' => 'nullable|boolean',
             // JSON/text areas (allow string or JSON)
-            'education_history' => 'nullable|string',
-            'training_history' => 'nullable|string',
-            'family_structure' => 'nullable|string',
-            'emergency_contact' => 'nullable|string',
+            'education' => 'nullable|array',
+            'training' => 'nullable|array',
+            'family' => 'nullable|array',
+            'emergency' => 'required|array|min:2',
+            'emergency.*.name' => 'required|string|max:255',
+            'emergency.*.relation' => 'required|string|max:255',
+            'emergency.*.phone' => 'required|string|max:255',
             // financing
             'has_credit_issue' => 'nullable|in:0,1,yes,no,YA,TIDAK,Yes,No',
             'credit_institution' => 'nullable|string|max:255',
             'credit_plafond' => 'nullable|numeric',
             'credit_monthly_installment' => 'nullable|numeric',
+            // documents
+            'ktp_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
+            'kk_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
+            'marriage_certificate_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
         ];
     }
 }

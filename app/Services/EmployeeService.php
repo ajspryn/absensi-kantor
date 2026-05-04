@@ -31,7 +31,7 @@ class EmployeeService
                 'is_active' => true,
             ]);
 
-            $photoPath = $this->handlePhotoUpload($photo);
+            $photoPath = $this->handleFileUpload($photo, 'employee_photos');
 
             $employee = Employee::create([
                 'employee_id' => $data['employee_id'],
@@ -81,7 +81,7 @@ class EmployeeService
 
             $employee->user->update($userData);
 
-            $photoPath = $this->handlePhotoUpload($photo, $employee->photo);
+            $photoPath = $this->handleFileUpload($photo, 'employee_photos', $employee->photo);
 
             $employee->update([
                 'employee_id' => $data['employee_id'],
@@ -127,7 +127,10 @@ class EmployeeService
     {
         return DB::transaction(function () use ($user, $data, $photo) {
             $employee = $user->employee;
-            $photoPath = $this->handlePhotoUpload($photo, $employee ? $employee->photo : null);
+            $photoPath = $this->handleFileUpload($photo, 'employee_photos', $employee ? $employee->photo : null);
+            $ktpPath = $this->handleFileUpload($data['ktp_file'] ?? null, 'ktp_docs', $employee ? $employee->ktp_path : null);
+            $kkPath = $this->handleFileUpload($data['kk_file'] ?? null, 'kk_docs', $employee ? $employee->kk_path : null);
+            $marriageCertPath = $this->handleFileUpload($data['marriage_certificate_file'] ?? null, 'marriage_docs', $employee ? $employee->marriage_certificate_path : null);
 
             $employeeData = [
                 'employee_id' => $data['employee_id'],
@@ -157,15 +160,16 @@ class EmployeeService
                 'credit_institution' => $data['credit_institution'] ?? null,
                 'credit_plafond' => $data['credit_plafond'] ?? null,
                 'credit_monthly_installment' => $data['credit_monthly_installment'] ?? null,
-                'education_history' => $data['education'] ?? null,
-                'training_history' => $data['training'] ?? null,
+                'education_history' => $this->processNestedFiles($data['education'] ?? [], 'education', 'education_docs', $employee ? $employee->education_history : []),
+                'training_history' => $this->processNestedFiles($data['training'] ?? [], 'training', 'training_docs', $employee ? $employee->training_history : []),
                 'family_structure' => $data['family'] ?? null,
                 'emergency_contact' => $data['emergency'] ?? null,
+                'photo' => $photoPath,
+                'ktp_path' => $ktpPath,
+                'kk_path' => $kkPath,
+                'marriage_certificate_path' => $marriageCertPath,
             ];
 
-            if ($photoPath) {
-                $employeeData['photo'] = $photoPath;
-            }
 
             if (!empty($data['position_id'])) {
                 $positionModel = Position::find($data['position_id']);
@@ -212,18 +216,18 @@ class EmployeeService
     }
 
     /**
-     * Handle photo upload logic, including deleting the old photo if necessary.
+     * Handle file upload logic, including deleting the old file if necessary.
      */
-    protected function handlePhotoUpload(?UploadedFile $photo, ?string $oldPhotoPath = null): ?string
+    protected function handleFileUpload(?UploadedFile $file, string $directory, ?string $oldFilePath = null): ?string
     {
-        if ($photo) {
-            if ($oldPhotoPath) {
-                Storage::disk('public')->delete($oldPhotoPath);
+        if ($file) {
+            if ($oldFilePath) {
+                Storage::disk('public')->delete($oldFilePath);
             }
-            return $photo->store('employee_photos', 'public');
+            return $file->store($directory, 'public');
         }
 
-        return $oldPhotoPath;
+        return $oldFilePath;
     }
 
     /**
@@ -237,6 +241,31 @@ class EmployeeService
         $employee->educationRecords()->delete();
         ...
         */
+    }
+
+    /**
+     * Process nested file uploads within array data (repeaters).
+     */
+    protected function processNestedFiles(array $items, string $keyPrefix, string $directory, $oldItems = []): array
+    {
+        if (!is_array($items)) return [];
+        
+        $oldItemsArray = is_array($oldItems) ? $oldItems : (is_string($oldItems) ? json_decode($oldItems, true) : []);
+        if (!is_array($oldItemsArray)) $oldItemsArray = [];
+
+        foreach ($items as $i => &$item) {
+            // Check for file in request using dot notation
+            $fileKey = "{$keyPrefix}.{$i}.certificate";
+            if (request()->hasFile($fileKey)) {
+                $oldPath = $oldItemsArray[$i]['certificate_path'] ?? null;
+                $item['certificate_path'] = $this->handleFileUpload(request()->file($fileKey), $directory, $oldPath);
+            } elseif (isset($oldItemsArray[$i]['certificate_path'])) {
+                // Keep old path if no new file uploaded
+                $item['certificate_path'] = $oldItemsArray[$i]['certificate_path'];
+            }
+        }
+        
+        return $items;
     }
 
     /**

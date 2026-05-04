@@ -16,11 +16,77 @@
     .stepper-item.active { color: #8CC152; border-bottom: 2px solid #8CC152; }
     .stepper-item.completed { color: #4A89DC; }
     
-    .repeater-card { background: rgba(0,0,0,0.02); border-radius: 12px; padding: 15px; padding-top: 35px; margin-bottom: 15px; position: relative; border: 1px solid rgba(0,0,0,0.05); }
-    .repeater-remove { position: absolute; top: 10px; right: 10px; border-radius: 6px !important; width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; }
-    .theme-dark .repeater-card { background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.05); }
+    .repeater-card { 
+        background: #ffffff; 
+        border-radius: 15px; 
+        padding: 20px; 
+        padding-top: 45px; 
+        margin-bottom: 20px; 
+        position: relative; 
+        border: 1px solid rgba(0,0,0,0.07);
+        box-shadow: 0 3px 10px rgba(0,0,0,0.03);
+    }
+    .theme-dark .repeater-card { 
+        background: rgba(255,255,255,0.02); 
+        border-color: rgba(255,255,255,0.05); 
+        box-shadow: none;
+    }
+    .repeater-input-group { margin-bottom: 12px; }
+    .repeater-input-group label {
+        display: block;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: var(--theme-highlight);
+        margin-bottom: 4px;
+        padding-left: 2px;
+        opacity: 0.7;
+    }
+
+    .repeater-remove { 
+        position: absolute; 
+        top: 12px; 
+        right: 12px; 
+        border-radius: 8px !important; 
+        width: 28px; 
+        height: 28px; 
+        padding: 0; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        z-index: 10;
+        border: none;
+    }
     
-    .form-custom { margin-bottom: 15px !important; }
+    .repeater-upload-area {
+        position: relative;
+        border: 1px dashed rgba(74, 137, 220, 0.3);
+        background: rgba(74, 137, 220, 0.03);
+        border-radius: 12px;
+        padding: 12px;
+        text-align: center;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+    .repeater-upload-area:hover {
+        border-color: var(--theme-highlight);
+        background: rgba(74, 137, 220, 0.08);
+    }
+    .repeater-upload-area i { font-size: 22px; color: var(--theme-highlight); display: block; margin-bottom: 2px; }
+    .repeater-upload-area .upload-title { font-size: 11px; font-weight: 700; display: block; color: var(--theme-highlight); }
+    .repeater-upload-area .upload-sub { font-size: 9px; opacity: 0.5; display: block; }
+    .repeater-upload-area input[type=file] { position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index: 10; }
+    
+    .form-custom { margin-bottom: 20px !important; }
+    .file-data-card {
+        border: 1px dashed rgba(0,0,0,0.1) !important;
+        background: rgba(0,0,0,0.01) !important;
+        transition: all 0.3s;
+    }
+    .file-data-card:hover { border-color: var(--theme-highlight) !important; background: rgba(0,0,0,0.03) !important; }
+    .theme-dark .file-data-card { border-color: rgba(255,255,255,0.1) !important; background: rgba(255,255,255,0.02) !important; }
+    .upload-file-wrapper { position: relative; overflow: hidden; display: inline-block; }
+    .upload-file-wrapper input[type=file] { position: absolute; left: 0; top: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
 </style>
 @endpush
 
@@ -82,13 +148,13 @@
                     <div class="form-custom form-label form-icon">
                         <i class="bi bi-person-badge font-14"></i>
                         <input type="text" class="form-control rounded-s" id="employee_id" name="employee_id" placeholder="EMP001" value="{{ old('employee_id', optional(auth()->user()->employee)->employee_id) }}" required />
-                        <label for="employee_id" class="color-theme font-12">ID Karyawan *</label>
+                        <label for="employee_id" class="form-label-always-active color-highlight">ID Karyawan *</label>
                     </div>
 
                     <div class="form-custom form-label form-icon">
                         <i class="bi bi-person-circle font-14"></i>
                         <input type="text" class="form-control rounded-s" id="full_name" name="full_name" placeholder="Nama Lengkap" value="{{ old('full_name', optional(auth()->user()->employee)->full_name ?? auth()->user()->name) }}" required />
-                        <label for="full_name" class="color-theme font-12">Nama Lengkap *</label>
+                        <label for="full_name" class="form-label-always-active color-highlight">Nama Lengkap *</label>
                     </div>
 
                     <div class="row mb-0">
@@ -100,14 +166,14 @@
                                     <option value="M" {{ old('gender', optional(auth()->user()->employee)->gender) === 'M' ? 'selected' : '' }}>Laki-laki</option>
                                     <option value="F" {{ old('gender', optional(auth()->user()->employee)->gender) === 'F' ? 'selected' : '' }}>Perempuan</option>
                                 </select>
-                                <label for="gender" class="color-theme font-12">Jenis Kelamin</label>
+                                <label for="gender" class="form-label-always-active color-highlight">Jenis Kelamin</label>
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="form-custom form-label form-icon">
                                 <i class="bi bi-geo-alt font-14"></i>
                                 <input type="text" name="birth_place" id="birth_place" class="form-control rounded-s" placeholder="Tempat Lahir" value="{{ old('birth_place', optional(auth()->user()->employee)->birth_place) }}" />
-                                <label for="birth_place" class="color-theme font-12">Tempat Lahir</label>
+                                <label for="birth_place" class="form-label-always-active color-highlight">Tempat Lahir</label>
                             </div>
                         </div>
                     </div>
@@ -121,14 +187,14 @@
                                     $birthDateStr = $empBirthDate instanceof \Carbon\Carbon || $empBirthDate instanceof \DateTime ? $empBirthDate->format('Y-m-d') : ($empBirthDate ? date('Y-m-d', strtotime((string)$empBirthDate)) : '');
                                 @endphp
                                 <input type="date" name="birth_date" id="birth_date" class="form-control rounded-s" value="{{ old('birth_date', $birthDateStr) }}" />
-                                <label for="birth_date" class="color-theme font-12">Tanggal Lahir</label>
+                                <label for="birth_date" class="form-label-always-active color-highlight">Tanggal Lahir</label>
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="form-custom form-label form-icon">
                                 <i class="bi bi-card-text font-14"></i>
                                 <input type="number" name="nik_ktp" id="nik_ktp" class="form-control rounded-s" placeholder="NIK / No. KTP" value="{{ old('nik_ktp', optional(auth()->user()->employee)->nik_ktp) }}" />
-                                <label for="nik_ktp" class="color-theme font-12">NIK KTP</label>
+                                <label for="nik_ktp" class="form-label-always-active color-highlight">NIK KTP</label>
                             </div>
                         </div>
                     </div>
@@ -144,7 +210,7 @@
                                     <option value="cerai_hidup" {{ old('marital_status', optional(auth()->user()->employee)->marital_status) == 'cerai_hidup' ? 'selected' : '' }}>Cerai Hidup</option>
                                     <option value="cerai_mati" {{ old('marital_status', optional(auth()->user()->employee)->marital_status) == 'cerai_mati' ? 'selected' : '' }}>Cerai Mati</option>
                                 </select>
-                                <label for="marital_status" class="color-theme font-12">Status Perkawinan</label>
+                                <label for="marital_status" class="form-label-always-active color-highlight">Status Perkawinan</label>
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
@@ -157,7 +223,7 @@
                                     <option value="sewa_kontrak" {{ old('residence_status', optional(auth()->user()->employee)->residence_status) == 'sewa_kontrak' ? 'selected' : '' }}>Sewa / Kontrak</option>
                                     <option value="lainnya" {{ old('residence_status', optional(auth()->user()->employee)->residence_status) == 'lainnya' ? 'selected' : '' }}>Lainnya</option>
                                 </select>
-                                <label for="residence_status" class="color-theme font-12">Status Tinggal</label>
+                                <label for="residence_status" class="form-label-always-active color-highlight">Status Tinggal</label>
                             </div>
                         </div>
                     </div>
@@ -165,7 +231,80 @@
                     <div class="form-custom form-label form-icon">
                         <i class="bi bi-heart-pulse font-14"></i>
                         <input type="text" name="health_condition" id="health_condition" class="form-control rounded-s" placeholder="Kondisi Kesehatan (singkat)" value="{{ old('health_condition', optional(auth()->user()->employee)->health_condition) }}" />
-                        <label for="health_condition" class="color-theme font-12">Kondisi Kesehatan</label>
+                        <label for="health_condition" class="form-label-always-active color-highlight">Kondisi Kesehatan</label>
+                    </div>
+
+                    <div class="divider mt-4"></div>
+                    <div class="d-flex mb-3">
+                        <div class="align-self-center">
+                            <h5 class="font-700 mb-0">Dokumen Pendukung</h5>
+                            <p class="font-11 color-theme opacity-50 mb-0">Format JPG, PNG, atau PDF (Maks 4MB)</p>
+                        </div>
+                        <div class="align-self-center ms-auto">
+                            <i class="bi bi-file-earmark-arrow-up font-20 color-highlight"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-0">
+                        <!-- KTP Upload -->
+                        <div class="col-6">
+                            <div class="card card-style mx-0 mb-3 text-center py-3 file-data-card shadow-0">
+                                <i class="bi bi-file-earmark-person font-30 color-blue-dark"></i>
+                                <h6 class="font-13 mt-2 mb-0">KTP</h6>
+                                <p class="font-10 opacity-50 mb-2">Identity Card</p>
+                                <div class="upload-file-wrapper">
+                                    <input type="file" name="ktp_file" class="upload-file-input" data-target="ktp-status" accept="image/*,.pdf" />
+                                    <span class="btn btn-xxs font-600 rounded-s bg-highlight px-2">Pilih File</span>
+                                </div>
+                                <div id="ktp-status" class="font-9 mt-2 text-truncate px-2">
+                                    @if(optional(auth()->user()->employee)->ktp_path)
+                                        <span class="color-green-dark"><i class="bi bi-check-circle-fill"></i> Terunggah</span>
+                                    @else
+                                        <span class="opacity-40 italic">Belum ada file</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- KK Upload -->
+                        <div class="col-6">
+                            <div class="card card-style mx-0 mb-3 text-center py-3 file-data-card shadow-0">
+                                <i class="bi bi-file-earmark-medical font-30 color-green-dark"></i>
+                                <h6 class="font-13 mt-2 mb-0">KK</h6>
+                                <p class="font-10 opacity-50 mb-2">Family Card</p>
+                                <div class="upload-file-wrapper">
+                                    <input type="file" name="kk_file" class="upload-file-input" data-target="kk-status" accept="image/*,.pdf" />
+                                    <span class="btn btn-xxs font-600 rounded-s bg-highlight px-2">Pilih File</span>
+                                </div>
+                                <div id="kk-status" class="font-9 mt-2 text-truncate px-2">
+                                    @if(optional(auth()->user()->employee)->kk_path)
+                                        <span class="color-green-dark"><i class="bi bi-check-circle-fill"></i> Terunggah</span>
+                                    @else
+                                        <span class="opacity-40 italic">Belum ada file</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Marriage Cert Upload -->
+                        <div class="col-12" id="marriage_certificate_wrapper" style="display: none;">
+                            <div class="card card-style mx-0 mb-3 text-center py-3 file-data-card shadow-0">
+                                <i class="bi bi-journal-check font-30 color-red-dark"></i>
+                                <h6 class="font-13 mt-2 mb-0">Buku Nikah</h6>
+                                <p class="font-10 opacity-50 mb-2">Marriage Certificate</p>
+                                <div class="upload-file-wrapper">
+                                    <input type="file" name="marriage_certificate_file" class="upload-file-input" data-target="marriage-status" accept="image/*,.pdf" />
+                                    <span class="btn btn-xxs font-600 rounded-s bg-highlight px-3">Pilih File Buku Nikah</span>
+                                </div>
+                                <div id="marriage-status" class="font-9 mt-2 text-truncate px-2">
+                                    @if(optional(auth()->user()->employee)->marriage_certificate_path)
+                                        <span class="color-green-dark"><i class="bi bi-check-circle-fill"></i> Terunggah</span>
+                                    @else
+                                        <span class="opacity-40 italic">Belum ada file</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="d-flex justify-content-end mt-4 mb-2">
@@ -178,7 +317,7 @@
                     <div class="form-custom form-label form-icon">
                         <i class="bi bi-envelope font-14"></i>
                         <input type="email" class="form-control rounded-s" id="email" name="email" value="{{ old('email', auth()->user()->email) }}" readonly />
-                        <label for="email" class="color-theme font-12">Alamat Email (Akun)</label>
+                        <label for="email" class="form-label-always-active color-highlight">Alamat Email (Akun)</label>
                     </div>
 
                     <div class="row mb-0">
@@ -186,14 +325,14 @@
                             <div class="form-custom form-label form-icon">
                                 <i class="bi bi-phone font-14"></i>
                                 <input type="tel" class="form-control rounded-s" id="phone" name="phone" placeholder="021-... / 0812..." value="{{ old('phone', optional(auth()->user()->employee)->phone) }}" />
-                                <label for="phone" class="color-theme font-12">Telepon Utama</label>
+                                <label for="phone" class="form-label-always-active color-highlight">Telepon Utama</label>
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="form-custom form-label form-icon">
                                 <i class="bi bi-phone-vibrate font-14"></i>
                                 <input type="tel" class="form-control rounded-s" id="mobile" name="mobile" placeholder="0812..." value="{{ old('mobile', optional(auth()->user()->employee)->mobile) }}" />
-                                <label for="mobile" class="color-theme font-12">No. HP (Alternatif)</label>
+                                <label for="mobile" class="form-label-always-active color-highlight">No. HP (Alternatif)</label>
                             </div>
                         </div>
                     </div>
@@ -201,13 +340,13 @@
                     <div class="form-custom form-label form-icon">
                         <i class="bi bi-house font-14"></i>
                         <textarea name="address_ktp" id="address_ktp" class="form-control rounded-s" rows="2" placeholder="Alamat lengkap sesuai KTP">{{ old('address_ktp', optional(auth()->user()->employee)->address_ktp) }}</textarea>
-                        <label for="address_ktp" class="color-theme font-12">Alamat KTP</label>
+                        <label for="address_ktp" class="form-label-always-active color-highlight">Alamat KTP</label>
                     </div>
 
                     <div class="form-custom form-label form-icon">
                         <i class="bi bi-geo-alt font-14"></i>
                         <textarea name="address_domisili" id="address_domisili" class="form-control rounded-s" rows="2" placeholder="Kosongkan jika sama dengan KTP">{{ old('address_domisili', optional(auth()->user()->employee)->address_domisili) }}</textarea>
-                        <label for="address_domisili" class="color-theme font-12">Alamat Domisili</label>
+                        <label for="address_domisili" class="form-label-always-active color-highlight">Alamat Domisili</label>
                     </div>
 
                     <div class="d-flex justify-content-between mt-4 mb-2">
@@ -232,7 +371,7 @@
                                 <option value="">(Belum ada departemen tersedia)</option>
                             </select>
                         @else
-                            <select class="form-control rounded-s" id="department_id" name="department_id" required>
+                            <select class="form-control rounded-s" id="department_id_display" disabled>
                                 <option value="" disabled selected>Pilih Departemen</option>
                                 @foreach ($departments as $department)
                                     <option value="{{ $department->id }}" {{ (string) $currentDepartment === (string) $department->id ? 'selected' : '' }}>
@@ -240,8 +379,9 @@
                                     </option>
                                 @endforeach
                             </select>
+                            <input type="hidden" name="department_id" value="{{ $currentDepartment }}">
                         @endif
-                        <label for="department_id" class="color-theme font-12">Departemen *</label>
+                        <label for="department_id" class="form-label-always-active color-highlight">Departemen *</label>
                     </div>
 
                     <div class="form-custom form-label form-icon">
@@ -251,7 +391,7 @@
                                 <option value="">(Belum ada posisi tersedia)</option>
                             </select>
                         @else
-                            <select class="form-control rounded-s" id="position_id" name="position_id" required>
+                            <select class="form-control rounded-s" id="position_id_display" disabled>
                                 <option value="" disabled selected>Pilih Posisi</option>
                                 @foreach ($positions as $position)
                                     <option value="{{ $position->id }}" {{ (string) $currentPosition === (string) $position->id ? 'selected' : '' }}>
@@ -259,8 +399,9 @@
                                     </option>
                                 @endforeach
                             </select>
+                            <input type="hidden" name="position_id" value="{{ $currentPosition }}">
                         @endif
-                        <label for="position_id" class="color-theme font-12">Posisi/Jabatan *</label>
+                        <label for="position_id" class="form-label-always-active color-highlight">Posisi/Jabatan *</label>
                     </div>
 
                     <div class="form-custom form-label form-icon">
@@ -270,14 +411,15 @@
                                 <option value="">(Belum ada jadwal kerja)</option>
                             </select>
                         @else
-                            <select class="form-control rounded-s" id="work_schedule_id" name="work_schedule_id">
+                            <select class="form-control rounded-s" id="work_schedule_id_display" disabled>
                                 <option value="" selected>Sesuai Standar (Opsional)</option>
                                 @foreach ($workSchedules as $ws)
                                     <option value="{{ $ws->id }}" {{ (string) old('work_schedule_id', optional(auth()->user()->employee)->work_schedule_id) === (string) $ws->id ? 'selected' : '' }}>{{ $ws->name }}</option>
                                 @endforeach
                             </select>
+                            <input type="hidden" name="work_schedule_id" value="{{ old('work_schedule_id', optional(auth()->user()->employee)->work_schedule_id) }}">
                         @endif
-                        <label for="work_schedule_id" class="color-theme font-12">Jadwal Kerja</label>
+                        <label for="work_schedule_id" class="form-label-always-active color-highlight">Jadwal Kerja</label>
                     </div>
 
                     <div class="form-custom form-label form-icon">
@@ -291,8 +433,9 @@
                             }
                             $employeeHireDate = old('hire_date', $defaultHireDate);
                         @endphp
-                        <input type="date" class="form-control rounded-s" id="hire_date" name="hire_date" value="{{ $employeeHireDate }}" required />
-                        <label for="hire_date" class="color-theme font-12">Tanggal Bergabung *</label>
+                        <input type="date" class="form-control rounded-s" id="hire_date_display" value="{{ $employeeHireDate }}" disabled />
+                        <input type="hidden" name="hire_date" value="{{ $employeeHireDate }}">
+                        <label for="hire_date" class="form-label-always-active color-highlight">Tanggal Bergabung *</label>
                     </div>
                     
                     <hr class="mt-4 mb-4" style="opacity: 0.1">
@@ -302,14 +445,14 @@
                             <div class="form-custom form-label form-icon">
                                 <i class="bi bi-arrow-up-right-square font-14"></i>
                                 <input type="number" name="height_cm" id="height_cm" class="form-control rounded-s" placeholder="Tinggi (cm)" value="{{ old('height_cm', optional(auth()->user()->employee)->height_cm) }}" />
-                                <label for="height_cm" class="color-theme font-12">Tinggi (cm)</label>
+                                <label for="height_cm" class="form-label-always-active color-highlight">Tinggi (cm)</label>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-custom form-label form-icon">
                                 <i class="bi bi-arrow-down-right-square font-14"></i>
                                 <input type="number" name="weight_kg" id="weight_kg" class="form-control rounded-s" placeholder="Berat (kg)" value="{{ old('weight_kg', optional(auth()->user()->employee)->weight_kg) }}" />
-                                <label for="weight_kg" class="color-theme font-12">Berat (kg)</label>
+                                <label for="weight_kg" class="form-label-always-active color-highlight">Berat (kg)</label>
                             </div>
                         </div>
                     </div>
@@ -317,7 +460,7 @@
                     <div class="form-custom form-label form-icon">
                         <i class="bi bi-bandaid font-14"></i>
                         <input type="text" name="degenerative_diseases" id="degenerative_diseases" class="form-control rounded-s" placeholder="Misal: Asma, Hipertensi (kosongkan jika tidak ada)" value="{{ old('degenerative_diseases', optional(auth()->user()->employee)->degenerative_diseases) }}" />
-                        <label for="degenerative_diseases" class="color-theme font-12">Penyakit Bawaan</label>
+                        <label for="degenerative_diseases" class="form-label-always-active color-highlight">Penyakit Bawaan</label>
                     </div>
 
                     <div class="d-flex justify-content-between mt-4 mb-2">
@@ -337,15 +480,37 @@
                             if (is_null($emRows)) {
                                 $emRows = optional(auth()->user()->employee)->emergency_contact ?? [];
                             }
+                            // Enforce minimum 2 rows for emergency contacts
+                            while (count($emRows) < 2) {
+                                $emRows[] = [];
+                            }
                         @endphp
                         @if(!empty($emRows))
                             @foreach($emRows as $i => $row)
                                 <div class="em-row repeater-card" data-index="{{ $i }}">
-                                    <button type="button" class="btn btn-xxs bg-red-dark repeater-remove remove-em"><i class="bi bi-x-lg font-12"></i></button>
+                                    <button type="button" class="btn btn-xxs bg-red-dark repeater-remove remove-em shadow-bg shadow-bg-xs"><i class="bi bi-x-lg font-12"></i></button>
                                     <div class="row mb-0">
-                                        <div class="col-12 col-md-6 mb-2"><input type="text" name="emergency[{{ $i }}][name]" class="form-control form-control-sm" placeholder="Nama Lengkap" value="{{ $row['name'] ?? $row->name ?? '' }}"></div>
-                                        <div class="col-6 col-md-6 mb-2"><input type="text" name="emergency[{{ $i }}][relation]" class="form-control form-control-sm" placeholder="Hubungan (Ayah/Istri/Dll)" value="{{ $row['relation'] ?? $row->relation ?? '' }}"></div>
-                                        <div class="col-6 col-md-12 mb-2"><input type="tel" name="emergency[{{ $i }}][phone]" class="form-control form-control-sm" placeholder="Nomor Telepon" value="{{ $row['phone'] ?? $row->phone ?? '' }}"></div>
+                                        <div class="col-12 col-md-6 mb-2">
+                                            <div class="form-custom form-label form-icon">
+                                                <i class="bi bi-person font-14"></i>
+                                                <input type="text" name="emergency[{{ $i }}][name]" id="em_name_{{ $i }}" class="form-control rounded-s" placeholder="Nama Lengkap" value="{{ $row['name'] ?? $row->name ?? '' }}">
+                                                <label for="em_name_{{ $i }}" class="form-label-always-active color-highlight">Nama Lengkap</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-6 mb-2">
+                                            <div class="form-custom form-label form-icon">
+                                                <i class="bi bi-people font-14"></i>
+                                                <input type="text" name="emergency[{{ $i }}][relation]" id="em_rel_{{ $i }}" class="form-control rounded-s" placeholder="Hubungan" value="{{ $row['relation'] ?? $row->relation ?? '' }}">
+                                                <label for="em_rel_{{ $i }}" class="form-label-always-active color-highlight">Hubungan</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-12 mb-2">
+                                            <div class="form-custom form-label form-icon">
+                                                <i class="bi bi-phone font-14"></i>
+                                                <input type="tel" name="emergency[{{ $i }}][phone]" id="em_phone_{{ $i }}" class="form-control rounded-s" placeholder="Nomor Telepon" value="{{ $row['phone'] ?? $row->phone ?? '' }}">
+                                                <label for="em_phone_{{ $i }}" class="form-label-always-active color-highlight">Nomor Telepon</label>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             @endforeach
@@ -364,18 +529,39 @@
                         @if(!empty($familyRows))
                             @foreach($familyRows as $i => $row)
                                 <div class="family-row repeater-card" data-index="{{ $i }}">
-                                    <button type="button" class="btn btn-xxs bg-red-dark repeater-remove remove-family"><i class="bi bi-x-lg font-12"></i></button>
+                                    <button type="button" class="btn btn-xxs bg-red-dark repeater-remove remove-family shadow-bg shadow-bg-xs"><i class="bi bi-x-lg font-12"></i></button>
                                     <div class="row mb-0">
-                                        <div class="col-12 col-md-6 mb-2"><input type="text" name="family[{{ $i }}][name]" class="form-control form-control-sm" placeholder="Nama Anggota Keluarga" value="{{ $row['name'] ?? $row->name ?? '' }}"></div>
-                                        <div class="col-12 col-md-6 mb-2"><input type="text" name="family[{{ $i }}][relation]" class="form-control form-control-sm" placeholder="Hubungan (Anak/Suami/Dll)" value="{{ $row['relation'] ?? $row->relation ?? '' }}"></div>
-                                        <div class="col-6 col-md-6 mb-2">
-                                            <select name="family[{{ $i }}][gender]" class="form-control form-control-sm">
-                                                <option value="" selected disabled>Gender</option>
-                                                <option value="M" {{ (isset($row['gender']) && $row['gender']=='M') || (isset($row->gender) && $row->gender=='M') ? 'selected' : '' }}>Laki-laki</option>
-                                                <option value="F" {{ (isset($row['gender']) && $row['gender']=='F') || (isset($row->gender) && $row->gender=='F') ? 'selected' : '' }}>Perempuan</option>
-                                            </select>
+                                        <div class="col-12 col-md-6 mb-2">
+                                            <div class="form-custom form-label form-icon">
+                                                <i class="bi bi-person font-14"></i>
+                                                <input type="text" name="family[{{ $i }}][name]" id="fam_name_{{ $i }}" class="form-control rounded-s" placeholder="Nama Lengkap" value="{{ $row['name'] ?? $row->name ?? '' }}">
+                                                <label for="fam_name_{{ $i }}" class="form-label-always-active color-highlight">Nama Lengkap</label>
+                                            </div>
                                         </div>
-                                        <div class="col-6 col-md-6 mb-2"><input type="number" name="family[{{ $i }}][age]" class="form-control form-control-sm" placeholder="Umur (Tahun)" value="{{ $row['age'] ?? $row->age ?? '' }}"></div>
+                                        <div class="col-6 col-md-6 mb-2">
+                                            <div class="form-custom form-label form-icon">
+                                                <i class="bi bi-people font-14"></i>
+                                                <input type="text" name="family[{{ $i }}][relation]" id="fam_rel_{{ $i }}" class="form-control rounded-s" placeholder="Hubungan" value="{{ $row['relation'] ?? $row->relation ?? '' }}">
+                                                <label for="fam_rel_{{ $i }}" class="form-label-always-active color-highlight">Hubungan</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-6 mb-2">
+                                            <div class="form-custom form-label form-icon">
+                                                <i class="bi bi-gender-ambiguous font-14"></i>
+                                                <select name="family[{{ $i }}][gender]" id="fam_gender_{{ $i }}" class="form-control rounded-s">
+                                                    <option value="M" {{ ($row['gender'] ?? $row->gender ?? '') == 'M' ? 'selected' : '' }}>Laki-laki</option>
+                                                    <option value="F" {{ ($row['gender'] ?? $row->gender ?? '') == 'F' ? 'selected' : '' }}>Perempuan</option>
+                                                </select>
+                                                <label for="fam_gender_{{ $i }}" class="form-label-always-active color-highlight">Gender</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-md-6 mb-2">
+                                            <div class="form-custom form-label form-icon">
+                                                <i class="bi bi-calendar font-14"></i>
+                                                <input type="number" name="family[{{ $i }}][age]" id="fam_age_{{ $i }}" class="form-control rounded-s" placeholder="Usia" value="{{ $row['age'] ?? $row->age ?? '' }}">
+                                                <label for="fam_age_{{ $i }}" class="form-label-always-active color-highlight">Usia</label>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             @endforeach
@@ -402,12 +588,51 @@
                         @if(!empty($eduRows))
                             @foreach($eduRows as $i => $row)
                                 <div class="edu-row repeater-card" data-index="{{ $i }}">
-                                    <button type="button" class="btn btn-xxs bg-red-dark repeater-remove remove-edu"><i class="bi bi-x-lg font-12"></i></button>
+                                    <button type="button" class="btn btn-xxs bg-red-dark repeater-remove remove-edu shadow-bg shadow-bg-xs"><i class="bi bi-x-lg font-12"></i></button>
                                     <div class="row mb-0">
-                                        <div class="col-12 col-md-6 mb-2"><input type="text" name="education[{{ $i }}][school_name]" class="form-control form-control-sm" placeholder="Nama Institusi / Universitas" value="{{ $row['school_name'] ?? $row->school_name ?? '' }}"></div>
-                                        <div class="col-12 col-md-6 mb-2"><input type="text" name="education[{{ $i }}][major]" class="form-control form-control-sm" placeholder="Jurusan / Program Studi" value="{{ $row['major'] ?? $row->major ?? '' }}"></div>
-                                        <div class="col-8 col-md-6 mb-2"><input type="text" name="education[{{ $i }}][city]" class="form-control form-control-sm" placeholder="Kota" value="{{ $row['city'] ?? $row->city ?? '' }}"></div>
-                                        <div class="col-4 col-md-6 mb-2"><input type="number" name="education[{{ $i }}][start_year]" class="form-control form-control-sm" placeholder="Tahun" value="{{ $row['start_year'] ?? $row->start_year ?? '' }}"></div>
+                                        <div class="col-12 col-md-6 mb-2">
+                                            <div class="form-custom form-label form-icon">
+                                                <i class="bi bi-building font-14"></i>
+                                                <input type="text" name="education[{{ $i }}][school_name]" id="edu_school_{{ $i }}" class="form-control rounded-s" placeholder="Nama Institusi" value="{{ $row['school_name'] ?? $row->school_name ?? '' }}">
+                                                <label for="edu_school_{{ $i }}" class="form-label-always-active color-highlight">Institusi / Universitas</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-md-6 mb-2">
+                                            <div class="form-custom form-label form-icon">
+                                                <i class="bi bi-book font-14"></i>
+                                                <input type="text" name="education[{{ $i }}][major]" id="edu_major_{{ $i }}" class="form-control rounded-s" placeholder="Jurusan" value="{{ $row['major'] ?? $row->major ?? '' }}">
+                                                <label for="edu_major_{{ $i }}" class="form-label-always-active color-highlight">Jurusan / Prodi</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-7 col-md-6 mb-2">
+                                            <div class="form-custom form-label form-icon">
+                                                <i class="bi bi-geo-alt font-14"></i>
+                                                <input type="text" name="education[{{ $i }}][city]" id="edu_city_{{ $i }}" class="form-control rounded-s" placeholder="Kota" value="{{ $row['city'] ?? $row->city ?? '' }}">
+                                                <label for="edu_city_{{ $i }}" class="form-label-always-active color-highlight">Kota</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-5 col-md-6 mb-2">
+                                            <div class="form-custom form-label form-icon">
+                                                <i class="bi bi-calendar-check font-14"></i>
+                                                <input type="number" name="education[{{ $i }}][start_year]" id="edu_year_{{ $i }}" class="form-control rounded-s" placeholder="Tahun" value="{{ $row['start_year'] ?? $row->start_year ?? '' }}">
+                                                <label for="edu_year_{{ $i }}" class="form-label-always-active color-highlight">Tahun Lulus</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-2">
+                                            <label class="font-10 font-800 text-uppercase color-highlight mb-1 opacity-70">Lampiran Ijazah</label>
+                                            <div class="repeater-upload-area">
+                                                <input type="file" name="education[{{ $i }}][certificate]" class="upload-file-input" data-target="edu-cert-{{ $i }}" accept="image/*,.pdf" />
+                                                <i class="bi bi-cloud-arrow-up"></i>
+                                                <span class="upload-title" id="edu-cert-{{ $i }}">
+                                                    @if(isset($row['certificate_path']))
+                                                        <span class="color-green-dark"><i class="bi bi-check-circle-fill"></i> Terunggah</span>
+                                                    @else
+                                                        Pilih Ijazah / Sertifikat
+                                                    @endif
+                                                </span>
+                                                <span class="upload-sub">PDF atau Gambar (Maks 4MB)</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             @endforeach
@@ -426,12 +651,51 @@
                         @if(!empty($trRows))
                             @foreach($trRows as $i => $row)
                                 <div class="tr-row repeater-card" data-index="{{ $i }}">
-                                    <button type="button" class="btn btn-xxs bg-red-dark repeater-remove remove-tr"><i class="bi bi-x-lg font-12"></i></button>
+                                    <button type="button" class="btn btn-xxs bg-red-dark repeater-remove remove-tr shadow-bg shadow-bg-xs"><i class="bi bi-x-lg font-12"></i></button>
                                     <div class="row mb-0">
-                                        <div class="col-12 col-md-6 mb-2"><input type="text" name="training[{{ $i }}][course_name]" class="form-control form-control-sm" placeholder="Nama Pelatihan / Sertifikasi" value="{{ $row['course_name'] ?? $row->course_name ?? '' }}"></div>
-                                        <div class="col-12 col-md-6 mb-2"><input type="text" name="training[{{ $i }}][organizer]" class="form-control form-control-sm" placeholder="Penyelenggara" value="{{ $row['organizer'] ?? $row->organizer ?? '' }}"></div>
-                                        <div class="col-8 col-md-6 mb-2"><input type="text" name="training[{{ $i }}][city]" class="form-control form-control-sm" placeholder="Kota" value="{{ $row['city'] ?? $row->city ?? '' }}"></div>
-                                        <div class="col-4 col-md-6 mb-2"><input type="text" name="training[{{ $i }}][duration]" class="form-control form-control-sm" placeholder="Durasi (Jam/Hari)" value="{{ $row['duration'] ?? $row->duration ?? '' }}"></div>
+                                        <div class="col-12 col-md-6 mb-2">
+                                            <div class="form-custom form-label form-icon">
+                                                <i class="bi bi-award font-14"></i>
+                                                <input type="text" name="training[{{ $i }}][course_name]" id="tr_name_{{ $i }}" class="form-control rounded-s" placeholder="Nama Pelatihan" value="{{ $row['course_name'] ?? $row->course_name ?? '' }}">
+                                                <label for="tr_name_{{ $i }}" class="form-label-always-active color-highlight">Nama Pelatihan</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-md-6 mb-2">
+                                            <div class="form-custom form-label form-icon">
+                                                <i class="bi bi-patch-check font-14"></i>
+                                                <input type="text" name="training[{{ $i }}][organizer]" id="tr_org_{{ $i }}" class="form-control rounded-s" placeholder="Penyelenggara" value="{{ $row['organizer'] ?? $row->organizer ?? '' }}">
+                                                <label for="tr_org_{{ $i }}" class="form-label-always-active color-highlight">Penyelenggara</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-7 col-md-6 mb-2">
+                                            <div class="form-custom form-label form-icon">
+                                                <i class="bi bi-geo-alt font-14"></i>
+                                                <input type="text" name="training[{{ $i }}][city]" id="tr_city_{{ $i }}" class="form-control rounded-s" placeholder="Kota" value="{{ $row['city'] ?? $row->city ?? '' }}">
+                                                <label for="tr_city_{{ $i }}" class="form-label-always-active color-highlight">Kota</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-5 col-md-6 mb-2">
+                                            <div class="form-custom form-label form-icon">
+                                                <i class="bi bi-clock-history font-14"></i>
+                                                <input type="text" name="training[{{ $i }}][duration]" id="tr_dur_{{ $i }}" class="form-control rounded-s" placeholder="Durasi" value="{{ $row['duration'] ?? $row->duration ?? '' }}">
+                                                <label for="tr_dur_{{ $i }}" class="form-label-always-active color-highlight">Durasi</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="font-10 font-800 text-uppercase color-highlight mb-1 opacity-70">Lampiran Sertifikat</label>
+                                            <div class="repeater-upload-area">
+                                                <input type="file" name="training[{{ $i }}][certificate]" class="upload-file-input" data-target="tr-cert-{{ $i }}" accept="image/*,.pdf" />
+                                                <i class="bi bi-patch-check"></i>
+                                                <span class="upload-title" id="tr-cert-{{ $i }}">
+                                                    @if(isset($row['certificate_path']))
+                                                        <span class="color-green-dark"><i class="bi bi-check-circle-fill"></i> Terunggah</span>
+                                                    @else
+                                                        Pilih Sertifikat Pelatihan
+                                                    @endif
+                                                </span>
+                                                <span class="upload-sub">PDF atau Gambar (Maks 4MB)</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             @endforeach
@@ -574,53 +838,159 @@
         // Education Template
         const eduTemplate = `
         <div class="edu-row repeater-card" data-index="__INDEX__">
-            <button type="button" class="btn btn-xxs bg-red-dark repeater-remove remove-edu"><i class="bi bi-x-lg font-12"></i></button>
+            <button type="button" class="btn btn-xxs bg-red-dark repeater-remove remove-edu shadow-bg shadow-bg-xs"><i class="bi bi-x-lg font-12"></i></button>
             <div class="row mb-0">
-                <div class="col-12 col-md-6 mb-2"><input type="text" name="education[__INDEX__][school_name]" class="form-control form-control-sm" placeholder="Nama Institusi / Universitas"></div>
-                <div class="col-12 col-md-6 mb-2"><input type="text" name="education[__INDEX__][major]" class="form-control form-control-sm" placeholder="Jurusan / Program Studi"></div>
-                <div class="col-8 col-md-6 mb-2"><input type="text" name="education[__INDEX__][city]" class="form-control form-control-sm" placeholder="Kota"></div>
-                <div class="col-4 col-md-6 mb-2"><input type="number" name="education[__INDEX__][start_year]" class="form-control form-control-sm" placeholder="Tahun"></div>
+                <div class="col-12 col-md-6 mb-2">
+                    <div class="form-custom form-label form-icon">
+                        <i class="bi bi-building font-14"></i>
+                        <input type="text" name="education[__INDEX__][school_name]" id="edu_school___INDEX__" class="form-control rounded-s" placeholder="Nama Institusi">
+                        <label for="edu_school___INDEX__" class="form-label-always-active color-highlight">Institusi / Universitas</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 mb-2">
+                    <div class="form-custom form-label form-icon">
+                        <i class="bi bi-book font-14"></i>
+                        <input type="text" name="education[__INDEX__][major]" id="edu_major___INDEX__" class="form-control rounded-s" placeholder="Jurusan">
+                        <label for="edu_major___INDEX__" class="form-label-always-active color-highlight">Jurusan / Prodi</label>
+                    </div>
+                </div>
+                <div class="col-7 col-md-6 mb-2">
+                    <div class="form-custom form-label form-icon">
+                        <i class="bi bi-geo-alt font-14"></i>
+                        <input type="text" name="education[__INDEX__][city]" id="edu_city___INDEX__" class="form-control rounded-s" placeholder="Kota">
+                        <label for="edu_city___INDEX__" class="form-label-always-active color-highlight">Kota</label>
+                    </div>
+                </div>
+                <div class="col-5 col-md-6 mb-2">
+                    <div class="form-custom form-label form-icon">
+                        <i class="bi bi-calendar-check font-14"></i>
+                        <input type="number" name="education[__INDEX__][start_year]" id="edu_year___INDEX__" class="form-control rounded-s" placeholder="Tahun">
+                        <label for="edu_year___INDEX__" class="form-label-always-active color-highlight">Tahun Lulus</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <label class="font-10 font-800 text-uppercase color-highlight mb-1 opacity-70">Lampiran Ijazah</label>
+                    <div class="repeater-upload-area">
+                        <input type="file" name="education[__INDEX__][certificate]" class="upload-file-input" data-target="edu-cert-__INDEX__" accept="image/*,.pdf" />
+                        <i class="bi bi-cloud-arrow-up"></i>
+                        <span class="upload-title" id="edu-cert-__INDEX__">Pilih Ijazah / Sertifikat</span>
+                        <span class="upload-sub">PDF atau Gambar (Maks 4MB)</span>
+                    </div>
+                </div>
             </div>
         </div>`;
 
         // Training Template
         const trTemplate = `
         <div class="tr-row repeater-card" data-index="__INDEX__">
-            <button type="button" class="btn btn-xxs bg-red-dark repeater-remove remove-tr"><i class="bi bi-x-lg font-12"></i></button>
+            <button type="button" class="btn btn-xxs bg-red-dark repeater-remove remove-tr shadow-bg shadow-bg-xs"><i class="bi bi-x-lg font-12"></i></button>
             <div class="row mb-0">
-                <div class="col-12 col-md-6 mb-2"><input type="text" name="training[__INDEX__][course_name]" class="form-control form-control-sm" placeholder="Nama Pelatihan / Sertifikasi"></div>
-                <div class="col-12 col-md-6 mb-2"><input type="text" name="training[__INDEX__][organizer]" class="form-control form-control-sm" placeholder="Penyelenggara"></div>
-                <div class="col-8 col-md-6 mb-2"><input type="text" name="training[__INDEX__][city]" class="form-control form-control-sm" placeholder="Kota"></div>
-                <div class="col-4 col-md-6 mb-2"><input type="text" name="training[__INDEX__][duration]" class="form-control form-control-sm" placeholder="Durasi"></div>
+                <div class="col-12 col-md-6 mb-2">
+                    <div class="form-custom form-label form-icon">
+                        <i class="bi bi-award font-14"></i>
+                        <input type="text" name="training[__INDEX__][course_name]" id="tr_name___INDEX__" class="form-control rounded-s" placeholder="Nama Pelatihan">
+                        <label for="tr_name___INDEX__" class="form-label-always-active color-highlight">Nama Pelatihan</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 mb-2">
+                    <div class="form-custom form-label form-icon">
+                        <i class="bi bi-patch-check font-14"></i>
+                        <input type="text" name="training[__INDEX__][organizer]" id="tr_org___INDEX__" class="form-control rounded-s" placeholder="Penyelenggara">
+                        <label for="tr_org___INDEX__" class="form-label-always-active color-highlight">Penyelenggara</label>
+                    </div>
+                </div>
+                <div class="col-7 col-md-6 mb-2">
+                    <div class="form-custom form-label form-icon">
+                        <i class="bi bi-geo-alt font-14"></i>
+                        <input type="text" name="training[__INDEX__][city]" id="tr_city___INDEX__" class="form-control rounded-s" placeholder="Kota">
+                        <label for="tr_city___INDEX__" class="form-label-always-active color-highlight">Kota</label>
+                    </div>
+                </div>
+                <div class="col-5 col-md-6 mb-2">
+                    <div class="form-custom form-label form-icon">
+                        <i class="bi bi-clock-history font-14"></i>
+                        <input type="text" name="training[__INDEX__][duration]" id="tr_dur___INDEX__" class="form-control rounded-s" placeholder="Durasi">
+                        <label for="tr_dur___INDEX__" class="form-label-always-active color-highlight">Durasi</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <label class="font-10 font-800 text-uppercase color-highlight mb-1 opacity-70">Lampiran Sertifikat</label>
+                    <div class="repeater-upload-area">
+                        <input type="file" name="training[__INDEX__][certificate]" class="upload-file-input" data-target="tr-cert-__INDEX__" accept="image/*,.pdf" />
+                        <i class="bi bi-patch-check"></i>
+                        <span class="upload-title" id="tr-cert-__INDEX__">Pilih Sertifikat Pelatihan</span>
+                        <span class="upload-sub">PDF atau Gambar (Maks 4MB)</span>
+                    </div>
+                </div>
             </div>
         </div>`;
 
         // Family Template
         const famTemplate = `
         <div class="family-row repeater-card" data-index="__INDEX__">
-            <button type="button" class="btn btn-xxs bg-red-dark repeater-remove remove-family"><i class="bi bi-x-lg font-12"></i></button>
+            <button type="button" class="btn btn-xxs bg-red-dark repeater-remove remove-family shadow-bg shadow-bg-xs"><i class="bi bi-x-lg font-12"></i></button>
             <div class="row mb-0">
-                <div class="col-12 col-md-6 mb-2"><input type="text" name="family[__INDEX__][name]" class="form-control form-control-sm" placeholder="Nama Anggota Keluarga"></div>
-                <div class="col-12 col-md-6 mb-2"><input type="text" name="family[__INDEX__][relation]" class="form-control form-control-sm" placeholder="Hubungan (Anak/Suami/Dll)"></div>
-                <div class="col-6 col-md-6 mb-2">
-                    <select name="family[__INDEX__][gender]" class="form-control form-control-sm">
-                        <option value="" selected disabled>Gender</option>
-                        <option value="M">Laki-laki</option>
-                        <option value="F">Perempuan</option>
-                    </select>
+                <div class="col-12 col-md-6 mb-2">
+                    <div class="form-custom form-label form-icon">
+                        <i class="bi bi-person font-14"></i>
+                        <input type="text" name="family[__INDEX__][name]" id="fam_name___INDEX__" class="form-control rounded-s" placeholder="Nama Lengkap">
+                        <label for="fam_name___INDEX__" class="form-label-always-active color-highlight">Nama Lengkap</label>
+                    </div>
                 </div>
-                <div class="col-6 col-md-6 mb-2"><input type="number" name="family[__INDEX__][age]" class="form-control form-control-sm" placeholder="Umur"></div>
+                <div class="col-6 col-md-6 mb-2">
+                    <div class="form-custom form-label form-icon">
+                        <i class="bi bi-people font-14"></i>
+                        <input type="text" name="family[__INDEX__][relation]" id="fam_rel___INDEX__" class="form-control rounded-s" placeholder="Hubungan">
+                        <label for="fam_rel___INDEX__" class="form-label-always-active color-highlight">Hubungan</label>
+                    </div>
+                </div>
+                <div class="col-6 col-md-6 mb-2">
+                    <div class="form-custom form-label form-icon">
+                        <i class="bi bi-gender-ambiguous font-14"></i>
+                        <select name="family[__INDEX__][gender]" id="fam_gender___INDEX__" class="form-control rounded-s">
+                            <option value="" selected disabled>Gender</option>
+                            <option value="M">Laki-laki</option>
+                            <option value="F">Perempuan</option>
+                        </select>
+                        <label for="fam_gender___INDEX__" class="form-label-always-active color-highlight">Gender</label>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 mb-2">
+                    <div class="form-custom form-label form-icon">
+                        <i class="bi bi-calendar font-14"></i>
+                        <input type="number" name="family[__INDEX__][age]" id="fam_age___INDEX__" class="form-control rounded-s" placeholder="Usia">
+                        <label for="fam_age___INDEX__" class="form-label-always-active color-highlight">Usia</label>
+                    </div>
+                </div>
             </div>
         </div>`;
 
         // Emergency Template
         const emTemplate = `
         <div class="em-row repeater-card" data-index="__INDEX__">
-            <button type="button" class="btn btn-xxs bg-red-dark repeater-remove remove-em"><i class="bi bi-x-lg font-12"></i></button>
+            <button type="button" class="btn btn-xxs bg-red-dark repeater-remove remove-em shadow-bg shadow-bg-xs"><i class="bi bi-x-lg font-12"></i></button>
             <div class="row mb-0">
-                <div class="col-12 col-md-6 mb-2"><input type="text" name="emergency[__INDEX__][name]" class="form-control form-control-sm" placeholder="Nama Lengkap"></div>
-                <div class="col-6 col-md-6 mb-2"><input type="text" name="emergency[__INDEX__][relation]" class="form-control form-control-sm" placeholder="Hubungan"></div>
-                <div class="col-6 col-md-12 mb-2"><input type="tel" name="emergency[__INDEX__][phone]" class="form-control form-control-sm" placeholder="Nomor Telepon"></div>
+                <div class="col-12 col-md-6 mb-2">
+                    <div class="form-custom form-label form-icon">
+                        <i class="bi bi-person font-14"></i>
+                        <input type="text" name="emergency[__INDEX__][name]" id="em_name___INDEX__" class="form-control rounded-s" placeholder="Nama Lengkap">
+                        <label for="em_name___INDEX__" class="form-label-always-active color-highlight">Nama Lengkap</label>
+                    </div>
+                </div>
+                <div class="col-6 col-md-6 mb-2">
+                    <div class="form-custom form-label form-icon">
+                        <i class="bi bi-people font-14"></i>
+                        <input type="text" name="emergency[__INDEX__][relation]" id="em_rel___INDEX__" class="form-control rounded-s" placeholder="Hubungan">
+                        <label for="em_rel___INDEX__" class="form-label-always-active color-highlight">Hubungan</label>
+                    </div>
+                </div>
+                <div class="col-6 col-md-12 mb-2">
+                    <div class="form-custom form-label form-icon">
+                        <i class="bi bi-phone font-14"></i>
+                        <input type="tel" name="emergency[__INDEX__][phone]" id="em_phone___INDEX__" class="form-control rounded-s" placeholder="Nomor Telepon">
+                        <label for="em_phone___INDEX__" class="form-label-always-active color-highlight">Nomor Telepon</label>
+                    </div>
+                </div>
             </div>
         </div>`;
 
@@ -641,8 +1011,43 @@
             } else if (btn.classList.contains('remove-family')) {
                 const row = btn.closest('.family-row'); if (row) { row.remove(); makeIndex(document.getElementById('family-list')); }
             } else if (btn.classList.contains('remove-em')) {
-                const row = btn.closest('.em-row'); if (row) { row.remove(); makeIndex(document.getElementById('emergency-list')); }
+                const list = document.getElementById('emergency-list');
+                if (list.querySelectorAll('.em-row').length > 2) {
+                    const row = btn.closest('.em-row');
+                    if (row) { row.remove(); makeIndex(list); }
+                } else {
+                    alert('Minimal harus mengisi 2 kontak darurat untuk keamanan.');
+                }
             }
+        });
+
+        // Handle marital status change
+        const maritalSelect = document.getElementById('marital_status');
+        const marriageWrapper = document.getElementById('marriage_certificate_wrapper');
+        
+        const toggleMarriageFile = () => {
+            if (maritalSelect && maritalSelect.value === 'menikah') {
+                if (marriageWrapper) marriageWrapper.style.display = 'block';
+            } else {
+                if (marriageWrapper) marriageWrapper.style.display = 'none';
+            }
+        };
+
+        if (maritalSelect) {
+            maritalSelect.addEventListener('change', toggleMarriageFile);
+            toggleMarriageFile(); // Initial state
+        }
+
+        // Handle file input changes to show filenames
+        document.querySelectorAll('.upload-file-input').forEach(input => {
+            input.addEventListener('change', function() {
+                const statusId = this.getAttribute('data-target');
+                const statusEl = document.getElementById(statusId);
+                if (this.files && this.files.length > 0) {
+                    const fileName = this.files[0].name;
+                    statusEl.innerHTML = `<span class="color-highlight font-600"><i class="bi bi-file-earmark-check"></i> ${fileName}</span>`;
+                }
+            });
         });
     });
 </script>

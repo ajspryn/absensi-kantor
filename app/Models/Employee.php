@@ -52,6 +52,9 @@ class Employee extends Model
         'credit_institution',
         'credit_plafond',
         'credit_monthly_installment',
+        'ktp_path',
+        'kk_path',
+        'marriage_certificate_path',
     ];
 
     protected $casts = [

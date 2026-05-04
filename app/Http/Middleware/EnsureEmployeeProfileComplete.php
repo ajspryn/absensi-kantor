@@ -14,8 +14,8 @@ class EnsureEmployeeProfileComplete
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Dimatikan sementara untuk keperluan testing
-        return $next($request);
+        // Middleware aktif kembali setelah penyesuaian logic
+        // return $next($request);
 
         if (! Auth::check()) {
             return redirect()->route('login');
