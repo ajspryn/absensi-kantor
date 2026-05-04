@@ -2,16 +2,16 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
-use App\Models\User;
-use App\Models\Employee;
 use App\Models\Attendance;
 use App\Models\AttendanceCorrection;
-use App\Models\Role;
 use App\Models\Department;
+use App\Models\Employee;
+use App\Models\Role;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
+use Tests\TestCase;
 
 class AttendanceCorrectionFeatureTest extends TestCase
 {

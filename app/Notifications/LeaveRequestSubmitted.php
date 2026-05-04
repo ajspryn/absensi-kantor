@@ -21,7 +21,7 @@ class LeaveRequestSubmitted extends Notification
     {
         return [
             'title' => 'Pengajuan Izin Baru',
-            'message' => 'Ada pengajuan izin dari ' . $this->leaveRequest->start_date->format('Y-m-d') . ' sampai ' . $this->leaveRequest->end_date->format('Y-m-d'),
+            'message' => 'Ada pengajuan izin dari '.$this->leaveRequest->start_date->format('Y-m-d').' sampai '.$this->leaveRequest->end_date->format('Y-m-d'),
             'leave_request_id' => $this->leaveRequest->id,
         ];
     }

@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ActivityLog;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use App\Models\User;
-use App\Models\ActivityLog;
-use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
@@ -35,7 +34,7 @@ class AuthController extends Controller
 
         // Verify user existence and active status before attempting login
         $user = User::where('email', $request->input('email'))->first();
-        if ($user && !$user->is_active) {
+        if ($user && ! $user->is_active) {
             return back()->withErrors([
                 'email' => 'Akun Anda tidak aktif. Hubungi administrator.',
             ]);
@@ -50,7 +49,7 @@ class AuthController extends Controller
                 'action' => 'Login',
                 'description' => 'User berhasil login ke sistem',
                 'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
+                'user_agent' => $request->userAgent(),
             ]);
 
             return redirect()->intended('dashboard');
@@ -72,7 +71,7 @@ class AuthController extends Controller
                 'action' => 'Logout',
                 'description' => 'User logout dari sistem',
                 'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent()
+                'user_agent' => $request->userAgent(),
             ]);
         }
 
@@ -95,12 +94,12 @@ class AuthController extends Controller
 
         // Verify user existence and active status
         $user = User::where('email', $request->input('email'))->first();
-        if ($user && !$user->is_active) {
+        if ($user && ! $user->is_active) {
             return response()->json(['error' => 'Account is not active'], 401);
         }
 
         try {
-            if (!$token = JWTAuth::attempt($credentials)) {
+            if (! $token = JWTAuth::attempt($credentials)) {
                 return response()->json(['error' => 'Invalid credentials'], 401);
             }
         } catch (JWTException $e) {
@@ -109,7 +108,7 @@ class AuthController extends Controller
 
         return response()->json([
             'token' => $token,
-            'user' => JWTAuth::user()
+            'user' => JWTAuth::user(),
         ]);
     }
 
@@ -117,6 +116,7 @@ class AuthController extends Controller
     {
         try {
             JWTAuth::invalidate(JWTAuth::getToken());
+
             return response()->json(['message' => 'Successfully logged out']);
         } catch (JWTException $e) {
             return response()->json(['error' => 'Failed to logout'], 500);

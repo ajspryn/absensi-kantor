@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Attendance extends Model
 {
@@ -67,6 +67,7 @@ class Attendance extends Model
         $minutes = max(0, (int) $this->working_hours);
         $hours = floor($minutes / 60);
         $minutes = $minutes % 60;
+
         return "{$hours} jam {$minutes} menit";
     }
 
@@ -88,7 +89,7 @@ class Attendance extends Model
     public function calculateScheduleStatus()
     {
         $employee = $this->employee;
-        if (!$employee) {
+        if (! $employee) {
             return;
         }
 
@@ -96,7 +97,7 @@ class Attendance extends Model
         $employee->load('workSchedule');
         $schedule = $employee->workSchedule;
 
-        if (!$schedule) {
+        if (! $schedule) {
             return;
         }
 
@@ -107,7 +108,7 @@ class Attendance extends Model
 
         // Check if today is a work day
         $dayOfWeek = $this->date->dayOfWeek; // 0 = Sunday, 1 = Monday, etc.
-        if (!in_array($dayOfWeek, $schedule->work_days ?? [])) {
+        if (! in_array($dayOfWeek, $schedule->work_days ?? [])) {
             return; // Not a work day
         }
 

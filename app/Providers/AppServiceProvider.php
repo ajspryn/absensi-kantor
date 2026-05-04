@@ -2,13 +2,13 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Artisan;
+use App\Models\PasswordResetRequest;
 use Illuminate\Console\Events\CommandStarting;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\View;
-use App\Models\PasswordResetRequest;
+use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -39,7 +39,7 @@ class AppServiceProvider extends ServiceProvider
         // Prevent accidental destructive database artisan commands in production.
         // If APP_ENV=production and ALLOW_PROD_DB_COMMANDS is not truthy, block commands
         // like migrate:fresh, migrate:refresh, migrate:reset, migrate:rollback and db:wipe.
-        if (app()->environment('production') && !env('ALLOW_PROD_DB_COMMANDS')) {
+        if (app()->environment('production') && ! env('ALLOW_PROD_DB_COMMANDS')) {
             // Listen for console commands starting and throw when a dangerous command runs.
             if ($this->app->runningInConsole()) {
                 $this->app['events']->listen(CommandStarting::class, function (CommandStarting $event) {

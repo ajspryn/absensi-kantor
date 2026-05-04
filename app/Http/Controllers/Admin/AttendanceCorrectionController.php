@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\AttendanceCorrection;
+use App\Notifications\AttendanceCorrectionDecision;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
-use App\Notifications\AttendanceCorrectionDecision;
 
 class AttendanceCorrectionController extends Controller
 {
@@ -52,6 +52,7 @@ class AttendanceCorrectionController extends Controller
     public function show(AttendanceCorrection $attendanceCorrection)
     {
         $attendanceCorrection->load(['user', 'employee', 'attendance', 'managerApprover', 'hrApprover']);
+
         return view('admin.attendance-corrections.show', compact('attendanceCorrection'));
     }
 
@@ -68,7 +69,7 @@ class AttendanceCorrectionController extends Controller
         // Only allow department manager (as recorded on the employee's department) or admin to perform manager approval
         $isAdmin = $user->role && strtolower($user->role->name) === 'admin';
         $deptManagerId = optional($attendanceCorrection->employee->department)->manager_id;
-        if (!$isAdmin && $deptManagerId !== $user->id) {
+        if (! $isAdmin && $deptManagerId !== $user->id) {
             return redirect()->back()->with('error', 'Anda tidak memiliki wewenang manager untuk menyetujui pengajuan ini.');
         }
 
@@ -134,7 +135,7 @@ class AttendanceCorrectionController extends Controller
     public function reject(Request $request, AttendanceCorrection $attendanceCorrection)
     {
         $request->validate([
-            'reason' => 'required|string|min:5'
+            'reason' => 'required|string|min:5',
         ]);
 
         $user = Auth::user();
@@ -163,11 +164,12 @@ class AttendanceCorrectionController extends Controller
     {
         // Only allow admins to access edit form
         $user = Auth::user();
-        if (!$user || !$user->role || strtolower($user->role->name) !== 'admin') {
+        if (! $user || ! $user->role || strtolower($user->role->name) !== 'admin') {
             abort(403, 'Unauthorized');
         }
 
         $attendanceCorrection->load(['user', 'employee', 'attendance']);
+
         return view('admin.attendance-corrections.edit', compact('attendanceCorrection'));
     }
 
@@ -182,7 +184,7 @@ class AttendanceCorrectionController extends Controller
 
         // Only admins can update via admin edit
         $user = Auth::user();
-        if (!$user || !$user->role || strtolower($user->role->name) !== 'admin') {
+        if (! $user || ! $user->role || strtolower($user->role->name) !== 'admin') {
             abort(403, 'Unauthorized');
         }
 
@@ -200,11 +202,12 @@ class AttendanceCorrectionController extends Controller
     {
         // Only admins can delete corrections
         $user = Auth::user();
-        if (!$user || !$user->role || strtolower($user->role->name) !== 'admin') {
+        if (! $user || ! $user->role || strtolower($user->role->name) !== 'admin') {
             abort(403, 'Unauthorized');
         }
 
         $attendanceCorrection->delete();
+
         return redirect()->route('admin.attendance-corrections.index')->with('success', 'Pengajuan koreksi berhasil dihapus.');
     }
 }

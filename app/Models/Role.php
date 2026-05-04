@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Role extends Model
 {
@@ -15,14 +15,14 @@ class Role extends Model
         'permissions',
         'is_active',
         'is_default',
-        'priority'
+        'priority',
     ];
 
     protected $casts = [
         'permissions' => 'array',
         'is_active' => 'boolean',
         'is_default' => 'boolean',
-        'priority' => 'integer'
+        'priority' => 'integer',
     ];
 
     // Default permissions available in the system
@@ -31,28 +31,28 @@ class Role extends Model
         return [
             'dashboard' => [
                 'admin.dashboard' => 'Akses Dashboard Admin',
-                'employee.dashboard' => 'Akses Dashboard Karyawan'
+                'employee.dashboard' => 'Akses Dashboard Karyawan',
             ],
             'employees' => [
                 'employees.view' => 'Lihat Data Karyawan',
                 'employees.create' => 'Tambah Karyawan',
                 'employees.edit' => 'Edit Karyawan',
                 'employees.delete' => 'Hapus Karyawan',
-                'employees.manage' => 'Kelola Semua Karyawan'
+                'employees.manage' => 'Kelola Semua Karyawan',
             ],
             'departments' => [
                 'departments.view' => 'Lihat Departemen',
                 'departments.create' => 'Tambah Departemen',
                 'departments.edit' => 'Edit Departemen',
                 'departments.delete' => 'Hapus Departemen',
-                'departments.manage' => 'Kelola Departemen'
+                'departments.manage' => 'Kelola Departemen',
             ],
             'positions' => [
                 'positions.view' => 'Lihat Posisi',
                 'positions.create' => 'Tambah Posisi',
                 'positions.edit' => 'Edit Posisi',
                 'positions.delete' => 'Hapus Posisi',
-                'positions.manage' => 'Kelola Posisi'
+                'positions.manage' => 'Kelola Posisi',
             ],
             'attendance' => [
                 'attendance.view' => 'Lihat Data Absensi',
@@ -62,12 +62,12 @@ class Role extends Model
                 'attendance.reports' => 'Laporan Absensi',
                 'attendance.corrections.request' => 'Ajukan Koreksi Absensi',
                 'attendance.corrections.approve' => 'Setujui Koreksi Absensi',
-                'attendance.corrections.verify' => 'Verifikasi Koreksi Absensi'
+                'attendance.corrections.verify' => 'Verifikasi Koreksi Absensi',
             ],
             'leave' => [
                 'leave.request' => 'Ajukan Izin',
                 'leave.approve' => 'Setujui Pengajuan Izin',
-                'leave.verify' => 'Verifikasi Pengajuan Izin'
+                'leave.verify' => 'Verifikasi Pengajuan Izin',
             ],
             'daily_activities' => [
                 'daily_activities.create' => 'Buat Daily Activity',
@@ -78,38 +78,38 @@ class Role extends Model
                 'daily_activities.view_all' => 'Lihat Semua Daily Activity',
                 'daily_activities.delete' => 'Hapus Daily Activity',
                 'daily_activities.export' => 'Export Laporan Daily Activity',
-                'daily_activities.approve' => 'Setujui / Tolak Daily Activity'
+                'daily_activities.approve' => 'Setujui / Tolak Daily Activity',
             ],
             'schedules' => [
                 'schedules.view' => 'Lihat Jadwal Kerja',
                 'schedules.create' => 'Tambah Jadwal Kerja',
                 'schedules.edit' => 'Edit Jadwal Kerja',
                 'schedules.delete' => 'Hapus Jadwal Kerja',
-                'schedules.assign' => 'Assign Jadwal Kerja'
+                'schedules.assign' => 'Assign Jadwal Kerja',
             ],
             'locations' => [
                 'locations.view' => 'Lihat Lokasi Kantor',
                 'locations.create' => 'Tambah Lokasi Kantor',
                 'locations.edit' => 'Edit Lokasi Kantor',
-                'locations.delete' => 'Hapus Lokasi Kantor'
+                'locations.delete' => 'Hapus Lokasi Kantor',
             ],
             'roles' => [
                 'roles.view' => 'Lihat Role',
                 'roles.create' => 'Tambah Role',
                 'roles.edit' => 'Edit Role',
                 'roles.delete' => 'Hapus Role',
-                'roles.assign' => 'Assign Role ke User'
+                'roles.assign' => 'Assign Role ke User',
             ],
             'settings' => [
                 'settings.view' => 'Lihat Pengaturan',
                 'settings.edit' => 'Edit Pengaturan',
-                'settings.system' => 'Pengaturan Sistem'
+                'settings.system' => 'Pengaturan Sistem',
             ],
             'reports' => [
                 'reports.view' => 'Lihat Laporan',
                 'reports.export' => 'Export Laporan',
-                'reports.analytics' => 'Analytics & Statistics'
-            ]
+                'reports.analytics' => 'Analytics & Statistics',
+            ],
         ];
     }
 
@@ -122,11 +122,12 @@ class Role extends Model
     // Check if role has specific permission
     public function hasPermission($permission)
     {
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return false;
         }
 
         $permissions = $this->permissions ?? [];
+
         return in_array($permission, $permissions);
     }
 
@@ -138,6 +139,7 @@ class Role extends Model
                 return true;
             }
         }
+
         return false;
     }
 
@@ -145,10 +147,11 @@ class Role extends Model
     public function hasAllPermissions(array $permissions)
     {
         foreach ($permissions as $permission) {
-            if (!$this->hasPermission($permission)) {
+            if (! $this->hasPermission($permission)) {
                 return false;
             }
         }
+
         return true;
     }
 
@@ -156,11 +159,12 @@ class Role extends Model
     public function grantPermission($permission)
     {
         $permissions = $this->permissions ?? [];
-        if (!in_array($permission, $permissions)) {
+        if (! in_array($permission, $permissions)) {
             $permissions[] = $permission;
             $this->permissions = $permissions;
             $this->save();
         }
+
         return $this;
     }
 
@@ -173,6 +177,7 @@ class Role extends Model
         });
         $this->permissions = array_values($permissions);
         $this->save();
+
         return $this;
     }
 
@@ -181,6 +186,7 @@ class Role extends Model
     {
         $this->permissions = $permissions;
         $this->save();
+
         return $this;
     }
 
@@ -233,7 +239,7 @@ class Role extends Model
     // Helper methods
     public function canBeDeleted()
     {
-        return !$this->is_system_role && $this->users()->count() === 0;
+        return ! $this->is_system_role && $this->users()->count() === 0;
     }
 
     public function getPermissionsByCategory()
@@ -247,7 +253,7 @@ class Role extends Model
             foreach ($permissions as $key => $label) {
                 $categorized[$category][$key] = [
                     'label' => $label,
-                    'granted' => in_array($key, $rolePermissions)
+                    'granted' => in_array($key, $rolePermissions),
                 ];
             }
         }

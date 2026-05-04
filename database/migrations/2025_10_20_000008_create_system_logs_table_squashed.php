@@ -6,26 +6,26 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-     /**
-      * Run the migrations.
-      */
-     public function up(): void
-     {
-          Schema::create('system_logs', function (Blueprint $table) {
-               $table->id();
-               $table->string('event');
-               $table->text('description')->nullable();
-               $table->string('level')->default('info');
-               $table->string('ip_address')->nullable();
-               $table->timestamps();
-          });
-     }
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('system_logs', function (Blueprint $table) {
+            $table->id();
+            $table->string('event');
+            $table->text('description')->nullable();
+            $table->string('level')->default('info');
+            $table->string('ip_address')->nullable();
+            $table->timestamps();
+        });
+    }
 
-     /**
-      * Reverse the migrations.
-      */
-     public function down(): void
-     {
-          Schema::dropIfExists('system_logs');
-     }
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('system_logs');
+    }
 };

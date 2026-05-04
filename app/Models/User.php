@@ -89,7 +89,7 @@ class User extends Authenticatable implements JWTSubject
     // Permission methods
     public function hasPermission($permission)
     {
-        if (!$this->role || !$this->role->is_active) {
+        if (! $this->role || ! $this->role->is_active) {
             return false;
         }
 
@@ -98,7 +98,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function hasAnyPermission(array $permissions)
     {
-        if (!$this->role || !$this->role->is_active) {
+        if (! $this->role || ! $this->role->is_active) {
             return false;
         }
 
@@ -107,7 +107,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function hasAllPermissions(array $permissions)
     {
-        if (!$this->role || !$this->role->is_active) {
+        if (! $this->role || ! $this->role->is_active) {
             return false;
         }
 
@@ -121,7 +121,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function cannotDo($permission)
     {
-        return !$this->hasPermission($permission);
+        return ! $this->hasPermission($permission);
     }
 
     // Role assignment
@@ -129,6 +129,7 @@ class User extends Authenticatable implements JWTSubject
     {
         $this->role_id = $roleId;
         $this->save();
+
         return $this;
     }
 
@@ -136,6 +137,7 @@ class User extends Authenticatable implements JWTSubject
     {
         $this->role_id = null;
         $this->save();
+
         return $this;
     }
 
@@ -158,7 +160,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function hasAnyRole(array $roleNames)
     {
-        if (!$this->role) {
+        if (! $this->role) {
             return false;
         }
 

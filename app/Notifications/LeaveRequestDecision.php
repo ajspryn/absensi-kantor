@@ -21,7 +21,7 @@ class LeaveRequestDecision extends Notification
     {
         return [
             'title' => 'Keputusan Pengajuan Izin',
-            'message' => 'Pengajuan Anda ' . ($this->leaveRequest->status === 'verified' ? 'disetujui' : 'ditolak') . '.',
+            'message' => 'Pengajuan Anda '.($this->leaveRequest->status === 'verified' ? 'disetujui' : 'ditolak').'.',
             'leave_request_id' => $this->leaveRequest->id,
             'status' => $this->leaveRequest->status,
         ];

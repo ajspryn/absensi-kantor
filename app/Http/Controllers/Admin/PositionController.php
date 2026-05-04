@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Position;
 use App\Models\Department;
+use App\Models\Position;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class PositionController extends Controller
 {
@@ -193,7 +193,7 @@ class PositionController extends Controller
     public function toggleStatus(Position $position)
     {
         $position->update([
-            'is_active' => !$position->is_active
+            'is_active' => ! $position->is_active,
         ]);
 
         $status = $position->is_active ? 'diaktifkan' : 'dinonaktifkan';

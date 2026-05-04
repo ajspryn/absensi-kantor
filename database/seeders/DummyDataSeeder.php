@@ -2,14 +2,14 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
-use App\Models\Role;
 use App\Models\Department;
-use App\Models\Position;
-use App\Models\User;
 use App\Models\Employee;
+use App\Models\Position;
+use App\Models\Role;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 class DummyDataSeeder extends Seeder
 {
@@ -25,7 +25,7 @@ class DummyDataSeeder extends Seeder
             ->all();
 
         $adminRole = Role::firstOrCreate([
-            'name' => 'Admin'
+            'name' => 'Admin',
         ], [
             'description' => 'System administrator',
             // store the actual permission keys (e.g. 'employees.view')
@@ -41,7 +41,7 @@ class DummyDataSeeder extends Seeder
         }
 
         $employeeRole = Role::firstOrCreate([
-            'name' => 'Employee'
+            'name' => 'Employee',
         ], [
             'description' => 'Regular employee role',
             'permissions' => [],
@@ -51,7 +51,7 @@ class DummyDataSeeder extends Seeder
         ]);
 
         $managerRole = Role::firstOrCreate([
-            'name' => 'Manager'
+            'name' => 'Manager',
         ], [
             'description' => 'Department manager',
             'permissions' => [],
@@ -64,7 +64,7 @@ class DummyDataSeeder extends Seeder
         $departments = [];
         foreach (['Engineering', 'Human Resources', 'Sales'] as $name) {
             $departments[$name] = Department::firstOrCreate([
-                'name' => $name
+                'name' => $name,
             ], [
                 'description' => "$name department",
                 'is_active' => true,
@@ -94,6 +94,7 @@ class DummyDataSeeder extends Seeder
             if (Schema::hasColumn('positions', 'max_salary')) {
                 $attributes['max_salary'] = 20000000;
             }
+
             return Position::firstOrCreate($where, $attributes);
         })->all();
 
@@ -115,6 +116,7 @@ class DummyDataSeeder extends Seeder
             if (Schema::hasColumn('positions', 'max_salary')) {
                 $attributes['max_salary'] = 12000000;
             }
+
             return Position::firstOrCreate($where, $attributes);
         })->all();
 
@@ -136,13 +138,14 @@ class DummyDataSeeder extends Seeder
             if (Schema::hasColumn('positions', 'max_salary')) {
                 $attributes['max_salary'] = 15000000;
             }
+
             return Position::firstOrCreate($where, $attributes);
         })->all();
 
         // Users
         // Admin
         $admin = User::firstOrCreate([
-            'email' => 'admin@absensi.com'
+            'email' => 'admin@absensi.com',
         ], [
             'name' => 'Administrator',
             'password' => bcrypt('password'),
@@ -152,7 +155,7 @@ class DummyDataSeeder extends Seeder
 
         // Manager
         $managerUser = User::firstOrCreate([
-            'email' => 'manager@absensi.com'
+            'email' => 'manager@absensi.com',
         ], [
             'name' => 'Manager User',
             'password' => bcrypt('password'),
@@ -196,10 +199,10 @@ class DummyDataSeeder extends Seeder
         }
 
         $this->command->info('Dummy data created:');
-        $this->command->line('  Roles: ' . Role::count());
-        $this->command->line('  Departments: ' . Department::count());
-        $this->command->line('  Positions: ' . Position::count());
-        $this->command->line('  Users: ' . User::count());
-        $this->command->line('  Employees: ' . Employee::count());
+        $this->command->line('  Roles: '.Role::count());
+        $this->command->line('  Departments: '.Department::count());
+        $this->command->line('  Positions: '.Position::count());
+        $this->command->line('  Users: '.User::count());
+        $this->command->line('  Employees: '.Employee::count());
     }
 }

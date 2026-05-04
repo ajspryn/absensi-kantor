@@ -24,10 +24,10 @@ class PasswordResetApproved extends Notification
 
         return (new MailMessage)
             ->subject('Password Reset Approved')
-            ->greeting('Halo ' . ($notifiable->name ?? ''))
+            ->greeting('Halo '.($notifiable->name ?? ''))
             ->line('Permintaan reset password Anda telah disetujui oleh admin.')
             ->action('Reset Password', $url)
-            ->line('Link ini berlaku sampai: ' . $this->request->expires_at->toDateTimeString())
+            ->line('Link ini berlaku sampai: '.$this->request->expires_at->toDateTimeString())
             ->line('Jika Anda tidak meminta reset password, abaikan pesan ini.');
     }
 

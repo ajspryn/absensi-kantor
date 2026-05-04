@@ -10,6 +10,6 @@ class SystemLog extends Model
         'event',
         'description',
         'level',
-        'ip_address'
+        'ip_address',
     ];
 }

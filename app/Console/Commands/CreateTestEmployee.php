@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Models\User;
-use App\Models\Employee;
 use App\Models\Department;
+use App\Models\Employee;
 use App\Models\Position;
+use App\Models\User;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
 
 class CreateTestEmployee extends Command
@@ -32,32 +32,32 @@ class CreateTestEmployee extends Command
     {
         // Create or get test department
         $department = Department::firstOrCreate([
-            'name' => 'Test Department'
+            'name' => 'Test Department',
         ], [
-            'description' => 'Department for testing'
+            'description' => 'Department for testing',
         ]);
 
         // Create or get test position
         $position = Position::firstOrCreate([
-            'name' => 'Test Employee'
+            'name' => 'Test Employee',
         ], [
             'description' => 'Position for testing',
-            'department_id' => $department->id
+            'department_id' => $department->id,
         ]);
 
         // Create test user
         $user = User::firstOrCreate([
-            'email' => 'employee@test.com'
+            'email' => 'employee@test.com',
         ], [
             'name' => 'Test Employee',
             'password' => Hash::make('password123'),
             'role_id' => 3, // Employee role
-            'email_verified_at' => now()
+            'email_verified_at' => now(),
         ]);
 
         // Create employee record
         $employee = Employee::firstOrCreate([
-            'user_id' => $user->id
+            'user_id' => $user->id,
         ], [
             'employee_id' => 'EMP001',
             'full_name' => 'Test Employee',
@@ -67,12 +67,12 @@ class CreateTestEmployee extends Command
             'is_active' => true,
             'phone' => '081234567890',
             'email' => 'employee@test.com',
-            'address' => 'Test Address'
+            'address' => 'Test Address',
         ]);
 
-        $this->info("Test employee created successfully!");
-        $this->info("Email: employee@test.com");
-        $this->info("Password: password123");
-        $this->info("Role: Employee (ID: 3)");
+        $this->info('Test employee created successfully!');
+        $this->info('Email: employee@test.com');
+        $this->info('Password: password123');
+        $this->info('Role: Employee (ID: 3)');
     }
 }

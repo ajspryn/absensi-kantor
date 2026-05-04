@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\LeaveRequest;
+use App\Notifications\LeaveRequestDecision;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
-use App\Notifications\LeaveRequestDecision;
 
 class LeaveRequestController extends Controller
 {
@@ -52,6 +52,7 @@ class LeaveRequestController extends Controller
     public function show(LeaveRequest $leaveRequest)
     {
         $leaveRequest->load(['user', 'employee', 'approver', 'verifier']);
+
         return view('admin.leave-requests.show', compact('leaveRequest'));
     }
 
@@ -68,7 +69,7 @@ class LeaveRequestController extends Controller
         // Only allow department manager (as recorded on the employee's department) or admin to perform approval
         $isAdmin = $user->role && strtolower($user->role->name) === 'admin';
         $deptManagerId = optional($leaveRequest->employee->department)->manager_id;
-        if (!$isAdmin && $deptManagerId !== $user->id) {
+        if (! $isAdmin && $deptManagerId !== $user->id) {
             return redirect()->back()->with('error', 'Anda tidak memiliki wewenang untuk menyetujui pengajuan ini.');
         }
 
@@ -138,11 +139,12 @@ class LeaveRequestController extends Controller
     {
         // Only allow admins to access edit form
         $user = Auth::user();
-        if (!$user || !$user->role || strtolower($user->role->name) !== 'admin') {
+        if (! $user || ! $user->role || strtolower($user->role->name) !== 'admin') {
             abort(403, 'Unauthorized');
         }
 
         $leaveRequest->load(['user', 'employee']);
+
         return view('admin.leave-requests.edit', compact('leaveRequest'));
     }
 
@@ -158,7 +160,7 @@ class LeaveRequestController extends Controller
 
         // Only admins can update via admin edit
         $user = Auth::user();
-        if (!$user || !$user->role || strtolower($user->role->name) !== 'admin') {
+        if (! $user || ! $user->role || strtolower($user->role->name) !== 'admin') {
             abort(403, 'Unauthorized');
         }
 
@@ -177,11 +179,12 @@ class LeaveRequestController extends Controller
     {
         // Only admins can delete leave requests via admin interface
         $user = Auth::user();
-        if (!$user || !$user->role || strtolower($user->role->name) !== 'admin') {
+        if (! $user || ! $user->role || strtolower($user->role->name) !== 'admin') {
             abort(403, 'Unauthorized');
         }
 
         $leaveRequest->delete();
+
         return redirect()->route('admin.leave-requests.index')->with('success', 'Pengajuan izin berhasil dihapus.');
     }
 }

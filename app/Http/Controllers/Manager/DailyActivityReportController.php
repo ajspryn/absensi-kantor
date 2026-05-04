@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Manager;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\DailyActivity;
 use App\Models\Employee;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class DailyActivityReportController extends Controller
@@ -17,7 +17,7 @@ class DailyActivityReportController extends Controller
         // allow users with a global view permission to see all activities
         $canViewAll = $user->role && $user->role->hasPermission('daily_activities.view_all');
 
-        if (!$employee && !$canViewAll) {
+        if (! $employee && ! $canViewAll) {
             abort(403);
         }
 
@@ -80,7 +80,7 @@ class DailyActivityReportController extends Controller
 
         $canViewAll = $user->role && $user->role->hasPermission('daily_activities.view_all');
 
-        if (!$employee && !$canViewAll) {
+        if (! $employee && ! $canViewAll) {
             abort(403);
         }
 
@@ -114,7 +114,7 @@ class DailyActivityReportController extends Controller
 
         $rows = $query->with('employee')->orderBy('date', 'desc')->get();
 
-        $filename = 'manager_daily_activities_' . now()->format('Ymd_His') . '.csv';
+        $filename = 'manager_daily_activities_'.now()->format('Ymd_His').'.csv';
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
@@ -140,11 +140,11 @@ class DailyActivityReportController extends Controller
 
         $canViewAll = $user->role && $user->role->hasPermission('daily_activities.view_all');
 
-        if (!$employee && !$canViewAll) {
+        if (! $employee && ! $canViewAll) {
             abort(403);
         }
 
-        if (!$canViewAll && $dailyActivity->employee->department_id !== $employee->department_id) {
+        if (! $canViewAll && $dailyActivity->employee->department_id !== $employee->department_id) {
             abort(403);
         }
 
@@ -162,16 +162,16 @@ class DailyActivityReportController extends Controller
 
         $canViewAll = $user->role && $user->role->hasPermission('daily_activities.view_all');
 
-        if ((!$employee && !$canViewAll) || !$dailyActivity->employee) {
+        if ((! $employee && ! $canViewAll) || ! $dailyActivity->employee) {
             abort(403);
         }
 
         // allow approve if manager of the department or user can view all and has approve permission
-        if (!$canViewAll && $dailyActivity->employee->department_id !== $employee->department_id) {
+        if (! $canViewAll && $dailyActivity->employee->department_id !== $employee->department_id) {
             abort(403);
         }
 
-        if (!($user->role && $user->role->hasPermission('daily_activities.approve'))) {
+        if (! ($user->role && $user->role->hasPermission('daily_activities.approve'))) {
             abort(403);
         }
 
@@ -191,15 +191,15 @@ class DailyActivityReportController extends Controller
 
         $canViewAll = $user->role && $user->role->hasPermission('daily_activities.view_all');
 
-        if ((!$employee && !$canViewAll) || !$dailyActivity->employee) {
+        if ((! $employee && ! $canViewAll) || ! $dailyActivity->employee) {
             abort(403);
         }
 
-        if (!$canViewAll && $dailyActivity->employee->department_id !== $employee->department_id) {
+        if (! $canViewAll && $dailyActivity->employee->department_id !== $employee->department_id) {
             abort(403);
         }
 
-        if (!$user->role || !$user->role->hasPermission('daily_activities.approve')) {
+        if (! $user->role || ! $user->role->hasPermission('daily_activities.approve')) {
             abort(403);
         }
 
@@ -220,15 +220,15 @@ class DailyActivityReportController extends Controller
 
         $canViewAll = $user->role && $user->role->hasPermission('daily_activities.view_all');
 
-        if ((!$employee && !$canViewAll) || !$dailyActivity->employee) {
+        if ((! $employee && ! $canViewAll) || ! $dailyActivity->employee) {
             abort(403);
         }
 
-        if (!$canViewAll && $dailyActivity->employee->department_id !== $employee->department_id) {
+        if (! $canViewAll && $dailyActivity->employee->department_id !== $employee->department_id) {
             abort(403);
         }
 
-        if (!($user->role && $user->role->hasPermission('daily_activities.delete'))) {
+        if (! ($user->role && $user->role->hasPermission('daily_activities.delete'))) {
             abort(403);
         }
 

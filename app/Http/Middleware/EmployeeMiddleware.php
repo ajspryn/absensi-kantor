@@ -16,7 +16,7 @@ class EmployeeMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect()->route('login');
         }
 
@@ -26,7 +26,7 @@ class EmployeeMiddleware
         // Previously this used hard-coded numeric role IDs which is brittle and
         // fails when factories create roles with different IDs. Use role name
         // checks instead for stability and readability.
-        if (!$user->role || !$user->role->is_active) {
+        if (! $user->role || ! $user->role->is_active) {
             abort(403, 'User role not found or inactive');
         }
 

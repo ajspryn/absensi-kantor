@@ -2,9 +2,8 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\ServiceProvider;
 
 class PermissionServiceProvider extends ServiceProvider
 {
@@ -30,7 +29,7 @@ class PermissionServiceProvider extends ServiceProvider
 
         // @endCanDo
         Blade::directive('endCanDo', function () {
-            return "<?php endif; ?>";
+            return '<?php endif; ?>';
         });
 
         // @cannotDo('permission')
@@ -40,7 +39,7 @@ class PermissionServiceProvider extends ServiceProvider
 
         // @endCannotDo
         Blade::directive('endCannotDo', function () {
-            return "<?php endif; ?>";
+            return '<?php endif; ?>';
         });
 
         // @hasAnyPermission(['perm1', 'perm2'])
@@ -50,7 +49,7 @@ class PermissionServiceProvider extends ServiceProvider
 
         // @endHasAnyPermission
         Blade::directive('endHasAnyPermission', function () {
-            return "<?php endif; ?>";
+            return '<?php endif; ?>';
         });
 
         // @hasRole('roleName')
@@ -60,7 +59,7 @@ class PermissionServiceProvider extends ServiceProvider
 
         // @endHasRole
         Blade::directive('endHasRole', function () {
-            return "<?php endif; ?>";
+            return '<?php endif; ?>';
         });
 
         // Register a fallback named route used by older code/tests. If the
@@ -68,7 +67,7 @@ class PermissionServiceProvider extends ServiceProvider
         // simple redirect to the canonical employee-attendance corrections
         // index route. This keeps compatibility with tests that expect the
         // plain route name.
-        if (!\Illuminate\Support\Facades\Route::has('attendance.corrections.index')) {
+        if (! \Illuminate\Support\Facades\Route::has('attendance.corrections.index')) {
             \Illuminate\Support\Facades\Route::get('/attendance-corrections', function () {
                 return redirect()->route('employee.attendance.corrections.index');
             })->name('attendance.corrections.index');

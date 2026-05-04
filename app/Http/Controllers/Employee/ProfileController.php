@@ -30,7 +30,7 @@ class ProfileController extends Controller
                 ->whereBetween('date', [$currentMonth, $nextMonth])
                 ->whereNull('check_in')
                 ->count(),
-            'leave' => 0 // You can implement leave system later
+            'leave' => 0, // You can implement leave system later
         ];
 
         return view('employee.profile', compact('employee', 'monthlyStats'));
@@ -44,10 +44,10 @@ class ProfileController extends Controller
 
             $request->validate([
                 'full_name' => 'required|string|max:255',
-                'email' => 'required|email|unique:employees,email,' . $employee->id,
+                'email' => 'required|email|unique:employees,email,'.$employee->id,
                 'phone' => 'nullable|string|max:20',
                 'address' => 'nullable|string|max:500',
-                'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+                'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             ]);
 
             $data = $request->only(['full_name', 'email', 'phone', 'address']);
@@ -72,12 +72,12 @@ class ProfileController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Profil berhasil diperbarui!'
+                'message' => 'Profil berhasil diperbarui!',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+                'message' => 'Terjadi kesalahan: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -93,10 +93,10 @@ class ProfileController extends Controller
             ]);
 
             // Check if current password is correct
-            if (!Hash::check($request->current_password, $user->password)) {
+            if (! Hash::check($request->current_password, $user->password)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Password saat ini tidak benar'
+                    'message' => 'Password saat ini tidak benar',
                 ], 422);
             }
 
@@ -106,12 +106,12 @@ class ProfileController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Password berhasil diubah!'
+                'message' => 'Password berhasil diubah!',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+                'message' => 'Terjadi kesalahan: '.$e->getMessage(),
             ], 500);
         }
     }

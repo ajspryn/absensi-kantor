@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\User;
 use App\Models\PasswordResetRequest;
-use Illuminate\Support\Str;
+use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class ForgotPasswordController extends Controller
 {
@@ -19,7 +19,7 @@ class ForgotPasswordController extends Controller
     {
         $request->validate([
             'email' => 'required|email|exists:users,email',
-            'reason' => 'required|string|max:500'
+            'reason' => 'required|string|max:500',
         ]);
 
         // Check if user already has pending request
@@ -30,7 +30,7 @@ class ForgotPasswordController extends Controller
 
         if ($existingRequest) {
             return back()->withErrors([
-                'email' => 'Anda sudah memiliki permintaan reset password yang sedang menunggu persetujuan admin.'
+                'email' => 'Anda sudah memiliki permintaan reset password yang sedang menunggu persetujuan admin.',
             ]);
         }
 
@@ -56,9 +56,9 @@ class ForgotPasswordController extends Controller
             ->where('expires_at', '>', now())
             ->first();
 
-        if (!$resetRequest) {
+        if (! $resetRequest) {
             return redirect()->route('login')->withErrors([
-                'email' => 'Token reset password tidak valid atau sudah kedaluwarsa.'
+                'email' => 'Token reset password tidak valid atau sudah kedaluwarsa.',
             ]);
         }
 
@@ -77,16 +77,16 @@ class ForgotPasswordController extends Controller
             ->where('expires_at', '>', now())
             ->first();
 
-        if (!$resetRequest) {
+        if (! $resetRequest) {
             return back()->withErrors([
-                'token' => 'Token reset password tidak valid atau sudah kedaluwarsa.'
+                'token' => 'Token reset password tidak valid atau sudah kedaluwarsa.',
             ]);
         }
 
         // Update user password
         $user = User::where('email', $resetRequest->email)->first();
         $user->update([
-            'password' => Hash::make($request->password)
+            'password' => Hash::make($request->password),
         ]);
 
         // Mark request as used

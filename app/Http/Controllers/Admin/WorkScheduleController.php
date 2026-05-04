@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\WorkSchedule;
 use App\Models\User;
+use App\Models\WorkSchedule;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class WorkScheduleController extends Controller
 {
@@ -61,7 +61,7 @@ class WorkScheduleController extends Controller
             'effective_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:effective_date',
             'overtime_threshold' => 'nullable|numeric|min:0',
-            'late_tolerance' => 'nullable|integer|min:0|max:60'
+            'late_tolerance' => 'nullable|integer|min:0|max:60',
         ]);
 
         // Calculate total hours
@@ -120,7 +120,7 @@ class WorkScheduleController extends Controller
             'effective_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:effective_date',
             'overtime_threshold' => 'nullable|numeric|min:0',
-            'late_tolerance' => 'nullable|integer|min:0|max:60'
+            'late_tolerance' => 'nullable|integer|min:0|max:60',
         ]);
 
         // Calculate total hours
@@ -155,7 +155,7 @@ class WorkScheduleController extends Controller
     public function toggleStatus(WorkSchedule $workSchedule)
     {
         $workSchedule->update([
-            'is_active' => !$workSchedule->is_active
+            'is_active' => ! $workSchedule->is_active,
         ]);
 
         $status = $workSchedule->is_active ? 'diaktifkan' : 'dinonaktifkan';
@@ -242,6 +242,6 @@ class WorkScheduleController extends Controller
         }
 
         return redirect()->route('admin.work-schedules.index')
-            ->with('success', $message . '!');
+            ->with('success', $message.'!');
     }
 }

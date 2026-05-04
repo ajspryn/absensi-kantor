@@ -2,49 +2,48 @@
 
 namespace App\Imports;
 
-use App\Models\Employee;
-use App\Models\User;
 use App\Models\Department;
+use App\Models\Employee;
 use App\Models\Position;
 use App\Models\Role;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Concerns\Importable;
+use Maatwebsite\Excel\Concerns\SkipsErrors;
+use Maatwebsite\Excel\Concerns\SkipsFailures;
+use Maatwebsite\Excel\Concerns\SkipsOnError;
+use Maatwebsite\Excel\Concerns\SkipsOnFailure;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
-use Maatwebsite\Excel\Concerns\Importable;
-use Maatwebsite\Excel\Concerns\SkipsErrors;
-use Maatwebsite\Excel\Concerns\SkipsOnError;
-use Maatwebsite\Excel\Concerns\SkipsFailures;
-use Maatwebsite\Excel\Concerns\SkipsOnFailure;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\Rule;
 
-class EmployeesImport implements ToModel, WithHeadingRow, WithValidation, SkipsOnError, SkipsOnFailure
+class EmployeesImport implements SkipsOnError, SkipsOnFailure, ToModel, WithHeadingRow, WithValidation
 {
     use Importable, SkipsErrors, SkipsFailures;
 
     private $importedCount = 0;
+
     private $skippedCount = 0;
 
     /**
-     * @param array $row
-     *
      * @return \Illuminate\Database\Eloquent\Model|null
      */
     public function model(array $row)
     {
         // Debug: Log the row data
-        Log::info('Processing row: ' . json_encode($row));
+        Log::info('Processing row: '.json_encode($row));
 
         // Check if essential fields are empty
         if (empty($row['nama_lengkap']) || empty($row['email']) || empty($row['id_karyawan'])) {
-            Log::warning('Skipping row due to missing essential fields: ' . json_encode([
+            Log::warning('Skipping row due to missing essential fields: '.json_encode([
                 'nama_lengkap' => $row['nama_lengkap'] ?? 'MISSING',
                 'email' => $row['email'] ?? 'MISSING',
-                'id_karyawan' => $row['id_karyawan'] ?? 'MISSING'
+                'id_karyawan' => $row['id_karyawan'] ?? 'MISSING',
             ]));
             $this->skippedCount++;
+
             return null;
         }
 
@@ -52,6 +51,7 @@ class EmployeesImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
         if (empty(trim($row['nama_lengkap'])) || empty(trim($row['email'])) || empty(trim($row['id_karyawan']))) {
             Log::warning('Skipping row due to empty fields after trim');
             $this->skippedCount++;
+
             return null;
         }
 
@@ -60,34 +60,34 @@ class EmployeesImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
         try {
             // Find or create department
             $department = null;
-            if (!empty($row['departemen'])) {
+            if (! empty($row['departemen'])) {
                 $department = Department::where('name', $row['departemen'])->first();
-                if (!$department) {
+                if (! $department) {
                     $department = Department::create([
                         'name' => $row['departemen'],
-                        'description' => 'Departemen ' . $row['departemen'],
-                        'is_active' => true
+                        'description' => 'Departemen '.$row['departemen'],
+                        'is_active' => true,
                     ]);
                 }
             }
 
             // Find or create position
             $position = null;
-            if (!empty($row['posisi'])) {
+            if (! empty($row['posisi'])) {
                 $position = Position::where('name', $row['posisi'])->first();
-                if (!$position) {
+                if (! $position) {
                     $position = Position::create([
                         'name' => $row['posisi'],
-                        'description' => 'Posisi ' . $row['posisi'],
+                        'description' => 'Posisi '.$row['posisi'],
                         'department_id' => $department ? $department->id : null,
-                        'is_active' => true
+                        'is_active' => true,
                     ]);
                 }
             }
 
             // Find role
             $role = Role::where('name', 'employee')->first();
-            if (!$role) {
+            if (! $role) {
                 $role = Role::where('name', 'Employee')->first();
             }
 
@@ -109,7 +109,7 @@ class EmployeesImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
                 'position_id' => $position ? $position->id : null,
                 // 'position' column removed; keep position relation via position_id
                 'full_name' => $row['nama_lengkap'],
-                'phone' => !empty($row['telepon']) ? (string)$row['telepon'] : null, // Convert to string
+                'phone' => ! empty($row['telepon']) ? (string) $row['telepon'] : null, // Convert to string
                 'email' => $row['email'],
                 'address' => $row['alamat'] ?? null,
                 'hire_date' => isset($row['tanggal_masuk']) ?
@@ -128,9 +128,10 @@ class EmployeesImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
             return $employee;
         } catch (\Exception $e) {
             DB::rollback();
-            Log::error('Import error: ' . $e->getMessage());
-            Log::error('Stack trace: ' . $e->getTraceAsString());
+            Log::error('Import error: '.$e->getMessage());
+            Log::error('Stack trace: '.$e->getTraceAsString());
             $this->skippedCount++;
+
             return null;
         }
     }
@@ -180,7 +181,7 @@ class EmployeesImport implements ToModel, WithHeadingRow, WithValidation, SkipsO
     public function onFailure(\Maatwebsite\Excel\Validators\Failure ...$failures)
     {
         foreach ($failures as $failure) {
-            Log::error('Validation failure at row ' . $failure->row() . ': ' . implode(', ', $failure->errors()));
+            Log::error('Validation failure at row '.$failure->row().': '.implode(', ', $failure->errors()));
         }
     }
 }

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DailyActivity;
 use App\Http\Resources\DailyActivityResource;
+use App\Models\DailyActivity;
 use Illuminate\Http\Request;
 
 class DailyActivityController extends Controller

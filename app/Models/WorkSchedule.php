@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon;
 
 class WorkSchedule extends Model
 {
@@ -26,7 +26,7 @@ class WorkSchedule extends Model
         'end_date',
         'total_hours',
         'overtime_threshold',
-        'late_tolerance'
+        'late_tolerance',
     ];
 
     protected $casts = [
@@ -38,7 +38,7 @@ class WorkSchedule extends Model
         'end_date' => 'date',
         'total_hours' => 'decimal:2',
         'overtime_threshold' => 'decimal:2',
-        'late_tolerance' => 'integer'
+        'late_tolerance' => 'integer',
     ];
 
     // Relationships
@@ -62,7 +62,7 @@ class WorkSchedule extends Model
             3 => 'Rabu',
             4 => 'Kamis',
             5 => 'Jumat',
-            6 => 'Sabtu'
+            6 => 'Sabtu',
         ];
 
         if (empty($this->work_days)) {
@@ -81,7 +81,7 @@ class WorkSchedule extends Model
             $this->calculateTotalHours();
         }
 
-        if (!$this->total_hours) {
+        if (! $this->total_hours) {
             return '0 jam';
         }
 
@@ -118,16 +118,17 @@ class WorkSchedule extends Model
 
     public function getWorkingHoursRange()
     {
-        if (!$this->start_time || !$this->end_time) {
+        if (! $this->start_time || ! $this->end_time) {
             return '-';
         }
         // Ensure HH:MM format
         try {
             $start = Carbon::parse($this->start_time)->format('H:i');
             $end = Carbon::parse($this->end_time)->format('H:i');
-            return $start . ' - ' . $end;
+
+            return $start.' - '.$end;
         } catch (\Throwable $e) {
-            return $this->start_time . ' - ' . $this->end_time;
+            return $this->start_time.' - '.$this->end_time;
         }
     }
 
@@ -137,12 +138,12 @@ class WorkSchedule extends Model
         $dayOfWeek = $today->dayOfWeek;
 
         // Check if today is a work day
-        if (!in_array($dayOfWeek, $this->work_days ?? [])) {
+        if (! in_array($dayOfWeek, $this->work_days ?? [])) {
             return false;
         }
 
         // Check if schedule is active
-        if (!$this->is_active) {
+        if (! $this->is_active) {
             return false;
         }
 

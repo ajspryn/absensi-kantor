@@ -49,19 +49,19 @@ class Position extends Model
 
     public function getSalaryRangeFormatted()
     {
-        if (!$this->min_salary && !$this->max_salary) {
+        if (! $this->min_salary && ! $this->max_salary) {
             return 'Tidak ditentukan';
         }
 
         if ($this->min_salary && $this->max_salary) {
-            return 'Rp ' . number_format($this->min_salary, 0, ',', '.') . ' - Rp ' . number_format($this->max_salary, 0, ',', '.');
+            return 'Rp '.number_format($this->min_salary, 0, ',', '.').' - Rp '.number_format($this->max_salary, 0, ',', '.');
         }
 
         if ($this->min_salary) {
-            return 'Minimal Rp ' . number_format($this->min_salary, 0, ',', '.');
+            return 'Minimal Rp '.number_format($this->min_salary, 0, ',', '.');
         }
 
-        return 'Maksimal Rp ' . number_format($this->max_salary, 0, ',', '.');
+        return 'Maksimal Rp '.number_format($this->max_salary, 0, ',', '.');
     }
 
     public function getLevelName()
@@ -75,10 +75,10 @@ class Position extends Model
             6 => 'Senior Manager',
             7 => 'Director',
             8 => 'VP',
-            9 => 'C-Level'
+            9 => 'C-Level',
         ];
 
-        return $levels[$this->level] ?? 'Level ' . $this->level;
+        return $levels[$this->level] ?? 'Level '.$this->level;
     }
 
     // Scopes

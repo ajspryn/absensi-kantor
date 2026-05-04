@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Employee extends Model
 {
@@ -137,12 +137,14 @@ class Employee extends Model
     public function hasCheckedInToday()
     {
         $attendance = $this->getTodayAttendance();
+
         return $attendance && $attendance->check_in;
     }
 
     public function hasCheckedOutToday()
     {
         $attendance = $this->getTodayAttendance();
+
         return $attendance && $attendance->check_out;
     }
 
@@ -171,7 +173,7 @@ class Employee extends Model
     {
         if ($this->position && isset($this->position->name)) {
             return $this->position->name;
-        } elseif (is_string($this->position) && !empty($this->position)) {
+        } elseif (is_string($this->position) && ! empty($this->position)) {
             return $this->position;
         }
 
@@ -185,7 +187,7 @@ class Employee extends Model
             return $this->position->name;
         }
 
-        if (is_string($this->position) && !empty($this->position)) {
+        if (is_string($this->position) && ! empty($this->position)) {
             return $this->position;
         }
 
@@ -276,7 +278,7 @@ class Employee extends Model
      */
     public function getAttendanceWithMissing($startDate, $endDate)
     {
-        if (!$this->workSchedule) {
+        if (! $this->workSchedule) {
             return $this->attendances()
                 ->whereBetween('date', [\Carbon\Carbon::parse($startDate), \Carbon\Carbon::parse($endDate)])
                 ->orderBy('date', 'desc')
@@ -336,9 +338,6 @@ class Employee extends Model
 
     /**
      * Return an array of required profile fields that are missing or empty on this employee.
-     *
-     * @param  array  $requiredFields
-     * @return array
      */
     public function getMissingProfileFields(array $requiredFields = []): array
     {
@@ -351,6 +350,7 @@ class Employee extends Model
                 if ($value === null || $value === '') {
                     $missing[] = $f;
                 }
+
                 continue;
             }
 
@@ -358,6 +358,7 @@ class Employee extends Model
                 if (trim($value) === '') {
                     $missing[] = $f;
                 }
+
                 continue;
             }
 

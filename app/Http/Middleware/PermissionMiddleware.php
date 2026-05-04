@@ -5,7 +5,6 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class PermissionMiddleware
@@ -17,14 +16,14 @@ class PermissionMiddleware
      */
     public function handle(Request $request, Closure $next, ...$permissions): Response
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect()->route('login');
         }
 
         // Get user with role relationship
         $user = \App\Models\User::with('role')->find(Auth::id());
 
-        if (!$user || !$user->role) {
+        if (! $user || ! $user->role) {
             abort(403, 'User role not found');
         }
 
@@ -37,7 +36,7 @@ class PermissionMiddleware
             ->values()
             ->all();
 
-        if (!empty($required)) {
+        if (! empty($required)) {
             $hasPermission = false;
             foreach ($required as $permission) {
                 if ($user->hasPermission($permission)) {
@@ -46,8 +45,8 @@ class PermissionMiddleware
                 }
             }
 
-            if (!$hasPermission) {
-                abort(403, 'Unauthorized. Required permissions: ' . implode(', ', $required));
+            if (! $hasPermission) {
+                abort(403, 'Unauthorized. Required permissions: '.implode(', ', $required));
             }
         }
 

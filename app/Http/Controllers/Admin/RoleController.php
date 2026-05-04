@@ -97,7 +97,7 @@ class RoleController extends Controller
     public function update(Request $request, Role $role)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:roles,name,' . $role->id,
+            'name' => 'required|string|max:255|unique:roles,name,'.$role->id,
             'description' => 'nullable|string|max:500',
             'permissions' => 'nullable|array',
             'permissions.*' => 'string',
@@ -125,7 +125,7 @@ class RoleController extends Controller
     public function destroy(Role $role)
     {
         // Check if role can be deleted
-        if (!$role->canBeDeleted()) {
+        if (! $role->canBeDeleted()) {
             return redirect()->back()
                 ->with('error', 'Tidak dapat menghapus role system atau role yang masih digunakan!');
         }
@@ -145,7 +145,7 @@ class RoleController extends Controller
         }
 
         $role->update([
-            'is_active' => !$role->is_active
+            'is_active' => ! $role->is_active,
         ]);
 
         $status = $role->is_active ? 'diaktifkan' : 'dinonaktifkan';
@@ -156,7 +156,7 @@ class RoleController extends Controller
 
     public function setDefault(Role $role)
     {
-        if (!$role->is_active) {
+        if (! $role->is_active) {
             return redirect()->back()
                 ->with('error', 'Hanya role aktif yang dapat dijadikan default!');
         }
@@ -175,7 +175,7 @@ class RoleController extends Controller
     {
         $validated = $request->validate([
             'user_ids' => 'required|array',
-            'user_ids.*' => 'exists:users,id'
+            'user_ids.*' => 'exists:users,id',
         ]);
 
         User::whereIn('id', $validated['user_ids'])
@@ -190,7 +190,7 @@ class RoleController extends Controller
     public function removeUser(Request $request, Role $role)
     {
         $validated = $request->validate([
-            'user_id' => 'required|exists:users,id'
+            'user_id' => 'required|exists:users,id',
         ]);
 
         $user = User::findOrFail($validated['user_id']);
@@ -204,7 +204,7 @@ class RoleController extends Controller
         // Assign default role or remove role
         $defaultRole = Role::getDefaultRole();
         $user->update([
-            'role_id' => $defaultRole ? $defaultRole->id : null
+            'role_id' => $defaultRole ? $defaultRole->id : null,
         ]);
 
         return redirect()->back()
@@ -223,7 +223,7 @@ class RoleController extends Controller
     {
         $validated = $request->validate([
             'permissions' => 'nullable|array',
-            'permissions.*' => 'string'
+            'permissions.*' => 'string',
         ]);
 
         $permissions = array_filter($validated['permissions'] ?? []);

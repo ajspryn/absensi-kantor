@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\DailyActivity;
-use App\Models\Employee;
 use App\Http\Requests\StoreDailyActivityRequest;
+use App\Models\DailyActivity;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class DailyActivityController extends Controller
@@ -64,8 +63,8 @@ class DailyActivityController extends Controller
         } else {
             $month = $request->get('month', now()->format('Y-m'));
             try {
-                $start = \Carbon\Carbon::parse($month . '-01')->startOfMonth()->format('Y-m-d');
-                $end = \Carbon\Carbon::parse($month . '-01')->endOfMonth()->format('Y-m-d');
+                $start = \Carbon\Carbon::parse($month.'-01')->startOfMonth()->format('Y-m-d');
+                $end = \Carbon\Carbon::parse($month.'-01')->endOfMonth()->format('Y-m-d');
                 $query->whereBetween('date', [$start, $end]);
             } catch (\Exception $e) {
             }
@@ -73,7 +72,7 @@ class DailyActivityController extends Controller
 
         $rows = $query->get();
 
-        $filename = 'daily_activities_' . now()->format('Ymd_His') . '.csv';
+        $filename = 'daily_activities_'.now()->format('Ymd_His').'.csv';
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
@@ -131,7 +130,7 @@ class DailyActivityController extends Controller
         // Allow owner or manager of same department (check in controller for simplicity)
         if ($dailyActivity->employee_id !== $employee->id) {
             // if user is manager, allow if same department
-            if (!$user->role || $user->role->name !== 'Manager' || $dailyActivity->employee->department_id !== $employee->department_id) {
+            if (! $user->role || $user->role->name !== 'Manager' || $dailyActivity->employee->department_id !== $employee->department_id) {
                 abort(403);
             }
         }
@@ -147,7 +146,7 @@ class DailyActivityController extends Controller
 
         // only owner or manager same dept can edit
         if ($dailyActivity->employee_id !== ($employee->id ?? null)) {
-            if (!($user->role && strtolower($user->role->name) === 'manager' && $dailyActivity->employee && $employee && $dailyActivity->employee->department_id === $employee->department_id)) {
+            if (! ($user->role && strtolower($user->role->name) === 'manager' && $dailyActivity->employee && $employee && $dailyActivity->employee->department_id === $employee->department_id)) {
                 abort(403);
             }
         }
@@ -162,7 +161,7 @@ class DailyActivityController extends Controller
         $employee = $user->employee;
 
         if ($dailyActivity->employee_id !== ($employee->id ?? null)) {
-            if (!($user->role && strtolower($user->role->name) === 'manager' && $dailyActivity->employee && $employee && $dailyActivity->employee->department_id === $employee->department_id)) {
+            if (! ($user->role && strtolower($user->role->name) === 'manager' && $dailyActivity->employee && $employee && $dailyActivity->employee->department_id === $employee->department_id)) {
                 abort(403);
             }
         }
@@ -194,7 +193,7 @@ class DailyActivityController extends Controller
         $employee = $user->employee;
 
         if ($dailyActivity->employee_id !== ($employee->id ?? null)) {
-            if (!($user->role && strtolower($user->role->name) === 'manager' && $dailyActivity->employee && $employee && $dailyActivity->employee->department_id === $employee->department_id)) {
+            if (! ($user->role && strtolower($user->role->name) === 'manager' && $dailyActivity->employee && $employee && $dailyActivity->employee->department_id === $employee->department_id)) {
                 abort(403);
             }
         }
@@ -230,7 +229,7 @@ class DailyActivityController extends Controller
 
         $tasks = $dailyActivity->tasks ?? [];
 
-        if (!isset($tasks[$index])) {
+        if (! isset($tasks[$index])) {
             return response()->json(['error' => 'Task not found'], 404);
         }
 
@@ -271,7 +270,7 @@ class DailyActivityController extends Controller
             $canBypass = in_array($roleName, ['manager', 'admin', 'hr']);
         }
 
-        if (!($isOwner || $isManagerSameDept || $canBypass)) {
+        if (! ($isOwner || $isManagerSameDept || $canBypass)) {
             abort(403);
         }
 

@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\PasswordResetRequest;
-use Illuminate\Support\Facades\Auth;
 use App\Notifications\PasswordResetApproved;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PasswordResetController extends Controller
 {
@@ -23,7 +23,7 @@ class PasswordResetController extends Controller
     {
         $resetRequest = PasswordResetRequest::findOrFail($id);
 
-        if (!$resetRequest->isPending()) {
+        if (! $resetRequest->isPending()) {
             return back()->withErrors(['error' => 'Permintaan ini sudah diproses sebelumnya.']);
         }
 
@@ -46,7 +46,7 @@ class PasswordResetController extends Controller
     {
         $resetRequest = PasswordResetRequest::findOrFail($id);
 
-        if (!$resetRequest->isPending()) {
+        if (! $resetRequest->isPending()) {
             return back()->withErrors(['error' => 'Permintaan ini sudah diproses sebelumnya.']);
         }
 

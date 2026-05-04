@@ -13,6 +13,7 @@ Artisan::command('migrations:mark-squashed', function () {
 
     if (! $this->confirm('Are you sure you want to continue?')) {
         $this->comment('Aborted.');
+
         return 1;
     }
 
@@ -21,10 +22,12 @@ Artisan::command('migrations:mark-squashed', function () {
 
     if ($exit === 0) {
         $this->info('Seeder finished successfully. Run php artisan migrate:status to verify.');
+
         return 0;
     }
 
-    $this->error('Seeder failed with code: ' . $exit);
+    $this->error('Seeder failed with code: '.$exit);
+
     return $exit;
 })->purpose('Mark squashed migrations as applied (idempotent)');
 

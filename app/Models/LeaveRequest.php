@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class LeaveRequest extends Model
 {
@@ -61,8 +61,11 @@ class LeaveRequest extends Model
 
     // Status helpers
     const STATUS_PENDING = 'pending';
+
     const STATUS_APPROVED = 'approved';
+
     const STATUS_VERIFIED = 'verified';
+
     const STATUS_REJECTED = 'rejected';
 
     public function isPending()

@@ -4,13 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
-use App\Models\Employee;
 use App\Models\Department;
+use App\Models\Employee;
 use App\Models\WorkSchedule;
-use Illuminate\Http\Request;
-use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class AttendanceReportController extends Controller
@@ -39,7 +38,7 @@ class AttendanceReportController extends Controller
             'attendance_id' => 'required|exists:attendances,id',
             'date' => 'required|date',
             'check_in' => 'nullable|date_format:H:i',
-            'check_out' => 'nullable|date_format:H:i'
+            'check_out' => 'nullable|date_format:H:i',
         ]);
 
         try {
@@ -54,7 +53,7 @@ class AttendanceReportController extends Controller
             if ($existingAttendance) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Karyawan sudah memiliki absensi pada tanggal ' . $request->date
+                    'message' => 'Karyawan sudah memiliki absensi pada tanggal '.$request->date,
                 ], 422);
             }
 
@@ -110,15 +109,16 @@ class AttendanceReportController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Absensi berhasil diupdate!',
-                'data' => $attendance
+                'data' => $attendance,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal update absensi: ' . $e->getMessage()
+                'message' => 'Gagal update absensi: '.$e->getMessage(),
             ], 500);
         }
     }
+
     public function index(Request $request)
     {
         // Get filter parameters
@@ -245,7 +245,7 @@ class AttendanceReportController extends Controller
                     $isWorkDay = $employee->workSchedule->isWorkDay($period->format('Y-m-d'));
                 } else {
                     // Default: exclude weekends (Sunday=0, Saturday=6)
-                    $isWorkDay = !in_array($period->dayOfWeek, [0, 6]);
+                    $isWorkDay = ! in_array($period->dayOfWeek, [0, 6]);
                 }
 
                 if ($isWorkDay) {
@@ -302,7 +302,7 @@ class AttendanceReportController extends Controller
                 'absent_days' => $absentDays,
                 'attendance_rate' => $attendanceRate,
                 'last_check_in' => $lastIn,
-                'last_check_out' => $lastOut
+                'last_check_out' => $lastOut,
             ];
         }
 
@@ -411,13 +411,13 @@ class AttendanceReportController extends Controller
                 'stats'
             ));
 
-            $filename = 'laporan-absensi-detail-' . $startDate . '-to-' . $endDate . '.pdf';
+            $filename = 'laporan-absensi-detail-'.$startDate.'-to-'.$endDate.'.pdf';
 
             $pdf->setPaper('A4', 'landscape');
 
             return $pdf->download($filename);
         } catch (\Exception $e) {
-            return response('PDF Error: ' . $e->getMessage() . ' Line: ' . $e->getLine() . ' File: ' . $e->getFile())
+            return response('PDF Error: '.$e->getMessage().' Line: '.$e->getLine().' File: '.$e->getFile())
                 ->header('Content-Type', 'text/plain');
         }
     }
@@ -464,7 +464,7 @@ class AttendanceReportController extends Controller
                 if ($employee->workSchedule) {
                     $isWorkDay = $employee->workSchedule->isWorkDay($period->format('Y-m-d'));
                 } else {
-                    $isWorkDay = !in_array($period->dayOfWeek, [0, 6]);
+                    $isWorkDay = ! in_array($period->dayOfWeek, [0, 6]);
                 }
 
                 if ($isWorkDay) {
@@ -504,7 +504,7 @@ class AttendanceReportController extends Controller
                 'present_days' => $presentDays,
                 'late_days' => $lateDays,
                 'absent_days' => $absentDays,
-                'attendance_rate' => $attendanceRate
+                'attendance_rate' => $attendanceRate,
             ];
         }
 
@@ -520,11 +520,11 @@ class AttendanceReportController extends Controller
                 'endDate'
             ));
 
-            $filename = 'laporan-absensi-ringkasan-' . $startDate . '-to-' . $endDate . '.pdf';
+            $filename = 'laporan-absensi-ringkasan-'.$startDate.'-to-'.$endDate.'.pdf';
 
             return $pdf->download($filename);
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal membuat PDF: ' . $e->getMessage());
+            return back()->with('error', 'Gagal membuat PDF: '.$e->getMessage());
         }
     }
 
@@ -579,7 +579,7 @@ class AttendanceReportController extends Controller
             'late' => $late,
             'present_rate' => $totalExpected > 0 ? round(($present / $totalExpected) * 100, 1) : 0,
             'absent_rate' => $totalExpected > 0 ? round(($absent / $totalExpected) * 100, 1) : 0,
-            'late_rate' => $present > 0 ? round(($late / $present) * 100, 1) : 0
+            'late_rate' => $present > 0 ? round(($late / $present) * 100, 1) : 0,
         ];
     }
 
@@ -591,7 +591,7 @@ class AttendanceReportController extends Controller
 
         while ($start->lte($end)) {
             // Exclude weekends (Saturday = 6, Sunday = 0)
-            if (!in_array($start->dayOfWeek, [0, 6])) {
+            if (! in_array($start->dayOfWeek, [0, 6])) {
                 $workDays++;
             }
             $start->addDay();

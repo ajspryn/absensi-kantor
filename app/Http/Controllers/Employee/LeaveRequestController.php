@@ -4,12 +4,10 @@ namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
 use App\Models\LeaveRequest;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
-use Carbon\Carbon;
 use App\Models\User;
 use App\Notifications\LeaveRequestSubmitted;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class LeaveRequestController extends Controller
 {
@@ -20,6 +18,7 @@ class LeaveRequestController extends Controller
         $leaveRequests = LeaveRequest::where('user_id', $user->id)
             ->orderByDesc('created_at')
             ->get();
+
         return view('employee.leave.requests.index', compact('leaveRequests'));
     }
 
@@ -29,6 +28,7 @@ class LeaveRequestController extends Controller
         $leaveRequest = LeaveRequest::where('user_id', $user->id)
             ->where('id', $id)
             ->firstOrFail();
+
         return view('employee.leave.requests.show', compact('leaveRequest'));
     }
 

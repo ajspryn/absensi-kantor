@@ -95,7 +95,7 @@ class DepartmentController extends Controller
     {
         // manager_id should reference users.id (Department.manager() belongsTo User)
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:departments,name,' . $department->id,
+            'name' => 'required|string|max:255|unique:departments,name,'.$department->id,
             'description' => 'nullable|string',
             // Accept a user id here (users.id)
             'manager_id' => 'nullable|exists:users,id',
@@ -125,7 +125,7 @@ class DepartmentController extends Controller
     public function toggleStatus(Department $department)
     {
         $department->update([
-            'is_active' => !$department->is_active
+            'is_active' => ! $department->is_active,
         ]);
 
         $status = $department->is_active ? 'diaktifkan' : 'dinonaktifkan';
@@ -139,13 +139,13 @@ class DepartmentController extends Controller
 
         // Expect manager_id as a users.id. Find the Employee owning that user.
         $validated = $request->validate([
-            'manager_id' => 'required|exists:users,id'
+            'manager_id' => 'required|exists:users,id',
         ]);
 
         // Find the employee record for this user
         $employee = Employee::where('user_id', $validated['manager_id'])->first();
 
-        if (!$employee) {
+        if (! $employee) {
             return redirect()->back()
                 ->with('error', 'Pengguna yang dipilih bukan karyawan yang valid.');
         }
@@ -157,10 +157,10 @@ class DepartmentController extends Controller
 
         // Store the user id as manager_id to match Department.manager() relation
         $department->update([
-            'manager_id' => $validated['manager_id']
+            'manager_id' => $validated['manager_id'],
         ]);
 
         return redirect()->back()
-            ->with('success', "Manager departemen berhasil diperbarui!");
+            ->with('success', 'Manager departemen berhasil diperbarui!');
     }
 }

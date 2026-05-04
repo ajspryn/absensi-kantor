@@ -23,14 +23,14 @@ class RoleFactory extends Factory
     {
         // Flatten available permissions from Role model
         $available = collect(Role::getAvailablePermissions())
-            ->map(fn($group) => array_keys($group))
+            ->map(fn ($group) => array_keys($group))
             ->collapse()
             ->unique()
             ->values()
             ->toArray();
 
         $permissions = [];
-        if (!empty($available)) {
+        if (! empty($available)) {
             $permissions = $this->faker->randomElements($available, $this->faker->numberBetween(1, min(6, count($available))));
         }
 

@@ -2,16 +2,17 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Attendance;
+use App\Models\Employee;
+use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use App\Models\User;
-use App\Models\Employee;
-use App\Models\Attendance;
 use Illuminate\Support\Facades\Hash;
 
 class MigrateOldAbsensiData extends Command
 {
     protected $signature = 'migrate:absensi-old';
+
     protected $description = 'Migrasi data user dan absensi dari database lama ke database baru';
 
     public function handle()
@@ -21,7 +22,7 @@ class MigrateOldAbsensiData extends Command
         $this->info('Migrasi user...');
         foreach ($oldUsers as $oldUser) {
             $user = User::firstOrCreate([
-                'email' => $oldUser->email ?? ($oldUser->username . '@old.com'),
+                'email' => $oldUser->email ?? ($oldUser->username.'@old.com'),
             ], [
                 'name' => $oldUser->nama ?? $oldUser->username,
                 'password' => Hash::make('password'),
@@ -29,7 +30,7 @@ class MigrateOldAbsensiData extends Command
                 'email_verified_at' => now(),
             ]);
             Employee::firstOrCreate([
-                'user_id' => $user->id
+                'user_id' => $user->id,
             ], [
                 'employee_id' => $oldUser->nip ?? $oldUser->id,
                 'full_name' => $oldUser->nama ?? $oldUser->username,

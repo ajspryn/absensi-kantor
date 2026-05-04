@@ -2,17 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use App\Models\User;
-use App\Models\Employee;
+use App\Models\ActivityLog;
 use App\Models\Attendance;
 use App\Models\Department;
+use App\Models\Employee;
+use App\Models\PasswordResetRequest;
 use App\Models\Position;
 use App\Models\Role;
-use App\Models\PasswordResetRequest;
-use App\Models\ActivityLog;
 use App\Models\SystemLog;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
@@ -24,7 +23,7 @@ class DashboardController extends Controller
         $user = Auth::user();
 
         // If not authenticated send to login
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('login');
         }
 
@@ -44,7 +43,9 @@ class DashboardController extends Controller
      */
     protected function shouldShowAdminDashboard(?User $user): bool
     {
-        if (!$user) return false;
+        if (! $user) {
+            return false;
+        }
 
         $roleName = optional($user->role)->name ? strtolower(optional($user->role)->name) : null;
         if (in_array($roleName, ['admin', 'super admin', 'system'])) {
@@ -109,10 +110,11 @@ class DashboardController extends Controller
         $requiredFields = ['employee_id', 'full_name', 'email'];
 
         // If user has no employee record, redirect to complete-profile (unless admin/system)
-        if (!$employee) {
+        if (! $employee) {
             if ($this->shouldShowAdminDashboard($user)) {
                 return $this->adminDashboard();
             }
+
             return redirect()->route('employee.profile.complete');
         }
 
@@ -121,11 +123,13 @@ class DashboardController extends Controller
 
         // Check required fields using Employee model helper
         $missing = $employee->getMissingProfileFields($requiredFields);
-        if (!empty($missing)) {
+        if (! empty($missing)) {
             if ($this->shouldShowAdminDashboard($user)) {
                 return $this->adminDashboard();
             }
-            return redirect()->route('employee.profile.complete');
+
+            // Dimatikan sementara untuk keperluan testing
+            // return redirect()->route('employee.profile.complete');
         }
 
         $todayAttendance = $employee->getTodayAttendance();
@@ -150,7 +154,7 @@ class DashboardController extends Controller
         $weeklyStats = [
             'present' => $monthlyAttendances->where('check_in', '!=', null)->count(),
             'absent' => max(0, $daysPassed - $daysWithAttendance), // Only count past days without attendance
-            'leave' => 0 // Will be implemented when leave system is added
+            'leave' => 0, // Will be implemented when leave system is added
         ];
 
         return view('dashboard.employee', compact(

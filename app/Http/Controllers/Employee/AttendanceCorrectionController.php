@@ -5,12 +5,11 @@ namespace App\Http\Controllers\Employee;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\AttendanceCorrection;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
-use Carbon\Carbon;
 use App\Models\User;
 use App\Notifications\AttendanceCorrectionSubmitted;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AttendanceCorrectionController extends Controller
 {
@@ -21,6 +20,7 @@ class AttendanceCorrectionController extends Controller
         $corrections = \App\Models\AttendanceCorrection::where('user_id', $user->id)
             ->orderByDesc('created_at')
             ->get();
+
         return view('employee.attendance.corrections.index', compact('corrections'));
     }
 
@@ -30,6 +30,7 @@ class AttendanceCorrectionController extends Controller
         $correction = \App\Models\AttendanceCorrection::where('user_id', $user->id)
             ->where('id', $id)
             ->firstOrFail();
+
         return view('employee.attendance.corrections.show', compact('correction'));
     }
 
@@ -63,11 +64,11 @@ class AttendanceCorrectionController extends Controller
         $originalCheckIn = $attendance?->check_in;
         $originalCheckOut = $attendance?->check_out;
 
-        $correctedCheckIn = !empty($validated['corrected_check_in'])
-            ? Carbon::parse($validated['date'] . ' ' . $validated['corrected_check_in'])
+        $correctedCheckIn = ! empty($validated['corrected_check_in'])
+            ? Carbon::parse($validated['date'].' '.$validated['corrected_check_in'])
             : null;
-        $correctedCheckOut = !empty($validated['corrected_check_out'])
-            ? Carbon::parse($validated['date'] . ' ' . $validated['corrected_check_out'])
+        $correctedCheckOut = ! empty($validated['corrected_check_out'])
+            ? Carbon::parse($validated['date'].' '.$validated['corrected_check_out'])
             : null;
 
         $correction = AttendanceCorrection::create([

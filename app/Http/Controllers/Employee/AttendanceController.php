@@ -3,16 +3,15 @@
 namespace App\Http\Controllers\Employee;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\AppSetting;
 use App\Models\Attendance;
 use App\Models\Employee;
 use App\Models\OfficeLocation;
 use App\Models\WorkSchedule;
-use App\Models\AppSetting;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
-use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AttendanceController extends Controller
 {
@@ -33,6 +32,7 @@ class AttendanceController extends Controller
     public function locations()
     {
         $officeLocations = OfficeLocation::where('is_active', true)->get();
+
         return view('employee.attendance.locations', compact('officeLocations'));
     }
 
@@ -42,7 +42,7 @@ class AttendanceController extends Controller
     public function validateLocation(Request $request)
     {
         $employee = $request->user()->employee;
-        if (!$employee) {
+        if (! $employee) {
             return response()->json(['error' => 'Employee profile not found'], 404);
         }
 
@@ -68,22 +68,22 @@ class AttendanceController extends Controller
                 'message' => 'Absen dimana saja diaktifkan. Silakan ambil foto untuk melanjutkan absen.',
                 'location' => $nearestLocation ? [
                     'id' => $nearestLocation->id,
-                    'name' => $nearestLocation->name . ' (Remote)',
-                    'address' => 'Lokasi Remote'
+                    'name' => $nearestLocation->name.' (Remote)',
+                    'address' => 'Lokasi Remote',
                 ] : [
                     'id' => null,
                     'name' => 'Lokasi Remote',
-                    'address' => 'Absen dari lokasi remote'
+                    'address' => 'Absen dari lokasi remote',
                 ],
-                'is_remote' => true
+                'is_remote' => true,
             ]);
         }
 
         // Validate location against office locations (standard mode)
         $validLocation = OfficeLocation::getValidLocationFor($request->latitude, $request->longitude);
-        if (!$validLocation) {
+        if (! $validLocation) {
             return response()->json([
-                'error' => 'Anda berada di luar area kantor yang diizinkan. Silakan pastikan Anda berada di lokasi kantor yang tepat.'
+                'error' => 'Anda berada di luar area kantor yang diizinkan. Silakan pastikan Anda berada di lokasi kantor yang tepat.',
             ], 400);
         }
 
@@ -93,9 +93,9 @@ class AttendanceController extends Controller
             'location' => [
                 'id' => $validLocation->id,
                 'name' => $validLocation->name,
-                'address' => $validLocation->address
+                'address' => $validLocation->address,
             ],
-            'is_remote' => false
+            'is_remote' => false,
         ]);
     }
 
@@ -105,12 +105,12 @@ class AttendanceController extends Controller
     public function validateLocationCheckOut(Request $request)
     {
         $employee = $request->user()->employee;
-        if (!$employee) {
+        if (! $employee) {
             return response()->json(['error' => 'Employee profile not found'], 404);
         }
 
         $todayAttendance = $employee->getTodayAttendance();
-        if (!$todayAttendance || !$todayAttendance->check_in) {
+        if (! $todayAttendance || ! $todayAttendance->check_in) {
             return response()->json(['error' => 'Anda belum check in hari ini'], 400);
         }
 
@@ -135,22 +135,22 @@ class AttendanceController extends Controller
                 'message' => 'Absen dimana saja diaktifkan. Silakan ambil foto untuk melanjutkan absen keluar.',
                 'location' => $nearestLocation ? [
                     'id' => $nearestLocation->id,
-                    'name' => $nearestLocation->name . ' (Remote)',
-                    'address' => 'Lokasi Remote'
+                    'name' => $nearestLocation->name.' (Remote)',
+                    'address' => 'Lokasi Remote',
                 ] : [
                     'id' => null,
                     'name' => 'Lokasi Remote',
-                    'address' => 'Absen dari lokasi remote'
+                    'address' => 'Absen dari lokasi remote',
                 ],
-                'is_remote' => true
+                'is_remote' => true,
             ]);
         }
 
         // Validate location against office locations (standard mode)
         $validLocation = OfficeLocation::getValidLocationFor($request->latitude, $request->longitude);
-        if (!$validLocation) {
+        if (! $validLocation) {
             return response()->json([
-                'error' => 'Anda berada di luar area kantor yang diizinkan. Silakan pastikan Anda berada di lokasi kantor yang tepat.'
+                'error' => 'Anda berada di luar area kantor yang diizinkan. Silakan pastikan Anda berada di lokasi kantor yang tepat.',
             ], 400);
         }
 
@@ -160,9 +160,9 @@ class AttendanceController extends Controller
             'location' => [
                 'id' => $validLocation->id,
                 'name' => $validLocation->name,
-                'address' => $validLocation->address
+                'address' => $validLocation->address,
             ],
-            'is_remote' => false
+            'is_remote' => false,
         ]);
     }
 
@@ -172,7 +172,7 @@ class AttendanceController extends Controller
     public function checkIn(Request $request)
     {
         $employee = $request->user()->employee;
-        if (!$employee) {
+        if (! $employee) {
             return response()->json(['error' => 'Employee profile not found'], 404);
         }
 
@@ -183,7 +183,7 @@ class AttendanceController extends Controller
 
         // Validasi jadwal kerja aktif (relasi dan status)
         $activeSchedule = $employee->workSchedule;
-        if (!$activeSchedule || !$activeSchedule->is_active) {
+        if (! $activeSchedule || ! $activeSchedule->is_active) {
             return response()->json(['error' => 'Anda belum memiliki jadwal kerja aktif, silakan hubungi admin.'], 400);
         }
 
@@ -206,9 +206,9 @@ class AttendanceController extends Controller
         } else {
             // Standard location validation
             $validLocation = OfficeLocation::getValidLocationFor($request->latitude, $request->longitude);
-            if (!$validLocation) {
+            if (! $validLocation) {
                 return response()->json([
-                    'error' => 'Lokasi tidak valid. Silakan coba lagi dari lokasi kantor yang tepat.'
+                    'error' => 'Lokasi tidak valid. Silakan coba lagi dari lokasi kantor yang tepat.',
                 ], 400);
             }
         }
@@ -219,7 +219,7 @@ class AttendanceController extends Controller
         }
 
         // Create or update attendance
-        $attendance = $todayAttendance ?: new Attendance();
+        $attendance = $todayAttendance ?: new Attendance;
         $attendance->employee_id = $employee->id;
         $attendance->date = today();
         $attendance->check_in = now();
@@ -227,7 +227,7 @@ class AttendanceController extends Controller
         $attendance->longitude_in = $request->longitude;
         $attendance->office_location_id = $validLocation ? $validLocation->id : null;
         // persist the human-friendly location name in the column defined by the migration
-        $attendance->location_name = $validLocation ? ($isRemote ? $validLocation->name . ' (Remote)' : $validLocation->name) : 'Lokasi Remote';
+        $attendance->location_name = $validLocation ? ($isRemote ? $validLocation->name.' (Remote)' : $validLocation->name) : 'Lokasi Remote';
         $attendance->photo_in = $photoPath;
         $attendance->notes = $request->notes;
         $attendance->status = 'present';
@@ -241,7 +241,7 @@ class AttendanceController extends Controller
             'success' => true,
             'message' => 'Check in berhasil!',
             'attendance' => $attendance,
-            'schedule_status' => $attendance->getScheduleStatusText()
+            'schedule_status' => $attendance->getScheduleStatusText(),
         ]);
     }
 
@@ -252,7 +252,7 @@ class AttendanceController extends Controller
     {
         $employee = Auth::user()->employee;
 
-        if (!$employee) {
+        if (! $employee) {
             return response()->json(['error' => 'Employee profile not found'], 404);
         }
 
@@ -260,11 +260,11 @@ class AttendanceController extends Controller
 
         // Validasi jadwal kerja aktif (relasi dan status)
         $activeSchedule = $employee->workSchedule;
-        if (!$activeSchedule || !$activeSchedule->is_active) {
+        if (! $activeSchedule || ! $activeSchedule->is_active) {
             return response()->json(['error' => 'Anda belum memiliki jadwal kerja aktif, silakan hubungi admin.'], 400);
         }
 
-        if (!$todayAttendance || !$todayAttendance->check_in) {
+        if (! $todayAttendance || ! $todayAttendance->check_in) {
             return response()->json(['error' => 'Anda belum check in hari ini'], 400);
         }
 
@@ -291,9 +291,9 @@ class AttendanceController extends Controller
         } else {
             // Standard location validation
             $validLocation = OfficeLocation::getValidLocationFor($request->latitude, $request->longitude);
-            if (!$validLocation) {
+            if (! $validLocation) {
                 return response()->json([
-                    'error' => 'Anda berada di luar area kantor yang diizinkan. Silakan pastikan Anda berada di lokasi kantor yang tepat.'
+                    'error' => 'Anda berada di luar area kantor yang diizinkan. Silakan pastikan Anda berada di lokasi kantor yang tepat.',
                 ], 400);
             }
         }
@@ -309,12 +309,12 @@ class AttendanceController extends Controller
         $todayAttendance->latitude_out = $request->latitude;
         $todayAttendance->longitude_out = $request->longitude;
         $todayAttendance->photo_out = $photoPath;
-        $todayAttendance->notes = $request->notes ? ($todayAttendance->notes . ' | ' . $request->notes) : $todayAttendance->notes;
+        $todayAttendance->notes = $request->notes ? ($todayAttendance->notes.' | '.$request->notes) : $todayAttendance->notes;
 
         // Update office location name for check out (preserve human-friendly label)
         if ($isRemote) {
             if ($validLocation) {
-                $todayAttendance->location_name = $validLocation->name . ' (Remote)';
+                $todayAttendance->location_name = $validLocation->name.' (Remote)';
             } else {
                 $todayAttendance->location_name = 'Lokasi Remote';
             }
@@ -332,7 +332,7 @@ class AttendanceController extends Controller
             'success' => true,
             'message' => 'Check out berhasil!',
             'attendance' => $todayAttendance,
-            'schedule_status' => $todayAttendance->getScheduleStatusText()
+            'schedule_status' => $todayAttendance->getScheduleStatusText(),
         ]);
     }
 
@@ -343,7 +343,7 @@ class AttendanceController extends Controller
     {
         $employee = Auth::user()->employee;
 
-        if (!$employee) {
+        if (! $employee) {
             return redirect()->route('employee.profile.complete');
         }
 
@@ -372,13 +372,13 @@ class AttendanceController extends Controller
             } catch (\Exception $e) {
                 // If date parsing fails, fallback to month filter
                 $filterType = 'month';
-                $start = Carbon::parse($month . '-01');
+                $start = Carbon::parse($month.'-01');
                 $end = $start->copy()->endOfMonth();
                 $allAttendances = $employee->getAttendanceWithMissing($start->format('Y-m-d'), $end->format('Y-m-d'));
             }
         } else {
             // Default month filter
-            $start = Carbon::parse($month . '-01');
+            $start = Carbon::parse($month.'-01');
             $end = $start->copy()->endOfMonth();
             $allAttendances = $employee->getAttendanceWithMissing($start->format('Y-m-d'), $end->format('Y-m-d'));
         }
@@ -412,7 +412,7 @@ class AttendanceController extends Controller
     {
         $employee = Auth::user()->employee;
 
-        if (!$employee) {
+        if (! $employee) {
             return redirect()->route('employee.profile.complete');
         }
 
@@ -441,25 +441,25 @@ class AttendanceController extends Controller
             } catch (\Exception $e) {
                 // If date parsing fails, fallback to month filter
                 $filterType = 'month';
-                $start = Carbon::parse($month . '-01');
+                $start = Carbon::parse($month.'-01');
                 $end = $start->copy()->endOfMonth();
                 $attendances = $employee->getAttendanceWithMissing($start->format('Y-m-d'), $end->format('Y-m-d'));
             }
         } else {
             // Default month filter
-            $start = Carbon::parse($month . '-01');
+            $start = Carbon::parse($month.'-01');
             $end = $start->copy()->endOfMonth();
             $attendances = $employee->getAttendanceWithMissing($start->format('Y-m-d'), $end->format('Y-m-d'));
         }
 
         // Generate filename
         if ($filterType === 'date_range' && $startDate && $endDate) {
-            $filename = 'Laporan_Absensi_' . $employee->name . '_' .
-                Carbon::parse($startDate)->format('d-m-Y') . '_sampai_' .
-                Carbon::parse($endDate)->format('d-m-Y') . '.pdf';
+            $filename = 'Laporan_Absensi_'.$employee->name.'_'.
+                Carbon::parse($startDate)->format('d-m-Y').'_sampai_'.
+                Carbon::parse($endDate)->format('d-m-Y').'.pdf';
         } else {
-            $filename = 'Laporan_Absensi_' . $employee->name . '_' .
-                Carbon::parse($month)->format('F_Y') . '.pdf';
+            $filename = 'Laporan_Absensi_'.$employee->name.'_'.
+                Carbon::parse($month)->format('F_Y').'.pdf';
         }
 
         // Load PDF view

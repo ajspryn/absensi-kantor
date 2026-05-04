@@ -2,12 +2,13 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\Attendance;
+use Illuminate\Console\Command;
 
 class UpdateAllAttendanceFields extends Command
 {
     protected $signature = 'attendance:update-fields';
+
     protected $description = 'Update all attendance records to recalculate status, working_hours, and schedule_status based on check_in and check_out';
 
     public function handle()

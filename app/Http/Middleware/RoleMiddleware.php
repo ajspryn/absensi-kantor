@@ -33,7 +33,7 @@ class RoleMiddleware
             ->flatMap(function ($r) {
                 return array_map('trim', explode(',', $r));
             })
-            ->map(fn($r) => strtolower($r))
+            ->map(fn ($r) => strtolower($r))
             ->unique()
             ->toArray();
 

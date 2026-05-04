@@ -1,21 +1,21 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\EmployeeController;
-use App\Http\Controllers\Employee\AttendanceController as EmployeeAttendanceController;
-use App\Http\Controllers\Employee\ProfileController as EmployeeProfileController;
-use App\Http\Controllers\ForgotPasswordController;
-use App\Http\Controllers\Admin\PasswordResetController;
-use App\Http\Controllers\Admin\SettingsController;
-use App\Http\Controllers\Admin\OfficeLocationController;
-use App\Http\Controllers\Admin\WorkScheduleController;
+use App\Http\Controllers\Admin\AttendanceCorrectionController as AdminAttendanceCorrectionController;
 use App\Http\Controllers\Admin\DepartmentController;
+use App\Http\Controllers\Admin\OfficeLocationController;
+use App\Http\Controllers\Admin\PasswordResetController;
 use App\Http\Controllers\Admin\PositionController;
 use App\Http\Controllers\Admin\RoleController;
-use App\Http\Controllers\Admin\AttendanceCorrectionController as AdminAttendanceCorrectionController;
+use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\WorkScheduleController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Employee\AttendanceController as EmployeeAttendanceController;
 use App\Http\Controllers\Employee\AttendanceCorrectionController as EmployeeAttendanceCorrectionController;
+use App\Http\Controllers\Employee\ProfileController as EmployeeProfileController;
+use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\ForgotPasswordController;
+use Illuminate\Support\Facades\Route;
 
 // Redirect root to login
 Route::get('/', function () {
