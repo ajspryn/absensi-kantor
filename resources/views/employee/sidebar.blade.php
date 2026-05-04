@@ -14,36 +14,52 @@
         <div class="card-overlay bg-gradient-fade rounded-0"></div>
     </div>
 
-    <span class="menu-divider">NAVIGATION</span>
+    <style>
+        .menu-list a i:first-child {
+            width: 30px;
+            text-align: center;
+            margin-right: 10px;
+            font-size: 16px;
+            display: inline-block;
+        }
+        .menu-list a span {
+            font-weight: 500;
+        }
+        .menu-list a i:last-child {
+            margin-left: auto;
+            opacity: 0.3;
+            font-size: 10px;
+        }
+    </style>
     <div class="menu-list">
-        <div class="card card-style rounded-m p-3 py-2 mb-0">
-            <a href="{{ route('dashboard') }}" id="nav-homes" class="{{ request()->routeIs('dashboard') ? 'active-item' : '' }}">
-                <i class="gradient-blue shadow-bg shadow-bg-xs bi bi-house-fill"></i>
+        <div class="card card-style rounded-m p-2 py-2 mb-0">
+            <a href="{{ route('dashboard') }}" id="nav-homes" class="d-flex align-items-center {{ request()->routeIs('dashboard') ? 'active-item' : '' }}">
+                <i class="gradient-blue shadow-bg shadow-bg-xs bi bi-house-fill color-white"></i>
                 <span>Dashboard</span>
                 <i class="bi bi-chevron-right"></i>
             </a>
 
-            <a href="{{ route('employee.attendance.index') }}" id="nav-attendance" class="{{ request()->routeIs('employee.attendance.*') ? 'active-item' : '' }}">
-                <i class="gradient-green shadow-bg shadow-bg-xs bi bi-card-checklist"></i>
+            <a href="{{ route('employee.attendance.index') }}" id="nav-attendance" class="d-flex align-items-center {{ request()->routeIs('employee.attendance.*') ? 'active-item' : '' }}">
+                <i class="gradient-green shadow-bg shadow-bg-xs bi bi-card-checklist color-white"></i>
                 <span>Absensi</span>
                 <i class="bi bi-chevron-right"></i>
             </a>
 
-            <a href="{{ route('employee.attendance.history') }}" id="nav-history" class="{{ request()->routeIs('employee.attendance.history') ? 'active-item' : '' }}">
-                <i class="gradient-orange shadow-bg shadow-bg-xs bi bi-clock-history"></i>
+            <a href="{{ route('employee.attendance.history') }}" id="nav-history" class="d-flex align-items-center {{ request()->routeIs('employee.attendance.history') ? 'active-item' : '' }}">
+                <i class="gradient-orange shadow-bg shadow-bg-xs bi bi-clock-history color-white"></i>
                 <span>Riwayat Absensi</span>
                 <i class="bi bi-chevron-right"></i>
             </a>
 
-            <a href="{{ route('employee.schedule.index') }}" id="nav-schedule" class="{{ request()->routeIs('employee.schedule.*') ? 'active-item' : '' }}">
-                <i class="gradient-magenta shadow-bg shadow-bg-xs bi bi-calendar-check"></i>
+            <a href="{{ route('employee.schedule.index') }}" id="nav-schedule" class="d-flex align-items-center {{ request()->routeIs('employee.schedule.*') ? 'active-item' : '' }}">
+                <i class="gradient-magenta shadow-bg shadow-bg-xs bi bi-calendar-check color-white"></i>
                 <span>Jadwal Kerja</span>
                 <i class="bi bi-chevron-right"></i>
             </a>
 
             @if (auth()->user() && auth()->user()->hasPermission('leave.request'))
-                <a href="{{ route('employee.leave.requests.index') }}" class="{{ request()->routeIs('employee.leave.requests.*') ? 'active-item' : '' }}">
-                    <i class="gradient-red shadow-bg shadow-bg-xs bi bi-calendar-plus"></i>
+                <a href="{{ route('employee.leave.requests.index') }}" class="d-flex align-items-center {{ request()->routeIs('employee.leave.requests.*') ? 'active-item' : '' }}">
+                    <i class="gradient-red shadow-bg shadow-bg-xs bi bi-calendar-plus color-white"></i>
                     <span>Pengajuan Izin</span>
                     <i class="bi bi-chevron-right"></i>
                 </a>
@@ -60,17 +76,17 @@
                 @endphp
 
                 @if ($correctionsRoute)
-                    <a href="{{ route($correctionsRoute) }}" id="nav-corrections" class="{{ request()->routeIs('employee.attendance.corrections.*') ? 'active-item' : '' }}">
-                        <i class="gradient-blue shadow-bg shadow-bg-xs bi bi-pencil-square"></i>
-                        <span>Koreksi Absensi Saya</span>
+                    <a href="{{ route($correctionsRoute) }}" id="nav-corrections" class="d-flex align-items-center {{ request()->routeIs('employee.attendance.corrections.*') ? 'active-item' : '' }}">
+                        <i class="gradient-blue shadow-bg shadow-bg-xs bi bi-pencil-square color-white"></i>
+                        <span>Koreksi Absensi</span>
                         <i class="bi bi-chevron-right"></i>
                     </a>
                 @endif
             @endif
 
             @if (auth()->user() && (auth()->user()->hasPermission('daily_activities.create') || auth()->user()->hasPermission('daily_activities.view_own')))
-                <a href="{{ route('employee.daily-activities.index') }}" id="nav-daily" class="{{ request()->routeIs('employee.daily-activities.*') ? 'active-item' : '' }}">
-                    <i class="gradient-teal shadow-bg shadow-bg-xs bi bi-clipboard-data"></i>
+                <a href="{{ route('employee.daily-activities.index') }}" id="nav-daily" class="d-flex align-items-center {{ request()->routeIs('employee.daily-activities.*') ? 'active-item' : '' }}">
+                    <i class="gradient-teal shadow-bg shadow-bg-xs bi bi-clipboard-data color-white"></i>
                     <span>Daily Activity</span>
                     <i class="bi bi-chevron-right"></i>
                 </a>
@@ -85,7 +101,7 @@
     @if ($hasAdminShortcuts)
         <span class="menu-divider mt-4">SHORTCUTS</span>
         <div class="menu-list">
-            <div class="card card-style rounded-m p-3 py-2 mb-0">
+            <div class="card card-style rounded-m p-2 py-2 mb-0">
                 @if (auth()->user() && (auth()->user()->hasPermission('leave.approve') || auth()->user()->hasPermission('leave.verify')))
                     @php
                         $leaveRoute = null;
@@ -95,11 +111,11 @@
                     @endphp
 
                     @if ($leaveRoute)
-                        <a href="{{ route($leaveRoute) }}" class="{{ request()->routeIs('admin.leave-requests.*') ? 'active-item' : '' }}">
-                            <i class="gradient-red shadow-bg shadow-bg-xs bi bi-person-check"></i>
+                        <a href="{{ route($leaveRoute) }}" class="d-flex align-items-center {{ request()->routeIs('admin.leave-requests.*') ? 'active-item' : '' }}">
+                            <i class="gradient-red shadow-bg shadow-bg-xs bi bi-person-check color-white"></i>
                             <span>Persetujuan Izin</span>
                             @if (isset($pendingLeaveCount) && $pendingLeaveCount > 0)
-                                <em class="badge badge-s bg-red-dark ms-auto">{{ $pendingLeaveCount }}</em>
+                                <em class="badge badge-s bg-red-dark ms-auto me-2">{{ $pendingLeaveCount }}</em>
                             @endif
                             <i class="bi bi-chevron-right"></i>
                         </a>
@@ -107,17 +123,17 @@
                 @endif
 
                 @if (auth()->user() && ((auth()->user()->hasPermission('attendance.corrections.approve') && auth()->user()->isManager()) || auth()->user()->hasPermission('attendance.corrections.verify')))
-                    <a href="{{ route('admin.attendance-corrections.index') }}" class="{{ request()->routeIs('admin.attendance-corrections.*') ? 'active-item' : '' }}">
-                        <i class="gradient-green shadow-bg shadow-bg-xs bi bi-check2-square"></i>
+                    <a href="{{ route('admin.attendance-corrections.index') }}" class="d-flex align-items-center {{ request()->routeIs('admin.attendance-corrections.*') ? 'active-item' : '' }}">
+                        <i class="gradient-green shadow-bg shadow-bg-xs bi bi-check2-square color-white"></i>
                         <span>Persetujuan Koreksi</span>
                         <i class="bi bi-chevron-right"></i>
                     </a>
                 @endif
 
                 @if (auth()->user() && auth()->user()->hasPermission('daily_activities.view_department'))
-                    <a href="{{ route('admin.daily-activities.index') }}" class="{{ request()->routeIs('admin.daily-activities.*') ? 'active-item' : '' }}">
-                        <i class="gradient-blue shadow-bg shadow-bg-xs bi bi-bar-chart-line"></i>
-                        <span>Laporan Daily Activity</span>
+                    <a href="{{ route('admin.daily-activities.index') }}" class="d-flex align-items-center {{ request()->routeIs('admin.daily-activities.*') ? 'active-item' : '' }}">
+                        <i class="gradient-blue shadow-bg shadow-bg-xs bi bi-bar-chart-line color-white"></i>
+                        <span>Laporan Activity</span>
                         <i class="bi bi-chevron-right"></i>
                     </a>
                 @endif
@@ -127,10 +143,10 @@
 
     <span class="menu-divider mt-4">AKUN</span>
     <div class="menu-list">
-        <div class="card card-style rounded-m p-3 py-2 mb-0">
-            <a href="{{ route('employee.profile.index') }}" class="{{ request()->routeIs('employee.profile.*') ? 'active-item' : '' }}">
-                <i class="gradient-mint shadow-bg shadow-bg-xs bi bi-person-circle"></i>
-                <span>Profil</span>
+        <div class="card card-style rounded-m p-2 py-2 mb-0">
+            <a href="{{ route('employee.profile.index') }}" class="d-flex align-items-center {{ request()->routeIs('employee.profile.index') ? 'active-item' : '' }}">
+                <i class="gradient-mint shadow-bg shadow-bg-xs bi bi-person-circle color-white"></i>
+                <span>Profil Saya</span>
                 <i class="bi bi-chevron-right"></i>
             </a>
             @php
@@ -150,7 +166,6 @@
 
                     foreach ($required as $f) {
                         $val = $empCheck->{$f} ?? null;
-                        // treat json/array fields as incomplete when empty
                         if (is_array($val) || $val instanceof \Illuminate\Contracts\Support\Arrayable) {
                             if (empty($val)) { $needsComplete = true; break; }
                         } else {
@@ -160,10 +175,20 @@
                 }
             @endphp
             @if ($needsComplete)
-                <a href="{{ route('employee.profile.complete') }}" class="mt-2 bg-yellow-light rounded-xl p-2 text-start d-block">
-                    <i class="bi bi-person-check color-yellow-dark me-2"></i>
-                    <span class="font-13">Lengkapi Profil</span>
-                    <i class="bi bi-chevron-right float-end"></i>
+                <style>
+                    .complete-profile-card {
+                        background: linear-gradient(135deg, #fff9e6 0%, #fff2cc 100%) !important;
+                        border: 1px solid #ffe599 !important;
+                        transition: all 0.2s ease;
+                    }
+                    .complete-profile-card:hover {
+                        background: linear-gradient(135deg, #fff2cc 0%, #ffeb99 100%) !important;
+                    }
+                </style>
+                <a href="{{ route('employee.profile.complete') }}" class="complete-profile-card mt-3 rounded-s p-2 d-flex align-items-center border-0">
+                    <i class="gradient-yellow shadow-bg shadow-bg-xs bi bi-person-check color-white"></i>
+                    <span class="font-13 color-yellow-dark font-600">Lengkapi Profil</span>
+                    <i class="bi bi-chevron-right"></i>
                 </a>
             @endif
         </div>

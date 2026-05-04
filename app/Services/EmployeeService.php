@@ -52,10 +52,10 @@ class EmployeeService
                 'birth_place' => $data['birth_place'] ?? null,
                 'birth_date' => $data['birth_date'] ?? null,
                 'health_condition' => $data['health_condition'] ?? null,
-                'education_history' => $this->parseJsonField($data['education_history'] ?? null),
-                'training_history' => $this->parseJsonField($data['training_history'] ?? null),
-                'family_structure' => $this->parseJsonField($data['family_structure'] ?? null),
-                'emergency_contact' => $this->parseJsonField($data['emergency_contact'] ?? null),
+                'education_history' => $data['education'] ?? null,
+                'training_history' => $data['training'] ?? null,
+                'family_structure' => $data['family'] ?? null,
+                'emergency_contact' => $data['emergency'] ?? null,
             ]);
 
             return $employee;
@@ -104,10 +104,10 @@ class EmployeeService
                 'residence_status' => $data['residence_status'] ?? null,
                 'health_condition' => $data['health_condition'] ?? null,
                 'degenerative_diseases' => $data['degenerative_diseases'] ?? null,
-                'education_history' => $this->parseJsonField($data['education_history'] ?? null),
-                'training_history' => $this->parseJsonField($data['training_history'] ?? null),
-                'family_structure' => $this->parseJsonField($data['family_structure'] ?? null),
-                'emergency_contact' => $this->parseJsonField($data['emergency_contact'] ?? null),
+                'education_history' => $data['education'] ?? null,
+                'training_history' => $data['training'] ?? null,
+                'family_structure' => $data['family'] ?? null,
+                'emergency_contact' => $data['emergency'] ?? null,
                 'hire_date' => $data['hire_date'],
                 'salary' => $data['salary'] ?? null,
                 'photo' => $photoPath,
@@ -157,10 +157,10 @@ class EmployeeService
                 'credit_institution' => $data['credit_institution'] ?? null,
                 'credit_plafond' => $data['credit_plafond'] ?? null,
                 'credit_monthly_installment' => $data['credit_monthly_installment'] ?? null,
-                'education_history' => $this->parseJsonField($data['education_history'] ?? null),
-                'training_history' => $this->parseJsonField($data['training_history'] ?? null),
-                'family_structure' => $this->parseJsonField($data['family_structure'] ?? null),
-                'emergency_contact' => $this->parseJsonField($data['emergency_contact'] ?? null),
+                'education_history' => $data['education'] ?? null,
+                'training_history' => $data['training'] ?? null,
+                'family_structure' => $data['family'] ?? null,
+                'emergency_contact' => $data['emergency'] ?? null,
             ];
 
             if ($photoPath) {
@@ -184,7 +184,10 @@ class EmployeeService
                 $employee = Employee::create($employeeData);
             }
 
-            $this->syncRelatedRecords($employee, $data);
+            // syncRelatedRecords is disabled because it relies on separate tables (education_records, etc.)
+            // which do not exist in the current database schema. Data is already stored as JSON 
+            // in the employees table for flexibility and mobile-friendliness.
+            // $this->syncRelatedRecords($employee, $data);
 
             return $employee;
         });
@@ -225,67 +228,15 @@ class EmployeeService
 
     /**
      * Sync related repeatable records like education, training, etc.
+     * DEPRECATED: Relying on JSON storage in employees table instead.
      */
     protected function syncRelatedRecords(Employee $employee, array $data): void
     {
+        // Method body commented out to prevent crashes on non-existent tables
+        /*
         $employee->educationRecords()->delete();
-        if (isset($data['education']) && is_array($data['education'])) {
-            foreach ($data['education'] as $row) {
-                if (empty($row['school_name']) && empty($row['major'])) continue;
-                $employee->educationRecords()->create([
-                    'school_name' => $row['school_name'] ?? null,
-                    'city' => $row['city'] ?? null,
-                    'major' => $row['major'] ?? null,
-                    'start_year' => $row['start_year'] ?? null,
-                    'end_year' => $row['end_year'] ?? null,
-                    'status' => $row['status'] ?? null,
-                ]);
-            }
-        }
-
-        $employee->trainingRecords()->delete();
-        if (isset($data['training']) && is_array($data['training'])) {
-            foreach ($data['training'] as $row) {
-                if (empty($row['course_name'])) continue;
-                $employee->trainingRecords()->create([
-                    'course_name' => $row['course_name'] ?? null,
-                    'organizer' => $row['organizer'] ?? null,
-                    'city' => $row['city'] ?? null,
-                    'duration' => $row['duration'] ?? null,
-                    'year' => $row['year'] ?? null,
-                    'paid_by' => $row['paid_by'] ?? null,
-                ]);
-            }
-        }
-
-        $employee->familyMembers()->delete();
-        if (isset($data['family']) && is_array($data['family'])) {
-            foreach ($data['family'] as $row) {
-                if (empty($row['name'])) continue;
-                $employee->familyMembers()->create([
-                    'relation' => $row['relation'] ?? null,
-                    'name' => $row['name'] ?? null,
-                    'gender' => $row['gender'] ?? null,
-                    'last_education' => $row['last_education'] ?? null,
-                    'last_job' => $row['last_job'] ?? null,
-                    'age' => $row['age'] ?? null,
-                ]);
-            }
-        }
-
-        $employee->emergencyContacts()->delete();
-        if (isset($data['emergency']) && is_array($data['emergency'])) {
-            foreach ($data['emergency'] as $idx => $row) {
-                if (empty($row['name'])) continue;
-                $employee->emergencyContacts()->create([
-                    'name' => $row['name'] ?? null,
-                    'address' => $row['address'] ?? null,
-                    'relation' => $row['relation'] ?? null,
-                    'phone' => $row['phone'] ?? null,
-                    'priority' => ($row['priority'] ?? ($idx + 1)),
-                ]);
-            }
-        }
+        ...
+        */
     }
 
     /**

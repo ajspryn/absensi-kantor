@@ -77,11 +77,42 @@
                 <p class="mb-1 font-11 opacity-70">{{ $employee->position->name ?? '-' }}</p>
                 <p class="mb-0 font-10 opacity-70">{{ optional($employee->department)->name ?? '-' }}</p>
 
-                <div class="d-flex justify-content-center mt-2">
+                <div class="d-flex justify-content-center mt-2 gap-2">
                     <span class="badge bg-{{ $employee->is_active ? 'green' : 'red' }}-dark rounded-xl font-9 px-2 py-1">
                         {{ $employee->is_active ? 'Aktif' : 'Tidak Aktif' }}
                     </span>
                 </div>
+
+                @php
+                    $needsComplete = false;
+                    $empCheck = $employee ?? optional(auth()->user())->employee;
+                    if (!$empCheck) {
+                        $needsComplete = true;
+                    } else {
+                        $required = [
+                            'employee_id','full_name','department_id','position_id','work_schedule_id',
+                            'email','phone','mobile','address','address_ktp','address_domisili','nik_ktp',
+                            'gender','birth_place','birth_date','marital_status','residence_status',
+                            'hire_date','photo','education_history','training_history','family_structure','emergency_contact'
+                        ];
+                        foreach ($required as $f) {
+                            $val = $empCheck->{$f} ?? null;
+                            if (is_array($val) || $val instanceof \Illuminate\Contracts\Support\Arrayable) {
+                                if (empty($val)) { $needsComplete = true; break; }
+                            } else {
+                                if (empty($val) && !is_numeric($val)) { $needsComplete = true; break; }
+                            }
+                        }
+                    }
+                @endphp
+
+                @if ($needsComplete)
+                    <div class="mt-3 px-4">
+                        <a href="{{ route('employee.profile.complete') }}" class="btn btn-full btn-s gradient-highlight text-white text-uppercase font-700 rounded-s shadow-bg shadow-bg-s">
+                            <i class="bi bi-person-check pe-2"></i>Lengkapi Profil
+                        </a>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -95,7 +126,7 @@
                 <div class="align-self-center">
                     <i class="bi bi-person-badge color-blue-dark font-13 me-3"></i>
                 </div>
-                <div class="align-self-center flex-grow-1">
+                <div class="align-self-center grow">
                     <h6 class="mb-0 font-11">ID Karyawan</h6>
                     <p class="mb-0 font-10 opacity-70">{{ $employee->employee_id }}</p>
                 </div>
@@ -105,7 +136,7 @@
                 <div class="align-self-center">
                     <i class="bi bi-envelope color-green-dark font-13 me-3"></i>
                 </div>
-                <div class="align-self-center flex-grow-1">
+                <div class="align-self-center grow">
                     <h6 class="mb-0 font-11">Email</h6>
                     <p class="mb-0 font-10 opacity-70">{{ $employee->email ?? 'Belum diatur' }}</p>
                 </div>
@@ -115,7 +146,7 @@
                 <div class="align-self-center">
                     <i class="bi bi-telephone color-orange-dark font-13 me-3"></i>
                 </div>
-                <div class="align-self-center flex-grow-1">
+                <div class="align-self-center grow">
                     <h6 class="mb-0 font-11">Nomor Telepon</h6>
                     <p class="mb-0 font-10 opacity-70">{{ $employee->phone ?? 'Belum diatur' }}</p>
                 </div>
@@ -125,7 +156,7 @@
                 <div class="align-self-center">
                     <i class="bi bi-geo-alt color-red-dark font-13 me-3"></i>
                 </div>
-                <div class="align-self-center flex-grow-1">
+                <div class="align-self-center grow">
                     <h6 class="mb-0 font-11">Alamat</h6>
                     <p class="mb-0 font-10 opacity-70">{{ $employee->address ?? 'Belum diatur' }}</p>
                 </div>
@@ -135,7 +166,7 @@
                 <div class="align-self-center">
                     <i class="bi bi-calendar3 color-purple-dark font-13 me-3"></i>
                 </div>
-                <div class="align-self-center flex-grow-1">
+                <div class="align-self-center grow">
                     <h6 class="mb-0 font-11">Bergabung Sejak</h6>
                     <p class="mb-0 font-10 opacity-70">{{ $employee->created_at->locale('id')->translatedFormat('d F Y') }}</p>
                 </div>
@@ -204,37 +235,6 @@
                     </button>
                 </div>
             </div>
-            @php
-                $needsComplete = false;
-                $empCheck = $employee ?? optional(auth()->user())->employee;
-                if (!$empCheck) {
-                    $needsComplete = true;
-                } else {
-                    $required = [
-                        'employee_id','full_name','department_id','position_id','work_schedule_id',
-                        'email','phone','mobile','address','address_ktp','address_domisili','nik_ktp',
-                        'gender','birth_place','birth_date','marital_status','residence_status',
-                        'hire_date','photo','education_history','training_history','family_structure','emergency_contact'
-                    ];
-                    foreach ($required as $f) {
-                        $val = $empCheck->{$f} ?? null;
-                        if (is_array($val) || $val instanceof \Illuminate\Contracts\Support\Arrayable) {
-                            if (empty($val)) { $needsComplete = true; break; }
-                        } else {
-                            if (empty($val) && !is_numeric($val)) { $needsComplete = true; break; }
-                        }
-                    }
-                }
-            @endphp
-            @if ($needsComplete)
-                <div class="row g-2 mt-2">
-                    <div class="col-12">
-                        <a href="{{ route('employee.profile.complete') }}" class="btn btn-full btn-m bg-blue-dark text-white text-uppercase font-700 rounded-s">
-                            <i class="bi bi-person-check pe-2"></i>Lengkapi Profil
-                        </a>
-                    </div>
-                </div>
-            @endif
         </div>
     </div>
 

@@ -168,7 +168,9 @@
                         <label for="health_condition" class="color-theme font-12">Kondisi Kesehatan</label>
                     </div>
 
-                    <button type="button" class="btn btn-full bg-blue-dark rounded-s text-uppercase font-700 mt-3 btn-next">Selanjutnya <i class="bi bi-arrow-right ms-2"></i></button>
+                    <div class="d-flex justify-content-end mt-4 mb-2">
+                        <button type="button" class="btn btn-m gradient-blue shadow-bg shadow-bg-s rounded-s font-700 btn-next px-4">Lanjut <i class="bi bi-arrow-right ms-2"></i></button>
+                    </div>
                 </div>
 
                 <!-- STEP 2: Kontak & Alamat -->
@@ -208,9 +210,9 @@
                         <label for="address_domisili" class="color-theme font-12">Alamat Domisili</label>
                     </div>
 
-                    <div class="row mt-4">
-                        <div class="col-6"><button type="button" class="btn btn-full border-blue-dark color-blue-dark rounded-s font-700 btn-prev"><i class="bi bi-arrow-left me-1"></i> Kembali</button></div>
-                        <div class="col-6"><button type="button" class="btn btn-full bg-blue-dark rounded-s font-700 btn-next">Lanjut <i class="bi bi-arrow-right ms-1"></i></button></div>
+                    <div class="d-flex justify-content-between mt-4 mb-2">
+                        <button type="button" class="btn btn-m border-blue-dark color-blue-dark rounded-s font-700 btn-prev px-3"><i class="bi bi-arrow-left"></i></button>
+                        <button type="button" class="btn btn-m gradient-blue shadow-bg shadow-bg-s rounded-s font-700 btn-next px-4">Lanjut <i class="bi bi-arrow-right ms-2"></i></button>
                     </div>
                 </div>
 
@@ -318,9 +320,9 @@
                         <label for="degenerative_diseases" class="color-theme font-12">Penyakit Bawaan</label>
                     </div>
 
-                    <div class="row mt-4">
-                        <div class="col-6"><button type="button" class="btn btn-full border-blue-dark color-blue-dark rounded-s font-700 btn-prev"><i class="bi bi-arrow-left me-1"></i> Kembali</button></div>
-                        <div class="col-6"><button type="button" class="btn btn-full bg-blue-dark rounded-s font-700 btn-next">Lanjut <i class="bi bi-arrow-right ms-1"></i></button></div>
+                    <div class="d-flex justify-content-between mt-4 mb-2">
+                        <button type="button" class="btn btn-m border-blue-dark color-blue-dark rounded-s font-700 btn-prev px-3"><i class="bi bi-arrow-left"></i></button>
+                        <button type="button" class="btn btn-m gradient-blue shadow-bg shadow-bg-s rounded-s font-700 btn-next px-4">Lanjut <i class="bi bi-arrow-right ms-2"></i></button>
                     </div>
                 </div>
 
@@ -333,7 +335,7 @@
                         @php
                             $emRows = old('emergency', null);
                             if (is_null($emRows)) {
-                                $emRows = optional(auth()->user()->employee)->emergencyContacts ? optional(auth()->user()->employee)->emergencyContacts->toArray() : [];
+                                $emRows = optional(auth()->user()->employee)->emergency_contact ?? [];
                             }
                         @endphp
                         @if(!empty($emRows))
@@ -349,14 +351,14 @@
                             @endforeach
                         @endif
                     </div>
-                    <button type="button" id="add-emergency" class="btn btn-s border-highlight color-highlight rounded-s mb-4"><i class="bi bi-plus-circle pe-2"></i>Tambah Kontak Darurat</button>
+                    <button type="button" id="add-emergency" class="btn btn-full border-highlight color-highlight rounded-s mb-4 font-700"><i class="bi bi-plus-circle pe-2"></i>Tambah Kontak Darurat</button>
 
                     <h6 class="font-14 font-700 mb-2 mt-2 color-highlight">Susunan Keluarga</h6>
                     <div id="family-list">
                         @php
                             $familyRows = old('family', null);
                             if (is_null($familyRows)) {
-                                $familyRows = optional(auth()->user()->employee)->familyMembers ? optional(auth()->user()->employee)->familyMembers->toArray() : [];
+                                $familyRows = optional(auth()->user()->employee)->family_structure ?? [];
                             }
                         @endphp
                         @if(!empty($familyRows))
@@ -379,11 +381,11 @@
                             @endforeach
                         @endif
                     </div>
-                    <button type="button" id="add-family" class="btn btn-s border-highlight color-highlight rounded-s"><i class="bi bi-plus-circle pe-2"></i>Tambah Keluarga</button>
+                    <button type="button" id="add-family" class="btn btn-full border-highlight color-highlight rounded-s font-700"><i class="bi bi-plus-circle pe-2"></i>Tambah Keluarga</button>
 
-                    <div class="row mt-4">
-                        <div class="col-6"><button type="button" class="btn btn-full border-blue-dark color-blue-dark rounded-s font-700 btn-prev"><i class="bi bi-arrow-left me-1"></i> Kembali</button></div>
-                        <div class="col-6"><button type="button" class="btn btn-full bg-blue-dark rounded-s font-700 btn-next">Lanjut <i class="bi bi-arrow-right ms-1"></i></button></div>
+                    <div class="d-flex justify-content-between mt-4 mb-2">
+                        <button type="button" class="btn btn-m border-blue-dark color-blue-dark rounded-s font-700 btn-prev px-3"><i class="bi bi-arrow-left"></i></button>
+                        <button type="button" class="btn btn-m gradient-blue shadow-bg shadow-bg-s rounded-s font-700 btn-next px-4">Lanjut <i class="bi bi-arrow-right ms-2"></i></button>
                     </div>
                 </div>
 
@@ -394,7 +396,7 @@
                         @php
                             $eduRows = old('education', null);
                             if (is_null($eduRows)) {
-                                $eduRows = optional(auth()->user()->employee)->educationRecords ? optional(auth()->user()->employee)->educationRecords->toArray() : [];
+                                $eduRows = optional(auth()->user()->employee)->education_history ?? [];
                             }
                         @endphp
                         @if(!empty($eduRows))
@@ -411,14 +413,14 @@
                             @endforeach
                         @endif
                     </div>
-                    <button type="button" id="add-education" class="btn btn-s border-highlight color-highlight rounded-s mb-4"><i class="bi bi-plus-circle pe-2"></i>Tambah Pendidikan</button>
+                    <button type="button" id="add-education" class="btn btn-full border-highlight color-highlight rounded-s mb-4 font-700"><i class="bi bi-plus-circle pe-2"></i>Tambah Pendidikan</button>
 
                     <h6 class="font-14 font-700 mb-2 mt-2 color-highlight">Riwayat Pelatihan / Sertifikasi</h6>
                     <div id="training-list">
                         @php
                             $trRows = old('training', null);
                             if (is_null($trRows)) {
-                                $trRows = optional(auth()->user()->employee)->trainingRecords ? optional(auth()->user()->employee)->trainingRecords->toArray() : [];
+                                $trRows = optional(auth()->user()->employee)->training_history ?? [];
                             }
                         @endphp
                         @if(!empty($trRows))
@@ -435,15 +437,13 @@
                             @endforeach
                         @endif
                     </div>
-                    <button type="button" id="add-training" class="btn btn-s border-highlight color-highlight rounded-s"><i class="bi bi-plus-circle pe-2"></i>Tambah Pelatihan</button>
+                    <button type="button" id="add-training" class="btn btn-full border-highlight color-highlight rounded-s font-700"><i class="bi bi-plus-circle pe-2"></i>Tambah Pelatihan</button>
 
-                    <div class="row mt-4 mb-3">
-                        <div class="col-5"><button type="button" class="btn btn-full border-blue-dark color-blue-dark rounded-s font-700 btn-prev"><i class="bi bi-arrow-left me-1"></i> Kembali</button></div>
-                        <div class="col-7">
-                            <button type="submit" class="btn btn-full gradient-green rounded-s font-700 shadow-bg shadow-bg-s" @if ($departments->isEmpty() || $positions->isEmpty()) disabled @endif>
-                                <i class="bi bi-check-circle pe-1"></i> Simpan Profil
-                            </button>
-                        </div>
+                    <div class="d-flex justify-content-between mt-4 mb-4">
+                        <button type="button" class="btn btn-m border-blue-dark color-blue-dark rounded-s font-700 btn-prev px-3"><i class="bi bi-arrow-left"></i></button>
+                        <button type="submit" class="btn btn-m gradient-green rounded-s font-700 shadow-bg shadow-bg-m px-4" @if ($departments->isEmpty() || $positions->isEmpty()) disabled @endif>
+                            <i class="bi bi-check-circle pe-1"></i> Simpan Profil
+                        </button>
                     </div>
                 </div>
             </form>
