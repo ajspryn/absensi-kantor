@@ -285,7 +285,8 @@ class EmployeeController extends Controller
 
             if (! $missing) {
                 // Already complete, send them to dashboard/profile
-                return redirect()->route('dashboard');
+                // Dimatikan sementara untuk testing
+                // return redirect()->route('dashboard');
             }
         }
 
