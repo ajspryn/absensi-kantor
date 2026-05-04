@@ -116,7 +116,11 @@
                         <div class="col-12 col-md-6">
                             <div class="form-custom form-label form-icon">
                                 <i class="bi bi-calendar-date font-14"></i>
-                                <input type="date" name="birth_date" id="birth_date" class="form-control rounded-s" value="{{ old('birth_date', optional(auth()->user()->employee)->birth_date ? date('Y-m-d', strtotime(optional(auth()->user()->employee)->birth_date)) : '') }}" />
+                                @php
+                                    $empBirthDate = optional(auth()->user()->employee)->birth_date;
+                                    $birthDateStr = $empBirthDate instanceof \Carbon\Carbon || $empBirthDate instanceof \DateTime ? $empBirthDate->format('Y-m-d') : ($empBirthDate ? date('Y-m-d', strtotime((string)$empBirthDate)) : '');
+                                @endphp
+                                <input type="date" name="birth_date" id="birth_date" class="form-control rounded-s" value="{{ old('birth_date', $birthDateStr) }}" />
                                 <label for="birth_date" class="color-theme font-12">Tanggal Lahir</label>
                             </div>
                         </div>
@@ -277,10 +281,13 @@
                     <div class="form-custom form-label form-icon">
                         <i class="bi bi-calendar-date font-14"></i>
                         @php
-                            $employeeHireDate = old('hire_date', optional(auth()->user()->employee)->hire_date);
-                            if ($employeeHireDate) {
-                                try { $employeeHireDate = date('Y-m-d', strtotime($employeeHireDate)); } catch (\Exception $e) { $employeeHireDate = date('Y-m-d'); }
-                            } else { $employeeHireDate = date('Y-m-d'); }
+                            $empHireDate = optional(auth()->user()->employee)->hire_date;
+                            if ($empHireDate instanceof \Carbon\Carbon || $empHireDate instanceof \DateTime) {
+                                $defaultHireDate = $empHireDate->format('Y-m-d');
+                            } else {
+                                try { $defaultHireDate = $empHireDate ? date('Y-m-d', strtotime((string)$empHireDate)) : date('Y-m-d'); } catch (\Throwable $t) { $defaultHireDate = date('Y-m-d'); }
+                            }
+                            $employeeHireDate = old('hire_date', $defaultHireDate);
                         @endphp
                         <input type="date" class="form-control rounded-s" id="hire_date" name="hire_date" value="{{ $employeeHireDate }}" required />
                         <label for="hire_date" class="color-theme font-12">Tanggal Bergabung *</label>
