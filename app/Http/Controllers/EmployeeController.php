@@ -100,7 +100,9 @@ class EmployeeController extends Controller
 
         // If emergency contacts are submitted, require at least 2 entries
         if ($request->has('emergency') && is_array($request->input('emergency'))) {
-            if (count(array_filter($request->input('emergency'), function($r){ return !empty($r['name'] ?? null); })) < 2) {
+            if (count(array_filter($request->input('emergency'), function ($r) {
+                return !empty($r['name'] ?? null);
+            })) < 2) {
                 return back()->withInput()->withErrors(['emergency' => 'Harap masukkan minimal 2 kontak darurat.']);
             }
         }
@@ -634,7 +636,9 @@ class EmployeeController extends Controller
                 }
 
                 if ($photoPath) {
-                    if ($employee->photo) { Storage::disk('public')->delete($employee->photo); }
+                    if ($employee->photo) {
+                        Storage::disk('public')->delete($employee->photo);
+                    }
                     $updateData['photo'] = $photoPath;
                 }
 
@@ -701,7 +705,7 @@ class EmployeeController extends Controller
                             'address' => $row['address'] ?? null,
                             'relation' => $row['relation'] ?? null,
                             'phone' => $row['phone'] ?? null,
-                            'priority' => ($row['priority'] ?? ($idx+1)),
+                            'priority' => ($row['priority'] ?? ($idx + 1)),
                         ]);
                     }
                 }
@@ -808,7 +812,7 @@ class EmployeeController extends Controller
                             'address' => $row['address'] ?? null,
                             'relation' => $row['relation'] ?? null,
                             'phone' => $row['phone'] ?? null,
-                            'priority' => ($row['priority'] ?? ($idx+1)),
+                            'priority' => ($row['priority'] ?? ($idx + 1)),
                         ]);
                     }
                 }
