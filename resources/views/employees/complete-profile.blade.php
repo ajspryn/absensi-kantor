@@ -9,26 +9,26 @@
     .step-content { display: none; }
     .step-content.active { display: block; animation: fadeIn 0.4s ease-in-out; }
     @keyframes fadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
-    
+
     .stepper-nav { display: flex; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; border-bottom: 1px solid rgba(0,0,0,0.05); scrollbar-width: none; }
     .stepper-nav::-webkit-scrollbar { display: none; }
     .stepper-item { flex: 0 0 auto; padding: 10px 15px; text-align: center; color: #a0a0a0; font-weight: 700; font-size: 12px; position: relative; transition: all 0.3s; cursor: pointer; }
     .stepper-item.active { color: #8CC152; border-bottom: 2px solid #8CC152; }
     .stepper-item.completed { color: #4A89DC; }
-    
-    .repeater-card { 
-        background: #ffffff; 
-        border-radius: 15px; 
-        padding: 20px; 
-        padding-top: 45px; 
-        margin-bottom: 20px; 
-        position: relative; 
+
+    .repeater-card {
+        background: #ffffff;
+        border-radius: 15px;
+        padding: 20px;
+        padding-top: 45px;
+        margin-bottom: 20px;
+        position: relative;
         border: 1px solid rgba(0,0,0,0.07);
         box-shadow: 0 3px 10px rgba(0,0,0,0.03);
     }
-    .theme-dark .repeater-card { 
-        background: rgba(255,255,255,0.02); 
-        border-color: rgba(255,255,255,0.05); 
+    .theme-dark .repeater-card {
+        background: rgba(255,255,255,0.02);
+        border-color: rgba(255,255,255,0.05);
         box-shadow: none;
     }
     .repeater-input-group { margin-bottom: 12px; }
@@ -43,21 +43,21 @@
         opacity: 0.7;
     }
 
-    .repeater-remove { 
-        position: absolute; 
-        top: 12px; 
-        right: 12px; 
-        border-radius: 8px !important; 
-        width: 28px; 
-        height: 28px; 
-        padding: 0; 
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
+    .repeater-remove {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        border-radius: 8px !important;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         z-index: 10;
         border: none;
     }
-    
+
     .repeater-upload-area {
         position: relative;
         border: 1px dashed rgba(74, 137, 220, 0.3);
@@ -72,12 +72,13 @@
         border-color: var(--theme-highlight);
         background: rgba(74, 137, 220, 0.08);
     }
-    .repeater-upload-area i { font-size: 22px; color: var(--theme-highlight); display: block; margin-bottom: 2px; }
-    .repeater-upload-area .upload-title { font-size: 11px; font-weight: 700; display: block; color: var(--theme-highlight); }
-    .repeater-upload-area .upload-sub { font-size: 9px; opacity: 0.5; display: block; }
+    .repeater-upload-area i { font-size: 22px; color: var(--theme-highlight); display: block; margin-bottom: 2px; pointer-events: none; }
+    .repeater-upload-area .upload-title { font-size: 11px; font-weight: 700; display: block; color: var(--theme-highlight); pointer-events: none; }
+    .repeater-upload-area .upload-sub { font-size: 9px; opacity: 0.5; display: block; pointer-events: none; }
     .repeater-upload-area input[type=file] { position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index: 10; }
-    
+
     .form-custom { margin-bottom: 20px !important; }
+    .border-red-dark { border: 1px solid #d84558 !important; box-shadow: 0 0 5px rgba(216, 69, 88, 0.2) !important; }
     .file-data-card {
         border: 1px dashed rgba(0,0,0,0.1) !important;
         background: rgba(0,0,0,0.01) !important;
@@ -161,19 +162,19 @@
                         <div class="col-12 col-md-6">
                             <div class="form-custom form-label form-icon">
                                 <i class="bi bi-gender-ambiguous font-14"></i>
-                                <select name="gender" id="gender" class="form-control rounded-s">
+                                <select name="gender" id="gender" class="form-control rounded-s" required>
                                     <option value="" disabled selected>Pilih Jenis Kelamin</option>
                                     <option value="M" {{ old('gender', optional(auth()->user()->employee)->gender) === 'M' ? 'selected' : '' }}>Laki-laki</option>
                                     <option value="F" {{ old('gender', optional(auth()->user()->employee)->gender) === 'F' ? 'selected' : '' }}>Perempuan</option>
                                 </select>
-                                <label for="gender" class="form-label-always-active color-highlight">Jenis Kelamin</label>
+                                <label for="gender" class="form-label-always-active color-highlight">Jenis Kelamin *</label>
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="form-custom form-label form-icon">
                                 <i class="bi bi-geo-alt font-14"></i>
-                                <input type="text" name="birth_place" id="birth_place" class="form-control rounded-s" placeholder="Tempat Lahir" value="{{ old('birth_place', optional(auth()->user()->employee)->birth_place) }}" />
-                                <label for="birth_place" class="form-label-always-active color-highlight">Tempat Lahir</label>
+                                <input type="text" name="birth_place" id="birth_place" class="form-control rounded-s" placeholder="Tempat Lahir" value="{{ old('birth_place', optional(auth()->user()->employee)->birth_place) }}" required />
+                                <label for="birth_place" class="form-label-always-active color-highlight">Tempat Lahir *</label>
                             </div>
                         </div>
                     </div>
@@ -186,15 +187,15 @@
                                     $empBirthDate = optional(auth()->user()->employee)->birth_date;
                                     $birthDateStr = $empBirthDate instanceof \Carbon\Carbon || $empBirthDate instanceof \DateTime ? $empBirthDate->format('Y-m-d') : ($empBirthDate ? date('Y-m-d', strtotime((string)$empBirthDate)) : '');
                                 @endphp
-                                <input type="date" name="birth_date" id="birth_date" class="form-control rounded-s" value="{{ old('birth_date', $birthDateStr) }}" />
-                                <label for="birth_date" class="form-label-always-active color-highlight">Tanggal Lahir</label>
+                                <input type="date" name="birth_date" id="birth_date" class="form-control rounded-s" value="{{ old('birth_date', $birthDateStr) }}" required />
+                                <label for="birth_date" class="form-label-always-active color-highlight">Tanggal Lahir *</label>
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="form-custom form-label form-icon">
                                 <i class="bi bi-card-text font-14"></i>
-                                <input type="number" name="nik_ktp" id="nik_ktp" class="form-control rounded-s" placeholder="NIK / No. KTP" value="{{ old('nik_ktp', optional(auth()->user()->employee)->nik_ktp) }}" />
-                                <label for="nik_ktp" class="form-label-always-active color-highlight">NIK KTP</label>
+                                <input type="text" name="nik_ktp" id="nik_ktp" class="form-control rounded-s" placeholder="NIK / No. KTP" value="{{ old('nik_ktp', optional(auth()->user()->employee)->nik_ktp) }}" maxlength="20" required />
+                                <label for="nik_ktp" class="form-label-always-active color-highlight">NIK / No. KTP *</label>
                             </div>
                         </div>
                     </div>
@@ -203,36 +204,31 @@
                         <div class="col-12 col-md-6">
                             <div class="form-custom form-label form-icon">
                                 <i class="bi bi-people-fill font-14"></i>
-                                <select name="marital_status" id="marital_status" class="form-control rounded-s">
+                                <select name="marital_status" id="marital_status" class="form-control rounded-s" required>
                                     <option value="" disabled selected>Pilih Status Perkawinan</option>
                                     <option value="belum" {{ old('marital_status', optional(auth()->user()->employee)->marital_status) == 'belum' ? 'selected' : '' }}>Belum Menikah</option>
                                     <option value="menikah" {{ old('marital_status', optional(auth()->user()->employee)->marital_status) == 'menikah' ? 'selected' : '' }}>Menikah</option>
                                     <option value="cerai_hidup" {{ old('marital_status', optional(auth()->user()->employee)->marital_status) == 'cerai_hidup' ? 'selected' : '' }}>Cerai Hidup</option>
                                     <option value="cerai_mati" {{ old('marital_status', optional(auth()->user()->employee)->marital_status) == 'cerai_mati' ? 'selected' : '' }}>Cerai Mati</option>
                                 </select>
-                                <label for="marital_status" class="form-label-always-active color-highlight">Status Perkawinan</label>
+                                <label for="marital_status" class="form-label-always-active color-highlight">Status Perkawinan *</label>
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
                             <div class="form-custom form-label form-icon">
                                 <i class="bi bi-house-door-fill font-14"></i>
-                                <select name="residence_status" id="residence_status" class="form-control rounded-s">
+                                <select name="residence_status" id="residence_status" class="form-control rounded-s" required>
                                     <option value="" disabled selected>Status Tempat Tinggal</option>
                                     <option value="milik_pribadi" {{ old('residence_status', optional(auth()->user()->employee)->residence_status) == 'milik_pribadi' ? 'selected' : '' }}>Milik Pribadi</option>
                                     <option value="milik_orangtua" {{ old('residence_status', optional(auth()->user()->employee)->residence_status) == 'milik_orangtua' ? 'selected' : '' }}>Milik Orangtua</option>
                                     <option value="sewa_kontrak" {{ old('residence_status', optional(auth()->user()->employee)->residence_status) == 'sewa_kontrak' ? 'selected' : '' }}>Sewa / Kontrak</option>
                                     <option value="lainnya" {{ old('residence_status', optional(auth()->user()->employee)->residence_status) == 'lainnya' ? 'selected' : '' }}>Lainnya</option>
                                 </select>
-                                <label for="residence_status" class="form-label-always-active color-highlight">Status Tinggal</label>
+                                <label for="residence_status" class="form-label-always-active color-highlight">Status Tinggal *</label>
                             </div>
                         </div>
                     </div>
 
-                    <div class="form-custom form-label form-icon">
-                        <i class="bi bi-heart-pulse font-14"></i>
-                        <input type="text" name="health_condition" id="health_condition" class="form-control rounded-s" placeholder="Kondisi Kesehatan (singkat)" value="{{ old('health_condition', optional(auth()->user()->employee)->health_condition) }}" />
-                        <label for="health_condition" class="form-label-always-active color-highlight">Kondisi Kesehatan</label>
-                    </div>
 
                     <div class="divider mt-4"></div>
                     <div class="d-flex mb-3">
@@ -244,13 +240,13 @@
                             <i class="bi bi-file-earmark-arrow-up font-20 color-highlight"></i>
                         </div>
                     </div>
-                    
+
                     <div class="row mb-0">
                         <!-- KTP Upload -->
                         <div class="col-6">
                             <div class="card card-style mx-0 mb-3 text-center py-3 file-data-card shadow-0">
                                 <i class="bi bi-file-earmark-person font-30 color-blue-dark"></i>
-                                <h6 class="font-13 mt-2 mb-0">KTP</h6>
+                                <h6 class="font-13 mt-2 mb-0">KTP *</h6>
                                 <p class="font-10 opacity-50 mb-2">Identity Card</p>
                                 <div class="upload-file-wrapper">
                                     <input type="file" name="ktp_file" class="upload-file-input" data-target="ktp-status" accept="image/*,.pdf" />
@@ -270,7 +266,7 @@
                         <div class="col-6">
                             <div class="card card-style mx-0 mb-3 text-center py-3 file-data-card shadow-0">
                                 <i class="bi bi-file-earmark-medical font-30 color-green-dark"></i>
-                                <h6 class="font-13 mt-2 mb-0">KK</h6>
+                                <h6 class="font-13 mt-2 mb-0">KK *</h6>
                                 <p class="font-10 opacity-50 mb-2">Family Card</p>
                                 <div class="upload-file-wrapper">
                                     <input type="file" name="kk_file" class="upload-file-input" data-target="kk-status" accept="image/*,.pdf" />
@@ -290,7 +286,7 @@
                         <div class="col-12" id="marriage_certificate_wrapper" style="display: none;">
                             <div class="card card-style mx-0 mb-3 text-center py-3 file-data-card shadow-0">
                                 <i class="bi bi-journal-check font-30 color-red-dark"></i>
-                                <h6 class="font-13 mt-2 mb-0">Buku Nikah</h6>
+                                <h6 class="font-13 mt-2 mb-0">Buku Nikah *</h6>
                                 <p class="font-10 opacity-50 mb-2">Marriage Certificate</p>
                                 <div class="upload-file-wrapper">
                                     <input type="file" name="marriage_certificate_file" class="upload-file-input" data-target="marriage-status" accept="image/*,.pdf" />
@@ -324,8 +320,8 @@
                         <div class="col-12 col-md-6">
                             <div class="form-custom form-label form-icon">
                                 <i class="bi bi-phone font-14"></i>
-                                <input type="tel" class="form-control rounded-s" id="phone" name="phone" placeholder="021-... / 0812..." value="{{ old('phone', optional(auth()->user()->employee)->phone) }}" />
-                                <label for="phone" class="form-label-always-active color-highlight">Telepon Utama</label>
+                                <input type="tel" class="form-control rounded-s" id="phone" name="phone" placeholder="021-... / 0812..." value="{{ old('phone', optional(auth()->user()->employee)->phone) }}" required />
+                                <label for="phone" class="form-label-always-active color-highlight">Telepon Utama *</label>
                             </div>
                         </div>
                         <div class="col-12 col-md-6">
@@ -339,8 +335,8 @@
 
                     <div class="form-custom form-label form-icon">
                         <i class="bi bi-house font-14"></i>
-                        <textarea name="address_ktp" id="address_ktp" class="form-control rounded-s" rows="2" placeholder="Alamat lengkap sesuai KTP">{{ old('address_ktp', optional(auth()->user()->employee)->address_ktp) }}</textarea>
-                        <label for="address_ktp" class="form-label-always-active color-highlight">Alamat KTP</label>
+                        <textarea name="address_ktp" id="address_ktp" class="form-control rounded-s" rows="2" placeholder="Alamat lengkap sesuai KTP" required>{{ old('address_ktp', optional(auth()->user()->employee)->address_ktp) }}</textarea>
+                        <label for="address_ktp" class="form-label-always-active color-highlight">Alamat KTP *</label>
                     </div>
 
                     <div class="form-custom form-label form-icon">
@@ -437,22 +433,22 @@
                         <input type="hidden" name="hire_date" value="{{ $employeeHireDate }}">
                         <label for="hire_date" class="form-label-always-active color-highlight">Tanggal Bergabung *</label>
                     </div>
-                    
+
                     <hr class="mt-4 mb-4" style="opacity: 0.1">
-                    
+
                     <div class="row mb-0">
                         <div class="col-6">
                             <div class="form-custom form-label form-icon">
                                 <i class="bi bi-arrow-up-right-square font-14"></i>
-                                <input type="number" name="height_cm" id="height_cm" class="form-control rounded-s" placeholder="Tinggi (cm)" value="{{ old('height_cm', optional(auth()->user()->employee)->height_cm) }}" />
-                                <label for="height_cm" class="form-label-always-active color-highlight">Tinggi (cm)</label>
+                                <input type="number" name="height_cm" id="height_cm" class="form-control rounded-s" placeholder="Tinggi (cm)" value="{{ old('height_cm', optional(auth()->user()->employee)->height_cm) }}" required />
+                                <label for="height_cm" class="form-label-always-active color-highlight">Tinggi (cm) *</label>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-custom form-label form-icon">
                                 <i class="bi bi-arrow-down-right-square font-14"></i>
-                                <input type="number" name="weight_kg" id="weight_kg" class="form-control rounded-s" placeholder="Berat (kg)" value="{{ old('weight_kg', optional(auth()->user()->employee)->weight_kg) }}" />
-                                <label for="weight_kg" class="form-label-always-active color-highlight">Berat (kg)</label>
+                                <input type="number" name="weight_kg" id="weight_kg" class="form-control rounded-s" placeholder="Berat (kg)" value="{{ old('weight_kg', optional(auth()->user()->employee)->weight_kg) }}" required />
+                                <label for="weight_kg" class="form-label-always-active color-highlight">Berat (kg) *</label>
                             </div>
                         </div>
                     </div>
@@ -472,7 +468,7 @@
                 <!-- STEP 4: Keluarga & Darurat -->
                 <div class="step-content" id="step4">
                     <p class="font-12 mb-2 color-theme">Data kontak darurat sangat penting jika terjadi sesuatu pada Anda di tempat kerja.</p>
-                    
+
                     <h6 class="font-14 font-700 mb-2 mt-3 color-highlight">Kontak Darurat (Prioritas)</h6>
                     <div id="emergency-list">
                         @php
@@ -493,22 +489,22 @@
                                         <div class="col-12 col-md-6 mb-2">
                                             <div class="form-custom form-label form-icon">
                                                 <i class="bi bi-person font-14"></i>
-                                                <input type="text" name="emergency[{{ $i }}][name]" id="em_name_{{ $i }}" class="form-control rounded-s" placeholder="Nama Lengkap" value="{{ $row['name'] ?? $row->name ?? '' }}">
-                                                <label for="em_name_{{ $i }}" class="form-label-always-active color-highlight">Nama Lengkap</label>
+                                                <input type="text" name="emergency[{{ $i }}][name]" id="em_name_{{ $i }}" class="form-control rounded-s" placeholder="Nama Lengkap" value="{{ $row['name'] ?? $row->name ?? '' }}" required>
+                                                <label for="em_name_{{ $i }}" class="form-label-always-active color-highlight">Nama Lengkap *</label>
                                             </div>
                                         </div>
                                         <div class="col-6 col-md-6 mb-2">
                                             <div class="form-custom form-label form-icon">
                                                 <i class="bi bi-people font-14"></i>
-                                                <input type="text" name="emergency[{{ $i }}][relation]" id="em_rel_{{ $i }}" class="form-control rounded-s" placeholder="Hubungan" value="{{ $row['relation'] ?? $row->relation ?? '' }}">
-                                                <label for="em_rel_{{ $i }}" class="form-label-always-active color-highlight">Hubungan</label>
+                                                <input type="text" name="emergency[{{ $i }}][relation]" id="em_rel_{{ $i }}" class="form-control rounded-s" placeholder="Hubungan" value="{{ $row['relation'] ?? $row->relation ?? '' }}" required>
+                                                <label for="em_rel_{{ $i }}" class="form-label-always-active color-highlight">Hubungan *</label>
                                             </div>
                                         </div>
                                         <div class="col-6 col-md-12 mb-2">
                                             <div class="form-custom form-label form-icon">
                                                 <i class="bi bi-phone font-14"></i>
-                                                <input type="tel" name="emergency[{{ $i }}][phone]" id="em_phone_{{ $i }}" class="form-control rounded-s" placeholder="Nomor Telepon" value="{{ $row['phone'] ?? $row->phone ?? '' }}">
-                                                <label for="em_phone_{{ $i }}" class="form-label-always-active color-highlight">Nomor Telepon</label>
+                                                <input type="tel" name="emergency[{{ $i }}][phone]" id="em_phone_{{ $i }}" class="form-control rounded-s" placeholder="Nomor Telepon" value="{{ $row['phone'] ?? $row->phone ?? '' }}" required>
+                                                <label for="em_phone_{{ $i }}" class="form-label-always-active color-highlight">Nomor Telepon *</label>
                                             </div>
                                         </div>
                                     </div>
@@ -703,6 +699,56 @@
                     </div>
                     <button type="button" id="add-training" class="btn btn-full border-highlight color-highlight rounded-s font-700"><i class="bi bi-plus-circle pe-2"></i>Tambah Pelatihan</button>
 
+                    <hr class="mt-4 mb-4" style="opacity: 0.1">
+                    <h6 class="font-14 font-700 mb-0 mt-2 color-highlight"><i class="bi bi-credit-card pe-1"></i> Riwayat Kredit / Pinjaman</h6>
+                    <p class="font-11 mb-3 opacity-60">Opsional. Tambahkan jika Anda memiliki pinjaman aktif di lembaga keuangan.</p>
+                    <div id="financing-list">
+                        @php
+                            $finRows = old('financing', null);
+                            if (is_null($finRows)) {
+                                $finRows = optional(auth()->user()->employee)->financing_history ?? [];
+                            }
+                        @endphp
+                        @if(!empty($finRows))
+                            @foreach($finRows as $i => $row)
+                                <div class="fin-row repeater-card" data-index="{{ $i }}">
+                                    <button type="button" class="btn btn-xxs bg-red-dark repeater-remove remove-fin shadow-bg shadow-bg-xs"><i class="bi bi-x-lg font-12"></i></button>
+                                    <div class="row mb-0">
+                                        <div class="col-12 mb-2">
+                                            <div class="form-custom form-label form-icon">
+                                                <i class="bi bi-bank font-14"></i>
+                                                <input type="text" name="financing[{{ $i }}][institution]" id="fin_inst_{{ $i }}" class="form-control rounded-s" placeholder="Nama Bank / Lembaga" value="{{ $row['institution'] ?? '' }}">
+                                                <label for="fin_inst_{{ $i }}" class="form-label-always-active color-highlight">Nama Lembaga Keuangan</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <div class="form-custom form-label form-icon">
+                                                <i class="bi bi-cash-stack font-14"></i>
+                                                <input type="number" name="financing[{{ $i }}][plafond]" id="fin_plafond_{{ $i }}" class="form-control rounded-s" placeholder="Rp" value="{{ $row['plafond'] ?? '' }}">
+                                                <label for="fin_plafond_{{ $i }}" class="form-label-always-active color-highlight">Plafond (Rp)</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-2">
+                                            <div class="form-custom form-label form-icon">
+                                                <i class="bi bi-calendar-month font-14"></i>
+                                                <input type="number" name="financing[{{ $i }}][monthly_installment]" id="fin_cicilan_{{ $i }}" class="form-control rounded-s" placeholder="Rp/bln" value="{{ $row['monthly_installment'] ?? '' }}">
+                                                <label for="fin_cicilan_{{ $i }}" class="form-label-always-active color-highlight">Cicilan/Bulan (Rp)</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0">
+                                            <div class="form-custom form-label form-icon">
+                                                <i class="bi bi-chat-text font-14"></i>
+                                                <input type="text" name="financing[{{ $i }}][description]" id="fin_desc_{{ $i }}" class="form-control rounded-s" placeholder="Keterangan (opsional)" value="{{ $row['description'] ?? '' }}">
+                                                <label for="fin_desc_{{ $i }}" class="form-label-always-active color-highlight">Keterangan</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @endif
+                    </div>
+                    <button type="button" id="add-financing" class="btn btn-full border-highlight color-highlight rounded-s font-700 mb-3"><i class="bi bi-plus-circle pe-2"></i>Tambah Kredit / Pinjaman</button>
+
                     <div class="d-flex justify-content-between mt-4 mb-4">
                         <button type="button" class="btn btn-m border-blue-dark color-blue-dark rounded-s font-700 btn-prev px-3"><i class="bi bi-arrow-left"></i></button>
                         <button type="submit" class="btn btn-m gradient-green rounded-s font-700 shadow-bg shadow-bg-m px-4" @if ($departments->isEmpty() || $positions->isEmpty()) disabled @endif>
@@ -716,10 +762,11 @@
 
 @endsection
 
+
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Photo preview
+        // === 1. FOTO PROFIL PREVIEW ===
         const uploadInput = document.querySelector('.upload-file');
         if (uploadInput) {
             uploadInput.addEventListener('change', function(e) {
@@ -735,22 +782,20 @@
             });
         }
 
-        // Stepper Logic
+        // === 2. STEPPER & VALIDASI ===
         const steps = document.querySelectorAll('.step-content');
         const navItems = document.querySelectorAll('.stepper-item');
         const stepText = document.getElementById('currentStepText');
         let currentStep = 1;
 
         function showStep(stepIndex) {
-            // Validasi client-side dimatikan sementara sesuai permintaan
-            /*
             if (stepIndex > currentStep) {
-                const currentFormSection = steps[currentStep - 1];
-                const requiredInputs = currentFormSection.querySelectorAll('input[required], select[required]');
+                const currentSection = steps[currentStep - 1];
+                const requiredInputs = currentSection.querySelectorAll('input[required]:not([type="file"]), select[required], textarea[required]');
                 let isValid = true;
-                
+
                 requiredInputs.forEach(input => {
-                    if (!input.value) {
+                    if (!input.value.trim()) {
                         isValid = false;
                         input.classList.add('border-red-dark');
                     } else {
@@ -759,296 +804,110 @@
                 });
 
                 if (!isValid) {
-                    // Trigger browser native validation popup
-                    const invalidInput = currentFormSection.querySelector('input[required]:invalid, select[required]:invalid');
-                    if(invalidInput) invalidInput.reportValidity();
+                    const invalid = currentSection.querySelector('input[required]:invalid, select[required]:invalid');
+                    if(invalid) invalid.reportValidity();
                     return;
                 }
             }
-            */
 
-            // Hide all
             steps.forEach(el => el.classList.remove('active'));
             navItems.forEach((el, index) => {
                 el.classList.remove('active');
-                if (index < stepIndex - 1) {
-                    el.classList.add('completed');
-                } else {
-                    el.classList.remove('completed');
-                }
+                if (index < stepIndex - 1) el.classList.add('completed');
             });
 
-            // Show target
             currentStep = stepIndex;
             document.getElementById('step' + currentStep).classList.add('active');
             navItems[currentStep - 1].classList.add('active');
             stepText.textContent = currentStep;
-            
-            // Scroll nav into view
-            navItems[currentStep - 1].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
             window.scrollTo(0, 0);
         }
 
-        document.querySelectorAll('.btn-next').forEach(btn => {
-            btn.addEventListener('click', () => {
-                if (currentStep < 5) showStep(currentStep + 1);
-            });
-        });
+        document.querySelectorAll('.btn-next').forEach(btn => btn.addEventListener('click', () => { if (currentStep < 5) showStep(currentStep + 1); }));
+        document.querySelectorAll('.btn-prev').forEach(btn => btn.addEventListener('click', () => { if (currentStep > 1) showStep(currentStep - 1); }));
 
-        document.querySelectorAll('.btn-prev').forEach(btn => {
-            btn.addEventListener('click', () => {
-                if (currentStep > 1) showStep(currentStep - 1);
-            });
-        });
-        
-        navItems.forEach(item => {
-            item.addEventListener('click', function() {
-                const step = parseInt(this.getAttribute('data-step'));
-                // Only allow clicking to previous or completed steps
-                if (step < currentStep || this.classList.contains('completed')) {
-                    showStep(step);
-                }
-            });
-        });
-
-        // Repeater Logic
+        // === 3. REPEATER LOGIC & FULL TEMPLATES ===
         function makeIndex(container) {
             const rows = container.querySelectorAll(':scope > div');
             rows.forEach((row, idx) => {
                 row.setAttribute('data-index', idx);
-                const inputs = row.querySelectorAll('input, select, textarea');
-                inputs.forEach(input => {
+                row.querySelectorAll('input, select, textarea').forEach(input => {
                     const name = input.getAttribute('name');
-                    if (!name) return;
-                    const newName = name.replace(/\[\d+\]/, '['+idx+']');
-                    input.setAttribute('name', newName);
+                    if (name) input.setAttribute('name', name.replace(/\[\d+\]|\[__INDEX__\]/g, '['+idx+']'));
+
+                    const oldId = input.getAttribute('id');
+                    if (oldId) {
+                        const newId = oldId.replace(/\d+|__INDEX__/g, idx);
+                        input.setAttribute('id', newId);
+                        const label = row.querySelector(`label[for="${oldId}"]`);
+                        if (label) label.setAttribute('for', newId);
+                    }
+
+                    const target = input.getAttribute('data-target');
+                    if (target) {
+                        const newTarget = target.replace(/\d+|__INDEX__/g, idx);
+                        input.setAttribute('data-target', newTarget);
+                        const statusSpan = row.querySelector('.upload-title');
+                        if (statusSpan) statusSpan.setAttribute('id', newTarget);
+                    }
                 });
             });
         }
 
         function addRow(listId, templateHtml) {
             const list = document.getElementById(listId);
-            const idx = list.children.length;
             const wrapper = document.createElement('div');
-            wrapper.innerHTML = templateHtml.replace(/__INDEX__/g, idx);
+            wrapper.innerHTML = templateHtml.replace(/__INDEX__/g, list.children.length);
             list.appendChild(wrapper.firstElementChild);
             makeIndex(list);
         }
 
-        // Education Template
-        const eduTemplate = `
-        <div class="edu-row repeater-card" data-index="__INDEX__">
-            <button type="button" class="btn btn-xxs bg-red-dark repeater-remove remove-edu shadow-bg shadow-bg-xs"><i class="bi bi-x-lg font-12"></i></button>
-            <div class="row mb-0">
-                <div class="col-12 col-md-6 mb-2">
-                    <div class="form-custom form-label form-icon">
-                        <i class="bi bi-building font-14"></i>
-                        <input type="text" name="education[__INDEX__][school_name]" id="edu_school___INDEX__" class="form-control rounded-s" placeholder="Nama Institusi">
-                        <label for="edu_school___INDEX__" class="form-label-always-active color-highlight">Institusi / Universitas</label>
-                    </div>
-                </div>
-                <div class="col-12 col-md-6 mb-2">
-                    <div class="form-custom form-label form-icon">
-                        <i class="bi bi-book font-14"></i>
-                        <input type="text" name="education[__INDEX__][major]" id="edu_major___INDEX__" class="form-control rounded-s" placeholder="Jurusan">
-                        <label for="edu_major___INDEX__" class="form-label-always-active color-highlight">Jurusan / Prodi</label>
-                    </div>
-                </div>
-                <div class="col-7 col-md-6 mb-2">
-                    <div class="form-custom form-label form-icon">
-                        <i class="bi bi-geo-alt font-14"></i>
-                        <input type="text" name="education[__INDEX__][city]" id="edu_city___INDEX__" class="form-control rounded-s" placeholder="Kota">
-                        <label for="edu_city___INDEX__" class="form-label-always-active color-highlight">Kota</label>
-                    </div>
-                </div>
-                <div class="col-5 col-md-6 mb-2">
-                    <div class="form-custom form-label form-icon">
-                        <i class="bi bi-calendar-check font-14"></i>
-                        <input type="number" name="education[__INDEX__][start_year]" id="edu_year___INDEX__" class="form-control rounded-s" placeholder="Tahun">
-                        <label for="edu_year___INDEX__" class="form-label-always-active color-highlight">Tahun Lulus</label>
-                    </div>
-                </div>
-                <div class="col-12">
-                    <label class="font-10 font-800 text-uppercase color-highlight mb-1 opacity-70">Lampiran Ijazah</label>
-                    <div class="repeater-upload-area">
-                        <input type="file" name="education[__INDEX__][certificate]" class="upload-file-input" data-target="edu-cert-__INDEX__" accept="image/*,.pdf" />
-                        <i class="bi bi-cloud-arrow-up"></i>
-                        <span class="upload-title" id="edu-cert-__INDEX__">Pilih Ijazah / Sertifikat</span>
-                        <span class="upload-sub">PDF atau Gambar (Maks 4MB)</span>
-                    </div>
-                </div>
-            </div>
-        </div>`;
+        //
+        const eduTemplate = `<div class="edu-row repeater-card"><button type="button" class="btn btn-xxs bg-red-dark repeater-remove shadow-bg shadow-bg-xs"><i class="bi bi-x-lg font-12"></i></button><div class="row mb-0"><div class="col-12 col-md-6 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-building font-14"></i><input type="text" name="education[__INDEX__][school_name]" id="edu_school___INDEX__" class="form-control rounded-s" placeholder="Institusi"><label for="edu_school___INDEX__" class="form-label-always-active color-highlight">Institusi</label></div></div><div class="col-12 col-md-6 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-book font-14"></i><input type="text" name="education[__INDEX__][major]" id="edu_major___INDEX__" class="form-control rounded-s" placeholder="Jurusan"><label for="edu_major___INDEX__" class="form-label-always-active color-highlight">Jurusan</label></div></div><div class="col-7 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-geo-alt font-14"></i><input type="text" name="education[__INDEX__][city]" id="edu_city___INDEX__" class="form-control rounded-s" placeholder="Kota"><label for="edu_city___INDEX__" class="form-label-always-active color-highlight">Kota</label></div></div><div class="col-5 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-calendar font-14"></i><input type="number" name="education[__INDEX__][start_year]" id="edu_year___INDEX__" class="form-control rounded-s" placeholder="Tahun"><label for="edu_year___INDEX__" class="form-label-always-active color-highlight">Tahun Lulus</label></div></div><div class="col-12"><div class="repeater-upload-area"><input type="file" name="education[__INDEX__][certificate]" class="upload-file-input" data-target="edu-cert-__INDEX__" accept="image/*,.pdf" /><i class="bi bi-cloud-arrow-up"></i><span class="upload-title" id="edu-cert-__INDEX__">Pilih Ijazah</span><span class="upload-sub">PDF/Gambar (Maks 4MB)</span></div></div></div></div>`;
 
-        // Training Template
-        const trTemplate = `
-        <div class="tr-row repeater-card" data-index="__INDEX__">
-            <button type="button" class="btn btn-xxs bg-red-dark repeater-remove remove-tr shadow-bg shadow-bg-xs"><i class="bi bi-x-lg font-12"></i></button>
-            <div class="row mb-0">
-                <div class="col-12 col-md-6 mb-2">
-                    <div class="form-custom form-label form-icon">
-                        <i class="bi bi-award font-14"></i>
-                        <input type="text" name="training[__INDEX__][course_name]" id="tr_name___INDEX__" class="form-control rounded-s" placeholder="Nama Pelatihan">
-                        <label for="tr_name___INDEX__" class="form-label-always-active color-highlight">Nama Pelatihan</label>
-                    </div>
-                </div>
-                <div class="col-12 col-md-6 mb-2">
-                    <div class="form-custom form-label form-icon">
-                        <i class="bi bi-patch-check font-14"></i>
-                        <input type="text" name="training[__INDEX__][organizer]" id="tr_org___INDEX__" class="form-control rounded-s" placeholder="Penyelenggara">
-                        <label for="tr_org___INDEX__" class="form-label-always-active color-highlight">Penyelenggara</label>
-                    </div>
-                </div>
-                <div class="col-7 col-md-6 mb-2">
-                    <div class="form-custom form-label form-icon">
-                        <i class="bi bi-geo-alt font-14"></i>
-                        <input type="text" name="training[__INDEX__][city]" id="tr_city___INDEX__" class="form-control rounded-s" placeholder="Kota">
-                        <label for="tr_city___INDEX__" class="form-label-always-active color-highlight">Kota</label>
-                    </div>
-                </div>
-                <div class="col-5 col-md-6 mb-2">
-                    <div class="form-custom form-label form-icon">
-                        <i class="bi bi-clock-history font-14"></i>
-                        <input type="text" name="training[__INDEX__][duration]" id="tr_dur___INDEX__" class="form-control rounded-s" placeholder="Durasi">
-                        <label for="tr_dur___INDEX__" class="form-label-always-active color-highlight">Durasi</label>
-                    </div>
-                </div>
-                <div class="col-12">
-                    <label class="font-10 font-800 text-uppercase color-highlight mb-1 opacity-70">Lampiran Sertifikat</label>
-                    <div class="repeater-upload-area">
-                        <input type="file" name="training[__INDEX__][certificate]" class="upload-file-input" data-target="tr-cert-__INDEX__" accept="image/*,.pdf" />
-                        <i class="bi bi-patch-check"></i>
-                        <span class="upload-title" id="tr-cert-__INDEX__">Pilih Sertifikat Pelatihan</span>
-                        <span class="upload-sub">PDF atau Gambar (Maks 4MB)</span>
-                    </div>
-                </div>
-            </div>
-        </div>`;
+        const trTemplate = `<div class="tr-row repeater-card"><button type="button" class="btn btn-xxs bg-red-dark repeater-remove shadow-bg shadow-bg-xs"><i class="bi bi-x-lg font-12"></i></button><div class="row mb-0"><div class="col-12 col-md-6 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-award font-14"></i><input type="text" name="training[__INDEX__][course_name]" id="tr_name___INDEX__" class="form-control rounded-s" placeholder="Nama Pelatihan"><label for="tr_name___INDEX__" class="form-label-always-active color-highlight">Nama Pelatihan</label></div></div><div class="col-12 col-md-6 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-patch-check font-14"></i><input type="text" name="training[__INDEX__][organizer]" id="tr_org___INDEX__" class="form-control rounded-s" placeholder="Penyelenggara"><label for="tr_org___INDEX__" class="form-label-always-active color-highlight">Penyelenggara</label></div></div><div class="col-12"><div class="repeater-upload-area"><input type="file" name="training[__INDEX__][certificate]" class="upload-file-input" data-target="tr-cert-__INDEX__" accept="image/*,.pdf" /><i class="bi bi-patch-check"></i><span class="upload-title" id="tr-cert-__INDEX__">Pilih Sertifikat</span><span class="upload-sub">PDF/Gambar (Maks 4MB)</span></div></div></div></div>`;
 
-        // Family Template
-        const famTemplate = `
-        <div class="family-row repeater-card" data-index="__INDEX__">
-            <button type="button" class="btn btn-xxs bg-red-dark repeater-remove remove-family shadow-bg shadow-bg-xs"><i class="bi bi-x-lg font-12"></i></button>
-            <div class="row mb-0">
-                <div class="col-12 col-md-6 mb-2">
-                    <div class="form-custom form-label form-icon">
-                        <i class="bi bi-person font-14"></i>
-                        <input type="text" name="family[__INDEX__][name]" id="fam_name___INDEX__" class="form-control rounded-s" placeholder="Nama Lengkap">
-                        <label for="fam_name___INDEX__" class="form-label-always-active color-highlight">Nama Lengkap</label>
-                    </div>
-                </div>
-                <div class="col-6 col-md-6 mb-2">
-                    <div class="form-custom form-label form-icon">
-                        <i class="bi bi-people font-14"></i>
-                        <input type="text" name="family[__INDEX__][relation]" id="fam_rel___INDEX__" class="form-control rounded-s" placeholder="Hubungan">
-                        <label for="fam_rel___INDEX__" class="form-label-always-active color-highlight">Hubungan</label>
-                    </div>
-                </div>
-                <div class="col-6 col-md-6 mb-2">
-                    <div class="form-custom form-label form-icon">
-                        <i class="bi bi-gender-ambiguous font-14"></i>
-                        <select name="family[__INDEX__][gender]" id="fam_gender___INDEX__" class="form-control rounded-s">
-                            <option value="" selected disabled>Gender</option>
-                            <option value="M">Laki-laki</option>
-                            <option value="F">Perempuan</option>
-                        </select>
-                        <label for="fam_gender___INDEX__" class="form-label-always-active color-highlight">Gender</label>
-                    </div>
-                </div>
-                <div class="col-12 col-md-6 mb-2">
-                    <div class="form-custom form-label form-icon">
-                        <i class="bi bi-calendar font-14"></i>
-                        <input type="number" name="family[__INDEX__][age]" id="fam_age___INDEX__" class="form-control rounded-s" placeholder="Usia">
-                        <label for="fam_age___INDEX__" class="form-label-always-active color-highlight">Usia</label>
-                    </div>
-                </div>
-            </div>
-        </div>`;
+        const famTemplate = `<div class="family-row repeater-card"><button type="button" class="btn btn-xxs bg-red-dark repeater-remove shadow-bg shadow-bg-xs"><i class="bi bi-x-lg font-12"></i></button><div class="row mb-0"><div class="col-12 col-md-6 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-person font-14"></i><input type="text" name="family[__INDEX__][name]" id="fam_name___INDEX__" class="form-control rounded-s" placeholder="Nama"><label for="fam_name___INDEX__" class="form-label-always-active color-highlight">Nama Lengkap</label></div></div><div class="col-6 col-md-6 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-people font-14"></i><input type="text" name="family[__INDEX__][relation]" id="fam_rel___INDEX__" class="form-control rounded-s" placeholder="Hubungan"><label for="fam_rel___INDEX__" class="form-label-always-active color-highlight">Hubungan</label></div></div><div class="col-6 col-md-6 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-gender-ambiguous font-14"></i><select name="family[__INDEX__][gender]" id="fam_gender___INDEX__" class="form-control rounded-s"><option value="M">Laki-laki</option><option value="F">Perempuan</option></select><label for="fam_gender___INDEX__" class="form-label-always-active color-highlight">Gender</label></div></div><div class="col-12 col-md-6 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-calendar font-14"></i><input type="number" name="family[__INDEX__][age]" id="fam_age___INDEX__" class="form-control rounded-s" placeholder="Usia"><label for="fam_age___INDEX__" class="form-label-always-active color-highlight">Usia</label></div></div></div></div>`;
 
-        // Emergency Template
-        const emTemplate = `
-        <div class="em-row repeater-card" data-index="__INDEX__">
-            <button type="button" class="btn btn-xxs bg-red-dark repeater-remove remove-em shadow-bg shadow-bg-xs"><i class="bi bi-x-lg font-12"></i></button>
-            <div class="row mb-0">
-                <div class="col-12 col-md-6 mb-2">
-                    <div class="form-custom form-label form-icon">
-                        <i class="bi bi-person font-14"></i>
-                        <input type="text" name="emergency[__INDEX__][name]" id="em_name___INDEX__" class="form-control rounded-s" placeholder="Nama Lengkap">
-                        <label for="em_name___INDEX__" class="form-label-always-active color-highlight">Nama Lengkap</label>
-                    </div>
-                </div>
-                <div class="col-6 col-md-6 mb-2">
-                    <div class="form-custom form-label form-icon">
-                        <i class="bi bi-people font-14"></i>
-                        <input type="text" name="emergency[__INDEX__][relation]" id="em_rel___INDEX__" class="form-control rounded-s" placeholder="Hubungan">
-                        <label for="em_rel___INDEX__" class="form-label-always-active color-highlight">Hubungan</label>
-                    </div>
-                </div>
-                <div class="col-6 col-md-12 mb-2">
-                    <div class="form-custom form-label form-icon">
-                        <i class="bi bi-phone font-14"></i>
-                        <input type="tel" name="emergency[__INDEX__][phone]" id="em_phone___INDEX__" class="form-control rounded-s" placeholder="Nomor Telepon">
-                        <label for="em_phone___INDEX__" class="form-label-always-active color-highlight">Nomor Telepon</label>
-                    </div>
-                </div>
-            </div>
-        </div>`;
+        const emTemplate = `<div class="em-row repeater-card"><button type="button" class="btn btn-xxs bg-red-dark repeater-remove shadow-bg shadow-bg-xs"><i class="bi bi-x-lg font-12"></i></button><div class="row mb-0"><div class="col-12 col-md-6 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-person font-14"></i><input type="text" name="emergency[__INDEX__][name]" id="em_name___INDEX__" class="form-control rounded-s" placeholder="Nama" required><label for="em_name___INDEX__" class="form-label-always-active color-highlight">Nama Lengkap *</label></div></div><div class="col-6 col-md-6 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-people font-14"></i><input type="text" name="emergency[__INDEX__][relation]" id="em_rel___INDEX__" class="form-control rounded-s" placeholder="Hubungan" required><label for="em_rel___INDEX__" class="form-label-always-active color-highlight">Hubungan *</label></div></div><div class="col-6 col-md-12 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-phone font-14"></i><input type="tel" name="emergency[__INDEX__][phone]" id="em_phone___INDEX__" class="form-control rounded-s" placeholder="Telepon" required><label for="em_phone___INDEX__" class="form-label-always-active color-highlight">Nomor Telepon *</label></div></div></div></div>`;
+
+        const finTemplate = `<div class="fin-row repeater-card"><button type="button" class="btn btn-xxs bg-red-dark repeater-remove shadow-bg shadow-bg-xs"><i class="bi bi-x-lg font-12"></i></button><div class="row mb-0"><div class="col-12 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-bank font-14"></i><input type="text" name="financing[__INDEX__][institution]" id="fin_inst___INDEX__" class="form-control rounded-s" placeholder="Bank"><label for="fin_inst___INDEX__" class="form-label-always-active color-highlight">Lembaga Keuangan</label></div></div><div class="col-6 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-cash-stack font-14"></i><input type="number" name="financing[__INDEX__][plafond]" id="fin_plafond___INDEX__" class="form-control rounded-s" placeholder="Rp"><label for="fin_plafond___INDEX__" class="form-label-always-active color-highlight">Plafond</label></div></div><div class="col-6 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-calendar font-14"></i><input type="number" name="financing[__INDEX__][monthly_installment]" id="fin_cicilan___INDEX__" class="form-control rounded-s" placeholder="Rp"><label for="fin_cicilan___INDEX__" class="form-label-always-active color-highlight">Cicilan</label></div></div></div></div>`;
 
         document.getElementById('add-education').addEventListener('click', () => addRow('education-list', eduTemplate));
         document.getElementById('add-training').addEventListener('click', () => addRow('training-list', trTemplate));
         document.getElementById('add-family').addEventListener('click', () => addRow('family-list', famTemplate));
         document.getElementById('add-emergency').addEventListener('click', () => addRow('emergency-list', emTemplate));
+        document.getElementById('add-financing').addEventListener('click', () => addRow('financing-list', finTemplate));
 
-        // Event delegation for removal
         document.addEventListener('click', function(e) {
             const btn = e.target.closest('.repeater-remove');
             if (!btn) return;
-            
-            if (btn.classList.contains('remove-edu')) {
-                const row = btn.closest('.edu-row'); if (row) { row.remove(); makeIndex(document.getElementById('education-list')); }
-            } else if (btn.classList.contains('remove-tr')) {
-                const row = btn.closest('.tr-row'); if (row) { row.remove(); makeIndex(document.getElementById('training-list')); }
-            } else if (btn.classList.contains('remove-family')) {
-                const row = btn.closest('.family-row'); if (row) { row.remove(); makeIndex(document.getElementById('family-list')); }
-            } else if (btn.classList.contains('remove-em')) {
-                const list = document.getElementById('emergency-list');
-                if (list.querySelectorAll('.em-row').length > 2) {
-                    const row = btn.closest('.em-row');
-                    if (row) { row.remove(); makeIndex(list); }
-                } else {
-                    alert('Minimal harus mengisi 2 kontak darurat untuk keamanan.');
-                }
-            }
+            const row = btn.closest('.repeater-card');
+            const list = row.parentElement;
+            row.remove();
+            makeIndex(list);
         });
 
-        // Handle marital status change
-        const maritalSelect = document.getElementById('marital_status');
-        const marriageWrapper = document.getElementById('marriage_certificate_wrapper');
-        
-        const toggleMarriageFile = () => {
-            if (maritalSelect && maritalSelect.value === 'menikah') {
-                if (marriageWrapper) marriageWrapper.style.display = 'block';
-            } else {
-                if (marriageWrapper) marriageWrapper.style.display = 'none';
-            }
-        };
-
-        if (maritalSelect) {
-            maritalSelect.addEventListener('change', toggleMarriageFile);
-            toggleMarriageFile(); // Initial state
-        }
-
-        // Handle file input changes to show filenames
-        document.querySelectorAll('.upload-file-input').forEach(input => {
-            input.addEventListener('change', function() {
-                const statusId = this.getAttribute('data-target');
+        // === 4. UPLOAD STATUS & PREVIEW ===
+        document.addEventListener('change', function(e) {
+            if (e.target && e.target.classList.contains('upload-file-input')) {
+                const input = e.target;
+                const statusId = input.getAttribute('data-target');
                 const statusEl = document.getElementById(statusId);
-                if (this.files && this.files.length > 0) {
-                    const fileName = this.files[0].name;
-                    statusEl.innerHTML = `<span class="color-highlight font-600"><i class="bi bi-file-earmark-check"></i> ${fileName}</span>`;
+                if (statusEl && input.files[0]) {
+                    statusEl.innerHTML = `<span class="color-green-dark font-600"><i class="bi bi-check-circle-fill"></i> ${input.files[0].name}</span>`;
+                    const card = input.closest('.repeater-upload-area') || input.closest('.file-data-card');
+                    if (card) { card.style.borderColor = '#8CC152'; card.style.backgroundColor = 'rgba(140, 193, 82, 0.05)'; }
                 }
-            });
+            }
         });
+
+        const maritalSelect = document.getElementById('marital_status');
+        if (maritalSelect) {
+            maritalSelect.addEventListener('change', () => {
+                document.getElementById('marriage_certificate_wrapper').style.display = (maritalSelect.value === 'menikah') ? 'block' : 'none';
+            });
+        }
     });
 </script>
 @endpush

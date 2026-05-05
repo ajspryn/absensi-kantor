@@ -285,7 +285,7 @@ class EmployeeController extends Controller
 
             if (! $missing) {
                 // Already complete, send them to dashboard/profile
-                // Dimatikan sementara untuk testing
+                // Dimatikan sementara untuk testing agar user bisa melihat form
                 // return redirect()->route('dashboard');
             }
         }
@@ -316,7 +316,14 @@ class EmployeeController extends Controller
         $user = Auth::user();
 
         try {
-            $employeeService->saveProfile($user, $request->all(), $request->file('photo'));
+            $data = $request->all();
+
+            // Merge uploaded files into data array so saveProfile() can process them
+            $data['ktp_file'] = $request->file('ktp_file');
+            $data['kk_file'] = $request->file('kk_file');
+            $data['marriage_certificate_file'] = $request->file('marriage_certificate_file');
+
+            $employeeService->saveProfile($user, $data, $request->file('photo'));
 
             return redirect()->route('dashboard')
                 ->with('success', 'Profil berhasil dilengkapi. Selamat datang!');

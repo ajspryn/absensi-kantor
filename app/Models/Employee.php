@@ -16,7 +16,6 @@ class Employee extends Model
         'position_id',
         'work_schedule_id',
         'full_name',
-        // 'position' column removed from schema; use relation to Position or position_id instead
         'phone',
         'email',
         'address',
@@ -25,7 +24,6 @@ class Employee extends Model
         'is_active',
         'allow_remote_attendance',
         'photo',
-        // Extended profile fields
         'nik_ktp',
         'jabatan',
         'address_ktp',
@@ -52,6 +50,7 @@ class Employee extends Model
         'credit_institution',
         'credit_plafond',
         'credit_monthly_installment',
+        'financing_history',
         'ktp_path',
         'kk_path',
         'marriage_certificate_path',
@@ -62,7 +61,6 @@ class Employee extends Model
         'salary' => 'decimal:2',
         'is_active' => 'boolean',
         'allow_remote_attendance' => 'boolean',
-        // Extended casts
         'birth_date' => 'date',
         'has_medical_history' => 'boolean',
         'has_credit_issue' => 'boolean',
@@ -72,9 +70,9 @@ class Employee extends Model
         'emergency_contact' => 'array',
         'credit_plafond' => 'decimal:2',
         'credit_monthly_installment' => 'decimal:2',
+        'financing_history' => 'array',
     ];
 
-    // Relationships
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -125,13 +123,11 @@ class Employee extends Model
         return $this->belongsTo(WorkSchedule::class, 'work_schedule_id');
     }
 
-    // Role access through user
     public function role()
     {
         return $this->hasOneThrough(Role::class, User::class, 'id', 'id', 'user_id', 'role_id');
     }
 
-    // Helper methods
     public function getTodayAttendance()
     {
         return $this->attendances()->whereDate('date', today())->first();
@@ -140,18 +136,15 @@ class Employee extends Model
     public function hasCheckedInToday()
     {
         $attendance = $this->getTodayAttendance();
-
         return $attendance && $attendance->check_in;
     }
 
     public function hasCheckedOutToday()
     {
         $attendance = $this->getTodayAttendance();
-
         return $attendance && $attendance->check_out;
     }
 
-    // Role helper methods
     public function hasRole($roleName)
     {
         return $this->user && $this->user->role && $this->user->role->name === $roleName;
@@ -179,45 +172,30 @@ class Employee extends Model
         } elseif (is_string($this->position) && ! empty($this->position)) {
             return $this->position;
         }
-
         return null;
     }
 
-    // Accessor for blade/views and backwards compatibility
     public function getPositionNameAttribute()
     {
         if (is_object($this->position) && property_exists($this->position, 'name')) {
             return $this->position->name;
         }
-
         if (is_string($this->position) && ! empty($this->position)) {
             return $this->position;
         }
-
-        return null; // return null so views can show '-' or custom fallback
+        return null;
     }
 
     public function getFullPositionName()
     {
         $dept = $this->getDepartmentName();
         $pos = $this->getPositionName();
-
-        if ($pos && $dept) {
-            return "{$pos} - {$dept}";
-        }
-
-        if ($pos) {
-            return $pos;
-        }
-
-        if ($dept) {
-            return $dept;
-        }
-
+        if ($pos && $dept) return "{$pos} - {$dept}";
+        if ($pos) return $pos;
+        if ($dept) return $dept;
         return '-';
     }
 
-    // Status helpers
     public function isActive()
     {
         return $this->user && $this->user->is_active;
@@ -232,7 +210,6 @@ class Employee extends Model
         }
     }
 
-    // Search scope
     public function scopeSearch($query, $search)
     {
         return $query->where(function ($q) use ($search) {
@@ -251,7 +228,6 @@ class Employee extends Model
         });
     }
 
-    // Filter scopes
     public function scopeByDepartment($query, $departmentId)
     {
         return $query->where('department_id', $departmentId);
@@ -276,9 +252,6 @@ class Employee extends Model
         });
     }
 
-    /**
-     * Get attendance records including missing days for a date range
-     */
     public function getAttendanceWithMissing($startDate, $endDate)
     {
         if (! $this->workSchedule) {
@@ -288,7 +261,6 @@ class Employee extends Model
                 ->get();
         }
 
-        // Get existing attendance records
         $start = \Carbon\Carbon::parse($startDate);
         $end = \Carbon\Carbon::parse($endDate);
 
@@ -304,12 +276,9 @@ class Employee extends Model
 
         while ($current <= $end) {
             $dateStr = $current->format('Y-m-d');
-
             if ($existingAttendances->has($dateStr)) {
-                // Add existing attendance
                 $result->push($existingAttendances->get($dateStr));
             } elseif ($this->workSchedule->isWorkDay($current)) {
-                // Create virtual attendance for missing work day
                 $result->push((object) [
                     'id' => null,
                     'employee_id' => $this->id,
@@ -329,57 +298,35 @@ class Employee extends Model
                     'created_at' => null,
                     'updated_at' => null,
                     'employee' => $this,
-                    'is_missing' => true, // Flag to identify missing records
+                    'is_missing' => true,
                 ]);
             }
-
             $current->addDay();
         }
 
         return $result->sortByDesc('date')->values();
     }
 
-    /**
-     * Return an array of required profile fields that are missing or empty on this employee.
-     */
     public function getMissingProfileFields(array $requiredFields = []): array
     {
         $missing = [];
-
         foreach ($requiredFields as $f) {
             $value = $this->{$f} ?? null;
-
             if (in_array($f, ['employee_id', 'department_id', 'position_id'], true)) {
-                if ($value === null || $value === '') {
-                    $missing[] = $f;
-                }
-
+                if ($value === null || $value === '') $missing[] = $f;
                 continue;
             }
-
             if (is_string($value)) {
-                if (trim($value) === '') {
-                    $missing[] = $f;
-                }
-
+                if (trim($value) === '') $missing[] = $f;
                 continue;
             }
-
-            if ($value === null || $value === '') {
-                $missing[] = $f;
-            }
+            if ($value === null || $value === '') $missing[] = $f;
         }
-
         return $missing;
     }
 
-    /**
-     * Convenience wrapper to check if profile is complete.
-     */
     public function isProfileComplete(array $requiredFields = []): bool
     {
         return empty($this->getMissingProfileFields($requiredFields));
     }
 }
-
-// Note: profile completeness helpers moved to model earlier; if needed elsewhere, call these methods on the Employee instance.
