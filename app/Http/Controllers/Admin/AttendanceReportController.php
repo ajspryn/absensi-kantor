@@ -53,7 +53,7 @@ class AttendanceReportController extends Controller
             if ($existingAttendance) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Karyawan sudah memiliki absensi pada tanggal '.$request->date,
+                    'message' => 'Karyawan sudah memiliki absensi pada tanggal ' . $request->date,
                 ], 422);
             }
 
@@ -114,7 +114,7 @@ class AttendanceReportController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal update absensi: '.$e->getMessage(),
+                'message' => 'Gagal update absensi: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -271,20 +271,20 @@ class AttendanceReportController extends Controller
                     ->whereNotNull('check_in')
                     ->whereRaw('TIME(check_in) > ?', [$startTime])
                     ->count();
-                    
+
                 // Hitung izin/sakit/cuti yang sudah disetujui pada hari kerja
                 $leaveDays = 0;
                 $leaves = \App\Models\LeaveRequest::where('employee_id', $employee->id)
                     ->whereIn('status', ['approved', 'verified'])
-                    ->where(function($q) use ($startDate, $endDate) {
+                    ->where(function ($q) use ($startDate, $endDate) {
                         $q->whereBetween('start_date', [$startDate, $endDate])
-                          ->orWhereBetween('end_date', [$startDate, $endDate])
-                          ->orWhere(function($q2) use ($startDate, $endDate) {
-                              $q2->where('start_date', '<=', $startDate)
-                                 ->where('end_date', '>=', $endDate);
-                          });
+                            ->orWhereBetween('end_date', [$startDate, $endDate])
+                            ->orWhere(function ($q2) use ($startDate, $endDate) {
+                                $q2->where('start_date', '<=', $startDate)
+                                    ->where('end_date', '>=', $endDate);
+                            });
                     })->get();
-                    
+
                 $leaveDates = [];
                 foreach ($leaves as $leave) {
                     $curr = $leave->start_date->copy();
@@ -296,13 +296,12 @@ class AttendanceReportController extends Controller
                         $curr->addDay();
                     }
                 }
-                
-                // Cek apakah hari izin juga ada data check-in. Biasanya jika izin full day, dia tidak check in. 
-                // Jika dia check in, anggap bukan leave. Tapi untuk sederhana, kita kurangi dari jumlah leave dates 
+
+                // Cek apakah hari izin juga ada data check-in. Biasanya jika izin full day, dia tidak check in.
+                // Jika dia check in, anggap bukan leave. Tapi untuk sederhana, kita kurangi dari jumlah leave dates
                 // jika ternyata ada attendance di hari itu (tergantung kebijakan bisnis).
                 // Di sini kita anggap leave yang utuh.
                 $leaveDaysCount = count($leaveDates);
-                
             } else {
                 $presentDays = 0;
                 $lateDays = 0;
@@ -330,7 +329,7 @@ class AttendanceReportController extends Controller
                 ->orderBy('date', 'desc')
                 ->first();
 
-                $employeeSummaries[] = [
+            $employeeSummaries[] = [
                 'employee' => $employee,
                 'total_days' => $totalDays,
                 'work_days' => $workDays,
@@ -449,13 +448,13 @@ class AttendanceReportController extends Controller
                 'stats'
             ));
 
-            $filename = 'laporan-absensi-detail-'.$startDate.'-to-'.$endDate.'.pdf';
+            $filename = 'laporan-absensi-detail-' . $startDate . '-to-' . $endDate . '.pdf';
 
             $pdf->setPaper('A4', 'landscape');
 
             return $pdf->download($filename);
         } catch (\Exception $e) {
-            return response('PDF Error: '.$e->getMessage().' Line: '.$e->getLine().' File: '.$e->getFile())
+            return response('PDF Error: ' . $e->getMessage() . ' Line: ' . $e->getLine() . ' File: ' . $e->getFile())
                 ->header('Content-Type', 'text/plain');
         }
     }
@@ -527,19 +526,19 @@ class AttendanceReportController extends Controller
                     ->whereNotNull('check_in')
                     ->whereRaw('TIME(check_in) > ?', [$startTime])
                     ->count();
-                    
+
                 $leaveDays = 0;
                 $leaves = \App\Models\LeaveRequest::where('employee_id', $employee->id)
                     ->whereIn('status', ['approved', 'verified'])
-                    ->where(function($q) use ($startDate, $endDate) {
+                    ->where(function ($q) use ($startDate, $endDate) {
                         $q->whereBetween('start_date', [$startDate, $endDate])
-                          ->orWhereBetween('end_date', [$startDate, $endDate])
-                          ->orWhere(function($q2) use ($startDate, $endDate) {
-                              $q2->where('start_date', '<=', $startDate)
-                                 ->where('end_date', '>=', $endDate);
-                          });
+                            ->orWhereBetween('end_date', [$startDate, $endDate])
+                            ->orWhere(function ($q2) use ($startDate, $endDate) {
+                                $q2->where('start_date', '<=', $startDate)
+                                    ->where('end_date', '>=', $endDate);
+                            });
                     })->get();
-                    
+
                 $leaveDates = [];
                 foreach ($leaves as $leave) {
                     $curr = $leave->start_date->copy();
@@ -551,14 +550,14 @@ class AttendanceReportController extends Controller
                         $curr->addDay();
                     }
                 }
-                
+
                 $leaveDaysCount = count($leaveDates);
             } else {
                 $presentDays = 0;
                 $lateDays = 0;
                 $leaveDaysCount = 0;
             }
-            
+
             $absentDays = max(0, $workDays - $presentDays - $leaveDaysCount);
 
             $effectiveWorkDays = max(0, $workDays - $leaveDaysCount);
@@ -588,11 +587,11 @@ class AttendanceReportController extends Controller
                 'endDate'
             ));
 
-            $filename = 'laporan-absensi-ringkasan-'.$startDate.'-to-'.$endDate.'.pdf';
+            $filename = 'laporan-absensi-ringkasan-' . $startDate . '-to-' . $endDate . '.pdf';
 
             return $pdf->download($filename);
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal membuat PDF: '.$e->getMessage());
+            return back()->with('error', 'Gagal membuat PDF: ' . $e->getMessage());
         }
     }
 

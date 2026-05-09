@@ -94,7 +94,7 @@
                     <span>Pengaturan Umum</span>
                     <i class="bi bi-chevron-right"></i>
                 </a>
-                
+
                 <a href="{{ route('admin.database.backup.index') }}" class="{{ request()->routeIs('admin.database.backup.*') ? 'active' : '' }}">
                     <i class="gradient-red shadow-bg shadow-bg-xs bi bi-database-fill-gear"></i>
                     <span>Backup Database</span>

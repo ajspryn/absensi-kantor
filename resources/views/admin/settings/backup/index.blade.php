@@ -38,10 +38,10 @@
                         <p class="mb-0 text-muted font-12">Ekspor seluruh schema dan data ke format SQL terkompresi (.gz)</p>
                     </div>
                 </div>
-                
+
                 <p>
-                    Proses ini akan mengumpulkan struktur database dan data anda baris demi baris, 
-                    serta langsung melakukan kompresi <code>ZLIB</code> tanpa membebankan ruang memori. Backup akan 
+                    Proses ini akan mengumpulkan struktur database dan data anda baris demi baris,
+                    serta langsung melakukan kompresi <code>ZLIB</code> tanpa membebankan ruang memori. Backup akan
                     otomatis terunduh saat file siap.
                 </p>
 
@@ -80,7 +80,7 @@
                         @enderror
                     </div>
 
-                    <button type="submit" id="btnRestore" class="btn btn-full btn-m font-900 text-uppercase rounded-sm shadow-l bg-red-dark mt-4" 
+                    <button type="submit" id="btnRestore" class="btn btn-full btn-m font-900 text-uppercase rounded-sm shadow-l bg-red-dark mt-4"
                         onclick="return confirmRestore()">
                         <i class="bi bi-upload me-2" id="iconRestore"></i> <span id="textRestore">Mulai Restore Data</span>
                     </button>
