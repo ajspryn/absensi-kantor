@@ -120,15 +120,16 @@
             <table class="summary-table">
                 <thead>
                     <tr>
-                        <th width="5%">No</th>
-                        <th width="15%">ID Karyawan</th>
-                        <th width="25%">Nama</th>
-                        <th width="8%">Hari Kerja</th>
+                        <th width="3%">No</th>
+                        <th width="12%">ID Karyawan</th>
+                        <th width="24%">Nama</th>
+                        <th width="8%">Kerja</th>
                         <th width="8%">Hadir</th>
                         <th width="8%">Terlambat</th>
-                        <th width="8%">Tidak Hadir</th>
-                        <th width="10%">Tingkat Kehadiran</th>
-                        <th width="13%">Jadwal Kerja</th>
+                        <th width="8%">Izin/Sakit</th>
+                        <th width="8%">Alpa</th>
+                        <th width="8%">Rate</th>
+                        <th width="13%">Jadwal</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -140,6 +141,7 @@
                             <td>{{ $summary['work_days'] }}</td>
                             <td style="color: #28a745;">{{ $summary['present_days'] }}</td>
                             <td style="color: #ffc107;">{{ $summary['late_days'] }}</td>
+                            <td style="color: #17a2b8;">{{ $summary['leave_days'] ?? 0 }}</td>
                             <td style="color: #dc3545;">{{ $summary['absent_days'] }}</td>
                             <td>
                                 @php
@@ -168,14 +170,35 @@
 
                     <!-- Department Summary Row -->
                     @php
-                        $deptTotalWorkDays = $employees->sum('work_days');
-                        $deptTotalPresent = $employees->sum('present_days');
-                        $deptTotalLate = $employees->sum('late_days');
-                        $deptTotalAbsent = $employees->sum('absent_days');
-                        $deptAvgRate = $employees->avg('attendance_rate');
+                        $deptTotalWorkDays = collect($employees)->sum('work_days');
+                        $deptTotalPresent = collect($employees)->sum('present_days');
+                        $deptTotalLate = collect($employees)->sum('late_days');
+                        $deptTotalLeave = collect($employees)->sum('leave_days');
+                        $deptTotalAbsent = collect($employees)->sum('absent_days');
+                        $deptAvgRate = collect($employees)->avg('attendance_rate');
                     @endphp
                     <tr style="background-color: #e9ecef; font-weight: bold;">
-                        <td colspan="3">TOTAL {{ $departmentName }}</td>
+                        <td colspan="3" style="text-align: right; padding-right: 10px;">RATA-RATA / TOTAL DEPARTEMEN {{ $departmentName }}</td>
+                        <td>{{ $deptTotalWorkDays }}</td>
+                        <td style="color: #28a745;">{{ $deptTotalPresent }}</td>
+                        <td style="color: #ffc107;">{{ $deptTotalLate }}</td>
+                        <td style="color: #17a2b8;">{{ $deptTotalLeave }}</td>
+                        <td style="color: #dc3545;">{{ $deptTotalAbsent }}</td>
+                        <td>
+                            @php
+                                $class = 'rate-danger';
+                                if ($deptAvgRate >= 95) {
+                                    $class = 'rate-excellent';
+                                } elseif ($deptAvgRate >= 85) {
+                                    $class = 'rate-good';
+                                } elseif ($deptAvgRate >= 75) {
+                                    $class = 'rate-warning';
+                                }
+                            @endphp
+                            <span class="{{ $class }}">{{ number_format($deptAvgRate, 1) }}%</span>
+                        </td>
+                        <td></td>
+                    </tr>
                         <td>{{ $deptTotalWorkDays }}</td>
                         <td style="color: #28a745;">{{ $deptTotalPresent }}</td>
                         <td style="color: #ffc107;">{{ $deptTotalLate }}</td>
@@ -208,6 +231,7 @@
                 $totalWorkDays = collect($employeeSummaries)->sum('work_days');
                 $totalPresent = collect($employeeSummaries)->sum('present_days');
                 $totalLate = collect($employeeSummaries)->sum('late_days');
+                $totalLeave = collect($employeeSummaries)->sum('leave_days');
                 $totalAbsent = collect($employeeSummaries)->sum('absent_days');
                 $overallRate = collect($employeeSummaries)->avg('attendance_rate');
             @endphp
@@ -226,10 +250,15 @@
                     <td style="border: 1px solid #ddd; padding: 10px; text-align: center; color: #ffc107; font-weight: bold;">{{ $totalLate }}</td>
                 </tr>
                 <tr>
-                    <td style="border: 1px solid #ddd; padding: 10px; background-color: #f8f9fa; font-weight: bold;">Total Ketidakhadiran</td>
-                    <td style="border: 1px solid #ddd; padding: 10px; text-align: center; color: #dc3545; font-weight: bold;">{{ $totalAbsent }}</td>
+                    <td style="border: 1px solid #ddd; padding: 10px; background-color: #f8f9fa; font-weight: bold;">Total Izin/Sakit</td>
+                    <td style="border: 1px solid #ddd; padding: 10px; text-align: center; color: #17a2b8; font-weight: bold;">{{ $totalLeave }}</td>
                     <td style="border: 1px solid #ddd; padding: 10px; background-color: #f8f9fa; font-weight: bold;">Rata-rata Kehadiran</td>
                     <td style="border: 1px solid #ddd; padding: 10px; text-align: center; font-weight: bold;">{{ round($overallRate, 1) }}%</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 10px; background-color: #f8f9fa; font-weight: bold;">Total Ketidakhadiran</td>
+                    <td style="border: 1px solid #ddd; padding: 10px; text-align: center; color: #dc3545; font-weight: bold;">{{ $totalAbsent }}</td>
+                    <td colspan="2" style="border: 1px solid #ddd; background-color: #f8f9fa;"></td>
                 </tr>
             </table>
         </div>

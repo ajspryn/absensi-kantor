@@ -271,14 +271,51 @@ class AttendanceReportController extends Controller
                     ->whereNotNull('check_in')
                     ->whereRaw('TIME(check_in) > ?', [$startTime])
                     ->count();
+                    
+                // Hitung izin/sakit/cuti yang sudah disetujui pada hari kerja
+                $leaveDays = 0;
+                $leaves = \App\Models\LeaveRequest::where('employee_id', $employee->id)
+                    ->whereIn('status', ['approved', 'verified'])
+                    ->where(function($q) use ($startDate, $endDate) {
+                        $q->whereBetween('start_date', [$startDate, $endDate])
+                          ->orWhereBetween('end_date', [$startDate, $endDate])
+                          ->orWhere(function($q2) use ($startDate, $endDate) {
+                              $q2->where('start_date', '<=', $startDate)
+                                 ->where('end_date', '>=', $endDate);
+                          });
+                    })->get();
+                    
+                $leaveDates = [];
+                foreach ($leaves as $leave) {
+                    $curr = $leave->start_date->copy();
+                    while ($curr->lte($leave->end_date)) {
+                        $currDateStr = $curr->format('Y-m-d');
+                        if (in_array($currDateStr, $dates) && !in_array($currDateStr, $leaveDates)) {
+                            $leaveDates[] = $currDateStr;
+                        }
+                        $curr->addDay();
+                    }
+                }
+                
+                // Cek apakah hari izin juga ada data check-in. Biasanya jika izin full day, dia tidak check in. 
+                // Jika dia check in, anggap bukan leave. Tapi untuk sederhana, kita kurangi dari jumlah leave dates 
+                // jika ternyata ada attendance di hari itu (tergantung kebijakan bisnis).
+                // Di sini kita anggap leave yang utuh.
+                $leaveDaysCount = count($leaveDates);
+                
             } else {
                 $presentDays = 0;
                 $lateDays = 0;
+                $leaveDaysCount = 0;
             }
 
-            $absentDays = max(0, $workDays - $presentDays);
+            $absentDays = max(0, $workDays - $presentDays - $leaveDaysCount);
 
-            $attendanceRate = $workDays > 0 ? round(($presentDays / $workDays) * 100, 1) : 0;
+            // Menghitung attendance rate: (Kehadiran / (Hari Kerja - Izin)) * 100
+            // Atau (Kehadiran + Izin) / Hari Kerja * 100.
+            // Kita akan gunakan: Kehadiran / (Hari Kerja - Izin) agar izin dimaklumi
+            $effectiveWorkDays = max(0, $workDays - $leaveDaysCount);
+            $attendanceRate = $effectiveWorkDays > 0 ? round(($presentDays / $effectiveWorkDays) * 100, 1) : 0;
 
             // Get last check-in and check-out attendances for this employee within the period (if any)
             $lastIn = Attendance::where('employee_id', $employee->id)
@@ -293,12 +330,13 @@ class AttendanceReportController extends Controller
                 ->orderBy('date', 'desc')
                 ->first();
 
-            $employeeSummaries[] = [
+                $employeeSummaries[] = [
                 'employee' => $employee,
                 'total_days' => $totalDays,
                 'work_days' => $workDays,
                 'present_days' => $presentDays,
                 'late_days' => $lateDays,
+                'leave_days' => $leaveDaysCount,
                 'absent_days' => $absentDays,
                 'attendance_rate' => $attendanceRate,
                 'last_check_in' => $lastIn,
@@ -489,13 +527,42 @@ class AttendanceReportController extends Controller
                     ->whereNotNull('check_in')
                     ->whereRaw('TIME(check_in) > ?', [$startTime])
                     ->count();
+                    
+                $leaveDays = 0;
+                $leaves = \App\Models\LeaveRequest::where('employee_id', $employee->id)
+                    ->whereIn('status', ['approved', 'verified'])
+                    ->where(function($q) use ($startDate, $endDate) {
+                        $q->whereBetween('start_date', [$startDate, $endDate])
+                          ->orWhereBetween('end_date', [$startDate, $endDate])
+                          ->orWhere(function($q2) use ($startDate, $endDate) {
+                              $q2->where('start_date', '<=', $startDate)
+                                 ->where('end_date', '>=', $endDate);
+                          });
+                    })->get();
+                    
+                $leaveDates = [];
+                foreach ($leaves as $leave) {
+                    $curr = $leave->start_date->copy();
+                    while ($curr->lte($leave->end_date)) {
+                        $currDateStr = $curr->format('Y-m-d');
+                        if (in_array($currDateStr, $dates) && !in_array($currDateStr, $leaveDates)) {
+                            $leaveDates[] = $currDateStr;
+                        }
+                        $curr->addDay();
+                    }
+                }
+                
+                $leaveDaysCount = count($leaveDates);
             } else {
                 $presentDays = 0;
                 $lateDays = 0;
+                $leaveDaysCount = 0;
             }
-            $absentDays = max(0, $workDays - $presentDays);
+            
+            $absentDays = max(0, $workDays - $presentDays - $leaveDaysCount);
 
-            $attendanceRate = $workDays > 0 ? round(($presentDays / $workDays) * 100, 1) : 0;
+            $effectiveWorkDays = max(0, $workDays - $leaveDaysCount);
+            $attendanceRate = $effectiveWorkDays > 0 ? round(($presentDays / $effectiveWorkDays) * 100, 1) : 0;
 
             $employeeSummaries[] = [
                 'employee' => $employee,
@@ -503,6 +570,7 @@ class AttendanceReportController extends Controller
                 'work_days' => $workDays,
                 'present_days' => $presentDays,
                 'late_days' => $lateDays,
+                'leave_days' => $leaveDaysCount,
                 'absent_days' => $absentDays,
                 'attendance_rate' => $attendanceRate,
             ];

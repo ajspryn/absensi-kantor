@@ -108,6 +108,13 @@ Route::middleware('auth')->group(function () {
         Route::patch('/password-reset/{id}/approve', [PasswordResetController::class, 'approve'])->name('password-reset.approve');
         Route::patch('/password-reset/{id}/reject', [PasswordResetController::class, 'reject'])->name('password-reset.reject');
 
+        // Database Backup & Restore
+        Route::prefix('database-backup')->name('database.backup.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\DatabaseBackupController::class, 'index'])->name('index');
+            Route::get('/export', [\App\Http\Controllers\Admin\DatabaseBackupController::class, 'export'])->name('export');
+            Route::post('/import', [\App\Http\Controllers\Admin\DatabaseBackupController::class, 'import'])->name('import');
+        });
+
         // Settings routes
         Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
         Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');

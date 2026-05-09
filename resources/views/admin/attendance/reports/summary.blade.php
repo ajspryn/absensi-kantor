@@ -107,28 +107,34 @@
 
                 <!-- Statistics Row -->
                 <div class="row text-center mb-3">
-                    <div class="col-3">
+                    <div class="col-2">
                         <div class="bg-light rounded-s p-2">
                             <h6 class="font-700 mb-0 text-primary">{{ $summary['work_days'] }}</h6>
-                            <small class="text-muted">Hari Kerja</small>
+                            <small class="text-muted" style="font-size: 10px;">Kerja</small>
                         </div>
                     </div>
-                    <div class="col-3">
+                    <div class="col-2">
                         <div class="bg-light rounded-s p-2">
                             <h6 class="font-700 mb-0 text-success">{{ $summary['present_days'] }}</h6>
-                            <small class="text-muted">Hadir</small>
+                            <small class="text-muted" style="font-size: 10px;">Hadir</small>
                         </div>
                     </div>
                     <div class="col-3">
                         <div class="bg-light rounded-s p-2">
                             <h6 class="font-700 mb-0 text-warning">{{ $summary['late_days'] }}</h6>
-                            <small class="text-muted">Terlambat</small>
+                            <small class="text-muted" style="font-size: 10px;">Terlambat</small>
                         </div>
                     </div>
                     <div class="col-3">
                         <div class="bg-light rounded-s p-2">
+                            <h6 class="font-700 mb-0 text-info">{{ $summary['leave_days'] }}</h6>
+                            <small class="text-muted" style="font-size: 10px;">Izin/Sakit</small>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <div class="bg-light rounded-s p-2">
                             <h6 class="font-700 mb-0 text-danger">{{ $summary['absent_days'] }}</h6>
-                            <small class="text-muted">Tidak Hadir</small>
+                            <small class="text-muted" style="font-size: 10px;">Alpa</small>
                         </div>
                     </div>
                 </div>
@@ -136,8 +142,11 @@
                 <!-- Progress Bar -->
                 <div class="progress mb-2" style="height: 8px;">
                     @php
-                        $presentPercent = $summary['work_days'] > 0 ? ($summary['present_days'] / $summary['work_days']) * 100 : 0;
-                        $absentPercent = $summary['work_days'] > 0 ? ($summary['absent_days'] / $summary['work_days']) * 100 : 0;
+                        $effectiveWorkDays = max(1, $summary['work_days'] - $summary['leave_days']);
+                        $presentPercent = ($summary['present_days'] / $effectiveWorkDays) * 100;
+                        $absentPercent = ($summary['absent_days'] / $effectiveWorkDays) * 100;
+                        // Avoid over 100
+                        if ($presentPercent > 100) $presentPercent = 100;
                     @endphp
                     <div class="progress-bar bg-success" style="width: {{ $presentPercent }}%"></div>
                     <div class="progress-bar bg-danger" style="width: {{ $absentPercent }}%"></div>

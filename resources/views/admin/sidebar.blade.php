@@ -89,9 +89,15 @@
     <div class="menu-list">
         <div class="card card-style rounded-m p-3 py-2 mb-0">
             @if (auth()->user() && auth()->user()->hasPermission('settings.view'))
-                <a href="{{ route('admin.settings.index') }}" class="{{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
+                <a href="{{ route('admin.settings.index') }}" class="{{ request()->routeIs('admin.settings.index') ? 'active' : '' }}">
                     <i class="gradient-blue shadow-bg shadow-bg-xs bi bi-gear"></i>
                     <span>Pengaturan Umum</span>
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+                
+                <a href="{{ route('admin.database.backup.index') }}" class="{{ request()->routeIs('admin.database.backup.*') ? 'active' : '' }}">
+                    <i class="gradient-red shadow-bg shadow-bg-xs bi bi-database-fill-gear"></i>
+                    <span>Backup Database</span>
                     <i class="bi bi-chevron-right"></i>
                 </a>
             @endif
