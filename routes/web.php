@@ -74,94 +74,111 @@ Route::middleware('auth')->group(function () {
     Route::get('/employee/profile/complete', [EmployeeController::class, 'completeProfile'])->name('employee.profile.complete');
     Route::post('/employee/profile/complete', [EmployeeController::class, 'storeProfile'])->name('employee.profile.store');
 
-    // Admin routes
-    Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+    // Admin and specific permission routes
+    Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+
+        // ==========================================
+        // SHARED ROUTES (ADMIN & GRANTED ROLES)
+        // ==========================================
+
         // Employee management routes with permission check
         Route::middleware('permission:employees.view,employees.manage')->group(function () {
             Route::get('/employees', [EmployeeController::class, 'index'])->name('employees.index');
             Route::get('/employees/{employee}', [EmployeeController::class, 'show'])->whereNumber('employee')->name('employees.show');
         });
 
-        Route::middleware('permission:employees.create,employees.manage')->group(function () {
-            Route::get('/employees/create', [EmployeeController::class, 'create'])->name('employees.create');
-            Route::post('/employees', [EmployeeController::class, 'store'])->name('employees.store');
+        // Attendance data (admin / sdi) - Untuk melihat data real-time
+        Route::middleware('permission:attendance.view,attendance.manage')->group(function () {
+            Route::get('/attendance', [\App\Http\Controllers\Admin\AttendanceController::class, 'index'])->name('attendance.index');
+            Route::get('/attendance/export-pdf', [\App\Http\Controllers\Admin\AttendanceController::class, 'exportPdf'])->name('attendance.export-pdf');
         });
 
-        Route::middleware('permission:employees.edit,employees.manage')->group(function () {
-            Route::get('/employees/{employee}/edit', [EmployeeController::class, 'edit'])->whereNumber('employee')->name('employees.edit');
-            Route::put('/employees/{employee}', [EmployeeController::class, 'update'])->whereNumber('employee')->name('employees.update');
-        });
-
-        Route::middleware('permission:employees.delete,employees.manage')->group(function () {
-            Route::delete('/employees/{employee}', [EmployeeController::class, 'destroy'])->whereNumber('employee')->name('employees.destroy');
-        });
-
-        // Employee bulk import routes
-        Route::middleware('permission:employees.create,employees.manage')->group(function () {
-            Route::get('/employees-import', [EmployeeController::class, 'showImport'])->name('employees.import');
-            Route::post('/employees-import', [EmployeeController::class, 'import'])->name('employees.import.process');
-            Route::get('/employees-template', [EmployeeController::class, 'downloadTemplate'])->name('employees.template');
-        });
-
-        // Password Reset Management routes
-        Route::get('/password-reset', [PasswordResetController::class, 'index'])->name('password-reset.index');
-        Route::patch('/password-reset/{id}/approve', [PasswordResetController::class, 'approve'])->name('password-reset.approve');
-        Route::patch('/password-reset/{id}/reject', [PasswordResetController::class, 'reject'])->name('password-reset.reject');
-
-        // Database Backup & Restore
-        Route::prefix('database-backup')->name('database.backup.')->group(function () {
-            Route::get('/', [\App\Http\Controllers\Admin\DatabaseBackupController::class, 'index'])->name('index');
-            Route::get('/export', [\App\Http\Controllers\Admin\DatabaseBackupController::class, 'export'])->name('export');
-            Route::post('/import', [\App\Http\Controllers\Admin\DatabaseBackupController::class, 'import'])->name('import');
-        });
-
-        // Settings routes
-        Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
-        Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
-        Route::post('/settings/reset', [SettingsController::class, 'reset'])->name('settings.reset');
-
-        // Office Locations routes
-        Route::resource('office-locations', OfficeLocationController::class);
-        Route::patch('/office-locations/{officeLocation}/toggle-status', [OfficeLocationController::class, 'toggleStatus'])->name('office-locations.toggle-status');
-
-        // Work Schedules routes
-        Route::resource('work-schedules', WorkScheduleController::class);
-        Route::patch('/work-schedules/{workSchedule}/toggle-status', [WorkScheduleController::class, 'toggleStatus'])->name('work-schedules.toggle-status');
-        Route::get('/work-schedules-assign', [WorkScheduleController::class, 'assign'])->name('work-schedules.assign');
-        Route::post('/work-schedules-assign', [WorkScheduleController::class, 'storeAssignment'])->name('work-schedules.store-assignment');
-
-        // Departments routes
-        Route::resource('departments', DepartmentController::class);
-        Route::patch('/departments/{department}/toggle-status', [DepartmentController::class, 'toggleStatus'])->name('departments.toggle-status');
-        Route::patch('/departments/{department}/set-manager', [DepartmentController::class, 'setManager'])->name('departments.set-manager');
-
-        // Positions routes
-        Route::resource('positions', PositionController::class);
-        Route::patch('/positions/{position}/toggle-status', [PositionController::class, 'toggleStatus'])->name('positions.toggle-status');
-        Route::get('/positions/by-department', [PositionController::class, 'getPositionsByDepartment'])->name('positions.by-department');
-
-        // Roles routes
-        Route::resource('roles', RoleController::class);
-        Route::patch('/roles/{role}/toggle-status', [RoleController::class, 'toggleStatus'])->name('roles.toggle-status');
-        Route::patch('/roles/{role}/set-default', [RoleController::class, 'setDefault'])->name('roles.set-default');
-        Route::get('/roles/{role}/permissions', [RoleController::class, 'permissions'])->name('roles.permissions');
-        Route::patch('/roles/{role}/permissions', [RoleController::class, 'updatePermissions'])->name('roles.update-permissions');
-        Route::post('/roles/{role}/assign-users', [RoleController::class, 'assignUsers'])->name('roles.assign-users');
-        Route::delete('/roles/{role}/remove-user', [RoleController::class, 'removeUser'])->name('roles.remove-user');
-
-        // Attendance data (admin) - Untuk melihat data real-time
-        Route::get('/attendance', [\App\Http\Controllers\Admin\AttendanceController::class, 'index'])->name('attendance.index');
-        Route::get('/attendance/export-pdf', [\App\Http\Controllers\Admin\AttendanceController::class, 'exportPdf'])->name('attendance.export-pdf');
-
-        // Attendance reports (admin) - Untuk laporan dan analisis
-        Route::prefix('attendance-reports')->name('attendance.reports.')->group(function () {
+        // Attendance reports (admin / sdi) - Untuk laporan dan analisis
+        Route::middleware('permission:attendance.reports')->prefix('attendance-reports')->name('attendance.reports.')->group(function () {
             Route::get('/', [\App\Http\Controllers\Admin\AttendanceReportController::class, 'index'])->name('index');
             Route::get('/summary', [\App\Http\Controllers\Admin\AttendanceReportController::class, 'summary'])->name('summary');
             Route::get('/export-pdf', [\App\Http\Controllers\Admin\AttendanceReportController::class, 'exportPdf'])->name('export-pdf');
-            // Edit attendance modal (for popup)
-            Route::get('/edit/{id}', [\App\Http\Controllers\Admin\AttendanceReportController::class, 'edit'])->name('edit');
-            Route::post('/update', [\App\Http\Controllers\Admin\AttendanceReportController::class, 'update'])->name('update');
         });
+
+        // ==========================================
+        // STRICT ADMIN ROUTES
+        // ==========================================
+        Route::middleware('role:admin')->group(function () {
+
+            Route::middleware('permission:employees.create,employees.manage')->group(function () {
+                Route::get('/employees/create', [EmployeeController::class, 'create'])->name('employees.create');
+                Route::post('/employees', [EmployeeController::class, 'store'])->name('employees.store');
+            });
+
+            Route::middleware('permission:employees.edit,employees.manage')->group(function () {
+                Route::get('/employees/{employee}/edit', [EmployeeController::class, 'edit'])->whereNumber('employee')->name('employees.edit');
+                Route::put('/employees/{employee}', [EmployeeController::class, 'update'])->whereNumber('employee')->name('employees.update');
+            });
+
+            Route::middleware('permission:employees.delete,employees.manage')->group(function () {
+                Route::delete('/employees/{employee}', [EmployeeController::class, 'destroy'])->whereNumber('employee')->name('employees.destroy');
+            });
+
+            // Employee bulk import routes
+            Route::middleware('permission:employees.create,employees.manage')->group(function () {
+                Route::get('/employees-import', [EmployeeController::class, 'showImport'])->name('employees.import');
+                Route::post('/employees-import', [EmployeeController::class, 'import'])->name('employees.import.process');
+                Route::get('/employees-template', [EmployeeController::class, 'downloadTemplate'])->name('employees.template');
+            });
+
+            // Password Reset Management routes
+            Route::get('/password-reset', [PasswordResetController::class, 'index'])->name('password-reset.index');
+            Route::patch('/password-reset/{id}/approve', [PasswordResetController::class, 'approve'])->name('password-reset.approve');
+            Route::patch('/password-reset/{id}/reject', [PasswordResetController::class, 'reject'])->name('password-reset.reject');
+
+            // Database Backup & Restore
+            Route::prefix('database-backup')->name('database.backup.')->group(function () {
+                Route::get('/', [\App\Http\Controllers\Admin\DatabaseBackupController::class, 'index'])->name('index');
+                Route::get('/export', [\App\Http\Controllers\Admin\DatabaseBackupController::class, 'export'])->name('export');
+                Route::post('/import', [\App\Http\Controllers\Admin\DatabaseBackupController::class, 'import'])->name('import');
+            });
+
+            // Settings routes
+            Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+            Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
+            Route::post('/settings/reset', [SettingsController::class, 'reset'])->name('settings.reset');
+
+            // Office Locations routes
+            Route::resource('office-locations', OfficeLocationController::class);
+            Route::patch('/office-locations/{officeLocation}/toggle-status', [OfficeLocationController::class, 'toggleStatus'])->name('office-locations.toggle-status');
+
+            // Work Schedules routes
+            Route::resource('work-schedules', WorkScheduleController::class);
+            Route::patch('/work-schedules/{workSchedule}/toggle-status', [WorkScheduleController::class, 'toggleStatus'])->name('work-schedules.toggle-status');
+            Route::get('/work-schedules-assign', [WorkScheduleController::class, 'assign'])->name('work-schedules.assign');
+            Route::post('/work-schedules-assign', [WorkScheduleController::class, 'storeAssignment'])->name('work-schedules.store-assignment');
+
+            // Departments routes
+            Route::resource('departments', DepartmentController::class);
+            Route::patch('/departments/{department}/toggle-status', [DepartmentController::class, 'toggleStatus'])->name('departments.toggle-status');
+            Route::patch('/departments/{department}/set-manager', [DepartmentController::class, 'setManager'])->name('departments.set-manager');
+
+            // Positions routes
+            Route::resource('positions', PositionController::class);
+            Route::patch('/positions/{position}/toggle-status', [PositionController::class, 'toggleStatus'])->name('positions.toggle-status');
+            Route::get('/positions/by-department', [PositionController::class, 'getPositionsByDepartment'])->name('positions.by-department');
+
+            // Roles routes
+            Route::resource('roles', RoleController::class);
+            Route::patch('/roles/{role}/toggle-status', [RoleController::class, 'toggleStatus'])->name('roles.toggle-status');
+            Route::patch('/roles/{role}/set-default', [RoleController::class, 'setDefault'])->name('roles.set-default');
+            Route::get('/roles/{role}/permissions', [RoleController::class, 'permissions'])->name('roles.permissions');
+            Route::patch('/roles/{role}/permissions', [RoleController::class, 'updatePermissions'])->name('roles.update-permissions');
+            Route::post('/roles/{role}/assign-users', [RoleController::class, 'assignUsers'])->name('roles.assign-users');
+            Route::delete('/roles/{role}/remove-user', [RoleController::class, 'removeUser'])->name('roles.remove-user');
+
+            // Attendance reports Edit (For Admin only)
+            Route::prefix('attendance-reports')->name('attendance.reports.')->group(function () {
+                // Edit attendance modal (for popup)
+                Route::get('/edit/{id}', [\App\Http\Controllers\Admin\AttendanceReportController::class, 'edit'])->name('edit');
+                Route::post('/update', [\App\Http\Controllers\Admin\AttendanceReportController::class, 'update'])->name('update');
+            });
+        }); // Close role:admin group
 
         // (moved) Attendance corrections approval routes are defined outside the admin role group
     });

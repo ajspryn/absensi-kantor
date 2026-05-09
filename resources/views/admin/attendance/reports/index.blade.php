@@ -228,14 +228,18 @@
                                     </td>
                                     <td>
                                         <div class="d-flex flex-column">
-                                            @if ($attendance->photo_in)
-                                                <img src="{{ asset('storage/' . $attendance->photo_in) }}" class="img-fluid rounded-s mt-1" style="max-height:60px; cursor:pointer;" onclick="showPhoto('{{ asset('storage/' . $attendance->photo_in) }}', 'Check In')" data-bs-toggle="modal" data-bs-target="#adminPhotoModal">
-                                            @endif
-                                            @if ($attendance->photo_out)
-                                                <img src="{{ asset('storage/' . $attendance->photo_out) }}" class="img-fluid rounded-s mt-1" style="max-height:60px; cursor:pointer;" onclick="showPhoto('{{ asset('storage/' . $attendance->photo_out) }}', 'Check Out')" data-bs-toggle="modal" data-bs-target="#adminPhotoModal">
-                                            @endif
-                                            @if (!$attendance->photo_in && !$attendance->photo_out)
-                                                <span class="text-muted">-</span>
+                                            @if(auth()->user()->isAdmin())
+                                                @if ($attendance->photo_in)
+                                                    <img src="{{ asset('storage/' . $attendance->photo_in) }}" class="img-fluid rounded-s mt-1" style="max-height:60px; cursor:pointer;" onclick="showPhoto('{{ asset('storage/' . $attendance->photo_in) }}', 'Check In')" data-bs-toggle="modal" data-bs-target="#adminPhotoModal">
+                                                @endif
+                                                @if ($attendance->photo_out)
+                                                    <img src="{{ asset('storage/' . $attendance->photo_out) }}" class="img-fluid rounded-s mt-1" style="max-height:60px; cursor:pointer;" onclick="showPhoto('{{ asset('storage/' . $attendance->photo_out) }}', 'Check Out')" data-bs-toggle="modal" data-bs-target="#adminPhotoModal">
+                                                @endif
+                                                @if (!$attendance->photo_in && !$attendance->photo_out)
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            @else
+                                                <span class="text-muted"><i class="bi bi-lock"></i> Rahasia</span>
                                             @endif
                                         </div>
                                     </td>
@@ -263,7 +267,11 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <button type="button" class="btn btn-sm btn-warning mb-1 edit-attendance-btn" data-id="{{ $attendance->id }}">Edit</button>
+                                        @if(auth()->user()->isAdmin())
+                                            <button type="button" class="btn btn-sm btn-warning mb-1 edit-attendance-btn" data-id="{{ $attendance->id }}">Edit</button>
+                                        @else
+                                            <span class="text-muted"><i class="bi bi-lock"></i></span>
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach
