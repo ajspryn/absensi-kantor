@@ -45,7 +45,7 @@
                     otomatis terunduh saat file siap.
                 </p>
 
-                <a href="{{ route('admin.database.backup.export') }}" class="btn btn-full btn-m font-900 text-uppercase rounded-sm shadow-l bg-blue-dark mt-4">
+                <a href="{{ route('admin.database.backup.export') }}" target="_blank" class="btn btn-full btn-m font-900 text-uppercase rounded-sm shadow-l bg-blue-dark mt-4">
                     <i class="bi bi-download me-2"></i> Mulai Backup Data
                 </a>
             </div>

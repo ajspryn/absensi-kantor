@@ -274,14 +274,16 @@ class AttendanceReportController extends Controller
 
                 // Hitung izin/sakit/cuti yang sudah disetujui pada hari kerja
                 $leaveDays = 0;
+                $endBound = $endDate . ' 23:59:59';
+                $startBound = $startDate . ' 00:00:00';
                 $leaves = \App\Models\LeaveRequest::where('employee_id', $employee->id)
                     ->whereIn('status', ['approved', 'verified'])
-                    ->where(function ($q) use ($startDate, $endDate) {
-                        $q->whereBetween('start_date', [$startDate, $endDate])
-                            ->orWhereBetween('end_date', [$startDate, $endDate])
-                            ->orWhere(function ($q2) use ($startDate, $endDate) {
-                                $q2->where('start_date', '<=', $startDate)
-                                    ->where('end_date', '>=', $endDate);
+                    ->where(function ($q) use ($startBound, $endBound) {
+                        $q->whereBetween('start_date', [$startBound, $endBound])
+                            ->orWhereBetween('end_date', [$startBound, $endBound])
+                            ->orWhere(function ($q2) use ($startBound, $endBound) {
+                                $q2->where('start_date', '<=', $startBound)
+                                    ->where('end_date', '>=', $endBound);
                             });
                     })->get();
 
@@ -440,12 +442,36 @@ class AttendanceReportController extends Controller
             $employees = $employeesQuery->orderBy('employee_id')->get();
             $stats = $this->calculateStatistics($startDate, $endDate, $employeeId, $departmentId);
 
+            $endBound = $endDate . ' 23:59:59';
+            $startBound = $startDate . ' 00:00:00';
+
+            $leavesQuery = \App\Models\LeaveRequest::whereIn('status', ['approved', 'verified'])
+                ->where(function ($q) use ($startBound, $endBound) {
+                    $q->whereBetween('start_date', [$startBound, $endBound])
+                        ->orWhereBetween('end_date', [$startBound, $endBound])
+                        ->orWhere(function ($q2) use ($startBound, $endBound) {
+                            $q2->where('start_date', '<=', $startBound)
+                                ->where('end_date', '>=', $endBound);
+                        });
+                });
+
+            if ($employeeId) {
+                $leavesQuery->where('employee_id', $employeeId);
+            }
+            if ($departmentId) {
+                $leavesQuery->whereHas('employee', function ($q) use ($departmentId) {
+                    $q->where('department_id', $departmentId);
+                });
+            }
+            $leaves = $leavesQuery->get();
+
             $pdf = Pdf::loadView('admin.attendance.reports.pdf.detailed', compact(
                 'attendances',
                 'employees',
                 'startDate',
                 'endDate',
-                'stats'
+                'stats',
+                'leaves'
             ));
 
             $filename = 'laporan-absensi-detail-' . $startDate . '-to-' . $endDate . '.pdf';
@@ -528,14 +554,16 @@ class AttendanceReportController extends Controller
                     ->count();
 
                 $leaveDays = 0;
+                $endBound = $endDate . ' 23:59:59';
+                $startBound = $startDate . ' 00:00:00';
                 $leaves = \App\Models\LeaveRequest::where('employee_id', $employee->id)
                     ->whereIn('status', ['approved', 'verified'])
-                    ->where(function ($q) use ($startDate, $endDate) {
-                        $q->whereBetween('start_date', [$startDate, $endDate])
-                            ->orWhereBetween('end_date', [$startDate, $endDate])
-                            ->orWhere(function ($q2) use ($startDate, $endDate) {
-                                $q2->where('start_date', '<=', $startDate)
-                                    ->where('end_date', '>=', $endDate);
+                    ->where(function ($q) use ($startBound, $endBound) {
+                        $q->whereBetween('start_date', [$startBound, $endBound])
+                            ->orWhereBetween('end_date', [$startBound, $endBound])
+                            ->orWhere(function ($q2) use ($startBound, $endBound) {
+                                $q2->where('start_date', '<=', $startBound)
+                                    ->where('end_date', '>=', $endBound);
                             });
                     })->get();
 
@@ -597,7 +625,6 @@ class AttendanceReportController extends Controller
 
     private function calculateStatistics($startDate, $endDate, $employeeId = null, $departmentId = null)
     {
-        // Build employees list according to filters
         $employeesQuery = Employee::query();
         if ($employeeId) {
             $employeesQuery->where('id', $employeeId);
@@ -605,18 +632,48 @@ class AttendanceReportController extends Controller
         if ($departmentId) {
             $employeesQuery->where('department_id', $departmentId);
         }
-
         $employees = $employeesQuery->get();
-
-        // Total expected work days = number of employees * work days in period
-        $workDays = $this->getWorkDays($startDate, $endDate);
-        $totalExpected = count($employees) * $workDays;
 
         $present = 0;
         $late = 0;
+        $totalExpected = 0;
+
+        $endBound = $endDate . ' 23:59:59';
+        $startBound = $startDate . ' 00:00:00';
 
         foreach ($employees as $employee) {
-            // Count distinct attendance days with check_in for this employee
+            $period = Carbon::parse($startDate);
+            $end = Carbon::parse($endDate);
+            $workDays = 0;
+
+            while ($period->lte($end)) {
+                $isWorkDay = false;
+                if ($employee->workSchedule) {
+                    $isWorkDay = $employee->workSchedule->isWorkDay($period->format('Y-m-d'));
+                } else {
+                    $isWorkDay = ! in_array($period->dayOfWeek, [0, 6]);
+                }
+                if ($isWorkDay) {
+                    $workDays++;
+                }
+                $period->addDay();
+            }
+
+            $leavesCount = \App\Models\LeaveRequest::where('employee_id', $employee->id)
+                ->whereIn('status', ['approved', 'verified'])
+                ->where(function ($q) use ($startBound, $endBound) {
+                    $q->whereBetween('start_date', [$startBound, $endBound])
+                        ->orWhereBetween('end_date', [$startBound, $endBound])
+                        ->orWhere(function ($q2) use ($startBound, $endBound) {
+                            $q2->where('start_date', '<=', $startBound)
+                                ->where('end_date', '>=', $endBound);
+                        });
+                })
+                ->count();
+
+            $workDays = max(0, $workDays - $leavesCount);
+            $totalExpected += $workDays;
+
             $presentCount = Attendance::where('employee_id', $employee->id)
                 ->whereDate('date', '>=', $startDate)
                 ->whereDate('date', '<=', $endDate)
@@ -625,7 +682,6 @@ class AttendanceReportController extends Controller
 
             $present += $presentCount;
 
-            // Count late occurrences for this employee (compare check_in time to employee start_time)
             $startTime = $employee->workSchedule->start_time ?? '08:00:00';
             $lateCount = Attendance::where('employee_id', $employee->id)
                 ->whereDate('date', '>=', $startDate)

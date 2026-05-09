@@ -236,12 +236,35 @@
             $period = \Carbon\Carbon::parse($startDate);
             $end = \Carbon\Carbon::parse($endDate);
             while ($period <= $end) {
-                $dates[] = $period->format('Y-m-d');
+                $isWorkDay = false;
+                if ($employee->workSchedule) {
+                    $isWorkDay = $employee->workSchedule->isWorkDay($period->format('Y-m-d'));
+                } else {
+                    $isWorkDay = ! in_array($period->dayOfWeek, [0, 6]);
+                }
+
+                if ($isWorkDay) {
+                    $dates[] = $period->format('Y-m-d');
+                }
                 $period->addDay();
             }
             $totalDays = count($dates);
 
             foreach ($dates as $dateYmd) {
+                // Evaluasi apakah tanggal ini ada leave yang disetujui (Izin/Cuti)
+                $leaveType = null;
+                if (isset($leaves)) {
+                    $empLeave = $leaves->filter(function($l) use ($employee, $dateYmd) {
+                        return strval($l->employee_id) === strval($employee->id) &&
+                               \Carbon\Carbon::parse($l->start_date)->format('Y-m-d') <= $dateYmd &&
+                               \Carbon\Carbon::parse($l->end_date)->format('Y-m-d') >= $dateYmd;
+                    })->first();
+
+                    if ($empLeave) {
+                        $leaveType = strtolower($empLeave->type) === 'annual' ? 'cuti' : 'izin';
+                    }
+                }
+
                 $attendance = $attendances
                     ->filter(function ($a) use ($employee, $dateYmd) {
                         $attendanceDate = \Carbon\Carbon::parse($a->date)->format('Y-m-d');
@@ -249,21 +272,20 @@
                     })
                     ->first();
 
-                if ($attendance) {
-                    if ($attendance->check_in) {
-                        $start = $employee->workSchedule->start_time ?? '08:00:00';
-                        $checkInTime = \Carbon\Carbon::parse($attendance->check_in)->format('H:i:s');
-                        $isLate = $checkInTime > $start;
-                        $overallStats[$isLate ? 'T' : 'H']++;
-                    } elseif ($attendance->status == 'izin') {
-                        $overallStats['I']++;
-                    } elseif ($attendance->status == 'cuti') {
+                if ($attendance && $attendance->check_in) {
+                    $start = $employee->workSchedule->start_time ?? '08:00:00';
+                    $checkInTime = \Carbon\Carbon::parse($attendance->check_in)->format('H:i:s');
+                    $isLate = $checkInTime > $start;
+                    $overallStats[$isLate ? 'T' : 'H']++;
+                } else {
+                    // Cek leave
+                    if ($leaveType === 'cuti' || (isset($attendance) && $attendance->status == 'cuti')) {
                         $overallStats['C']++;
+                    } elseif ($leaveType === 'izin' || (isset($attendance) && $attendance->status == 'izin')) {
+                        $overallStats['I']++;
                     } else {
                         $overallStats['A']++;
                     }
-                } else {
-                    $overallStats['A']++;
                 }
             }
         }
@@ -383,11 +405,32 @@
                     $period = \Carbon\Carbon::parse($startDate);
                     $end = \Carbon\Carbon::parse($endDate);
                     while ($period <= $end) {
-                        $dates[] = $period->format('Y-m-d');
+                        $isWorkDay = false;
+                        if ($employee->workSchedule) {
+                            $isWorkDay = $employee->workSchedule->isWorkDay($period->format('Y-m-d'));
+                        } else {
+                            $isWorkDay = ! in_array($period->dayOfWeek, [0, 6]);
+                        }
+                        if ($isWorkDay) {
+                            $dates[] = $period->format('Y-m-d');
+                        }
                         $period->addDay();
                     }
                     foreach ($dates as $date) {
                         $dateYmd = $date;
+
+                        $leaveType = null;
+                        if (isset($leaves)) {
+                            $empLeave = $leaves->filter(function($l) use ($employee, $dateYmd) {
+                                return strval($l->employee_id) === strval($employee->id) &&
+                                       \Carbon\Carbon::parse($l->start_date)->format('Y-m-d') <= $dateYmd &&
+                                       \Carbon\Carbon::parse($l->end_date)->format('Y-m-d') >= $dateYmd;
+                            })->first();
+                            if ($empLeave) {
+                                $leaveType = strtolower($empLeave->type) === 'annual' ? 'cuti' : 'izin';
+                            }
+                        }
+
                         $row = $attendances
                             ->filter(function ($a) use ($employee, $dateYmd) {
                                 // Pastikan format tanggal sama persis
@@ -395,23 +438,20 @@
                                 return strval($a->employee_id) === strval($employee->id) && $attendanceDate === $dateYmd;
                             })
                             ->first();
-                        // (debug lines removed)
-                        if ($row) {
-                            if ($row->check_in) {
-                                $start = $employee->workSchedule->start_time ?? '08:00:00';
-                                $checkInTime = \Carbon\Carbon::parse($row->check_in)->format('H:i:s');
-                                $isLate = $checkInTime > $start;
-                                $rekap[$isLate ? 'T' : 'H']++;
-                            } elseif ($row->status == 'izin') {
-                                $rekap['I']++;
-                            } elseif ($row->status == 'cuti') {
+
+                        if ($row && $row->check_in) {
+                            $start = $employee->workSchedule->start_time ?? '08:00:00';
+                            $checkInTime = \Carbon\Carbon::parse($row->check_in)->format('H:i:s');
+                            $isLate = $checkInTime > $start;
+                            $rekap[$isLate ? 'T' : 'H']++;
+                        } else {
+                            if ($leaveType === 'cuti' || (isset($row) && $row->status == 'cuti')) {
                                 $rekap['C']++;
+                            } elseif ($leaveType === 'izin' || (isset($row) && $row->status == 'izin')) {
+                                $rekap['I']++;
                             } else {
                                 $rekap['A']++;
                             }
-                        } else {
-                            // Tidak ada data absensi untuk tanggal ini
-                            $rekap['A']++;
                         }
                     }
                     if ($showTotal) {
@@ -450,12 +490,21 @@
     </table>
 
     <!-- Tabel Detail Harian -->
+    @php
+        $allDates = [];
+        $pd = \Carbon\Carbon::parse($startDate);
+        $ed = \Carbon\Carbon::parse($endDate);
+        while ($pd <= $ed) {
+            $allDates[] = $pd->format('Y-m-d');
+            $pd->addDay();
+        }
+    @endphp
     <table>
         <thead>
             <tr>
                 <th class="no-col">No</th>
                 <th class="name-col">Nama</th>
-                @foreach ($dates as $date)
+                @foreach ($allDates as $date)
                     <th class="date-col">{{ \Carbon\Carbon::parse($date)->format('j') }}</th>
                 @endforeach
                 <th>Rekap</th>
@@ -472,8 +521,27 @@
                         <strong>{{ $employee->user->name ?? '-' }}</strong><br>
                         <small>{{ $employee->employee_id ?? '-' }}</small><br>
                     </td>
-                    @foreach ($dates as $dateYmd)
+                    @foreach ($allDates as $dateYmd)
                         @php
+                            $isWorkDay = false;
+                            if ($employee->workSchedule) {
+                                $isWorkDay = $employee->workSchedule->isWorkDay($dateYmd);
+                            } else {
+                                $isWorkDay = ! in_array(\Carbon\Carbon::parse($dateYmd)->dayOfWeek, [0, 6]);
+                            }
+
+                            $leaveType = null;
+                            if (isset($leaves)) {
+                                $empLeave = $leaves->filter(function($l) use ($employee, $dateYmd) {
+                                    return strval($l->employee_id) === strval($employee->id) &&
+                                           \Carbon\Carbon::parse($l->start_date)->format('Y-m-d') <= $dateYmd &&
+                                           \Carbon\Carbon::parse($l->end_date)->format('Y-m-d') >= $dateYmd;
+                                })->first();
+                                if ($empLeave) {
+                                    $leaveType = strtolower($empLeave->type) === 'annual' ? 'cuti' : 'izin';
+                                }
+                            }
+
                             $row = $attendances
                                 ->filter(function ($a) use ($employee, $dateYmd) {
                                     // Pastikan format tanggal sama persis
@@ -481,29 +549,31 @@
                                     return strval($a->employee_id) === strval($employee->id) && $attendanceDate === $dateYmd;
                                 })
                                 ->first();
-                            if ($row) {
-                                if ($row->check_in) {
-                                    $start = $employee->workSchedule->start_time ?? '08:00:00';
-                                    $checkInTime = \Carbon\Carbon::parse($row->check_in)->format('H:i:s');
-                                    $isLate = $checkInTime > $start;
+
+                            if ($row && $row->check_in) {
+                                $start = $employee->workSchedule->start_time ?? '08:00:00';
+                                $checkInTime = \Carbon\Carbon::parse($row->check_in)->format('H:i:s');
+                                $isLate = $checkInTime > $start;
+                                if ($isWorkDay || $leaveType === null) {
                                     $rekap[$isLate ? 'T' : 'H']++;
-                                    $statusClass = $isLate ? 'status-terlambat' : 'status-hadir';
-                                    $checkInDisplay = \Carbon\Carbon::parse($row->check_in)->format('H:i');
-                                    $checkOutDisplay = $row->check_out ? \Carbon\Carbon::parse($row->check_out)->format('H:i') : '-';
-                                    echo '<td class="' . $statusClass . '">' . $checkInDisplay . '<br>' . $checkOutDisplay . '</td>';
-                                } elseif ($row->status == 'izin') {
-                                    $rekap['I']++;
-                                    echo '<td class="status-izin">IZIN</td>';
-                                } elseif ($row->status == 'cuti') {
+                                }
+                                $statusClass = $isLate ? 'status-terlambat' : 'status-hadir';
+                                $checkInDisplay = \Carbon\Carbon::parse($row->check_in)->format('H:i');
+                                $checkOutDisplay = $row->check_out ? \Carbon\Carbon::parse($row->check_out)->format('H:i') : '-';
+                                echo '<td class="' . $statusClass . '">' . $checkInDisplay . '<br>' . $checkOutDisplay . '</td>';
+                            } else {
+                                if ($leaveType === 'cuti' || (isset($row) && $row->status == 'cuti')) {
                                     $rekap['C']++;
                                     echo '<td class="status-cuti">CUTI</td>';
+                                } elseif ($leaveType === 'izin' || (isset($row) && $row->status == 'izin')) {
+                                    $rekap['I']++;
+                                    echo '<td class="status-izin">IZIN</td>';
+                                } elseif (!$isWorkDay) {
+                                    echo '<td style="background:#e9ecef;color:#6c757d;font-size:7px;">LIBUR</td>';
                                 } else {
                                     $rekap['A']++;
                                     echo '<td class="status-absen">ABSEN</td>';
                                 }
-                            } else {
-                                $rekap['A']++;
-                                echo '<td class="status-absen">ABSEN</td>';
                             }
                         @endphp
                     @endforeach

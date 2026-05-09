@@ -255,10 +255,12 @@ class Employee extends Model
     public function getAttendanceWithMissing($startDate, $endDate)
     {
         if (! $this->workSchedule) {
-            return $this->attendances()
+            $attendances = $this->attendances()
                 ->whereBetween('date', [\Carbon\Carbon::parse($startDate), \Carbon\Carbon::parse($endDate)])
                 ->orderBy('date', 'desc')
                 ->get();
+            // Optional: You could fetch leaves here too, but normally employees have workSchedule.
+            return $attendances;
         }
 
         $start = \Carbon\Carbon::parse($startDate);
@@ -271,18 +273,46 @@ class Employee extends Model
                 return $item->date->format('Y-m-d');
             });
 
+        // Get leaves for this requested period
+        $leaves = \App\Models\LeaveRequest::where('employee_id', $this->id)
+            ->whereIn('status', ['approved', 'verified'])
+            ->where(function ($q) use ($start, $end) {
+                // Ensure overlapping bounds
+                $startStr = $start->format('Y-m-d 00:00:00');
+                $endStr = $end->format('Y-m-d 23:59:59');
+                $q->whereBetween('start_date', [$startStr, $endStr])
+                    ->orWhereBetween('end_date', [$startStr, $endStr])
+                    ->orWhere(function ($q2) use ($startStr, $endStr) {
+                        $q2->where('start_date', '<=', $startStr)
+                            ->where('end_date', '>=', $endStr);
+                    });
+            })->get();
+
         $result = collect();
         $current = \Carbon\Carbon::parse($startDate);
 
         while ($current <= $end) {
             $dateStr = $current->format('Y-m-d');
+
+            // Cek apakah ada cuti/izin
+            $empLeave = $leaves->filter(function ($l) use ($dateStr) {
+                return \Carbon\Carbon::parse($l->start_date)->format('Y-m-d') <= $dateStr &&
+                    \Carbon\Carbon::parse($l->end_date)->format('Y-m-d') >= $dateStr;
+            })->first();
+
             if ($existingAttendances->has($dateStr)) {
-                $result->push($existingAttendances->get($dateStr));
-            } elseif ($this->workSchedule->isWorkDay($current)) {
+                $att = $existingAttendances->get($dateStr);
+                if ($empLeave && empty($att->check_in)) {
+                    $att->is_leave = true;
+                    $att->leave_record = $empLeave;
+                }
+                $result->push($att);
+            } elseif ($this->workSchedule->isWorkDay($current) || $empLeave) {
+                $statusStr = $empLeave ? 'leave' : 'absent';
                 $result->push((object) [
                     'id' => null,
                     'employee_id' => $this->id,
-                    'date' => $dateStr,
+                    'date' => \Carbon\Carbon::parse($dateStr), // ensure it's a carbon instance for the view
                     'check_in' => null,
                     'check_out' => null,
                     'check_in_photo' => null,
@@ -291,14 +321,17 @@ class Employee extends Model
                     'check_out_location' => null,
                     'check_in_address' => null,
                     'check_out_address' => null,
-                    'notes' => null,
-                    'schedule_status' => 'absent',
+                    'notes' => $empLeave ? ('[' . strtoupper($empLeave->type) . '] ' . $empLeave->reason) : null,
+                    'schedule_status' => $statusStr,
                     'late_minutes' => null,
                     'early_leave_minutes' => null,
                     'created_at' => null,
                     'updated_at' => null,
                     'employee' => $this,
-                    'is_missing' => true,
+                    'is_missing' => $empLeave ? false : true,
+                    'is_leave' => $empLeave ? true : false,
+                    'leave_record' => $empLeave,
+                    'schedule_status_text' => $empLeave ? strtoupper($empLeave->type) : 'Tidak Hadir'
                 ]);
             }
             $current->addDay();

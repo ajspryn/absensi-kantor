@@ -168,7 +168,7 @@
                 <div class="content py-3">
                     <div class="d-flex">
                         <div class="align-self-center">
-                            <div class="bg-{{ $attendance->check_in && $attendance->check_out ? 'green' : ($attendance->check_in ? 'orange' : 'red') }}-dark rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                            <div class="bg-{{ $attendance->check_in && $attendance->check_out ? 'green' : ($attendance->check_in ? 'orange' : (isset($attendance->is_leave) && $attendance->is_leave ? 'blue' : 'red')) }}-dark rounded-circle d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
                                 <i class="bi bi-calendar-check text-white font-16"></i>
                             </div>
                         </div>
@@ -203,7 +203,7 @@
                                                 'absent' => 'bg-secondary text-white',
                                                 default => 'bg-success text-white',
                                             };
-                                            $statusText = isset($attendance->is_missing) && $attendance->is_missing ? 'Tidak Hadir' : $attendance->getScheduleStatusText();
+                                            $statusText = isset($attendance->is_missing) && $attendance->is_missing ? 'Tidak Hadir' : (isset($attendance->schedule_status_text) ? $attendance->schedule_status_text : $attendance->getScheduleStatusText());
                                         @endphp
                                         <span class="badge {{ $statusClass }} font-8">{{ $statusText }}</span>
                                     </div>
@@ -219,13 +219,16 @@
                                     <div class="mt-1">
                                         @php
                                             $statusClass = $attendance->schedule_status === 'late' ? 'bg-warning text-dark' : 'bg-success text-white';
-                                            $statusText = isset($attendance->is_missing) && $attendance->is_missing ? 'Tidak Hadir' : $attendance->getScheduleStatusText();
+                                            $statusText = isset($attendance->is_missing) && $attendance->is_missing ? 'Tidak Hadir' : (isset($attendance->schedule_status_text) ? $attendance->schedule_status_text : $attendance->getScheduleStatusText());
                                         @endphp
                                         <span class="badge {{ $statusClass }} font-8">{{ $statusText }}</span>
                                     </div>
                                 @endif
                             @else
-                                @if (isset($attendance->is_missing) && $attendance->is_missing)
+                                @if (isset($attendance->is_leave) && $attendance->is_leave)
+                                    <span class="badge bg-info mb-1 font-9">{{ strtoupper(strtolower($attendance->leave_record->type) === 'annual' ? 'Cuti' : 'Izin') }}</span><br>
+                                    <small class="font-9 opacity-70">Disetujui</small>
+                                @elseif (isset($attendance->is_missing) && $attendance->is_missing)
                                     <span class="badge bg-secondary mb-1 font-9">Tidak Hadir</span><br>
                                     <small class="font-9 opacity-70">Hari Kerja</small>
                                 @else
