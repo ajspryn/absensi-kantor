@@ -25,6 +25,7 @@ class AttendanceReportController extends Controller
             'date' => $attendance->date->format('Y-m-d'),
             'check_in' => $attendance->check_in ? $attendance->check_in->format('H:i') : null,
             'check_out' => $attendance->check_out ? $attendance->check_out->format('H:i') : null,
+            'status' => $attendance->status,
         ];
 
         return response()->json($data);
@@ -39,6 +40,7 @@ class AttendanceReportController extends Controller
             'date' => 'required|date',
             'check_in' => 'nullable|date_format:H:i',
             'check_out' => 'nullable|date_format:H:i',
+            'status' => 'required|in:present,late,absent,permission',
         ]);
 
         try {
@@ -78,19 +80,11 @@ class AttendanceReportController extends Controller
             $workSchedule = $employee ? $employee->workSchedule : null;
             $startTime = $workSchedule ? $workSchedule->start_time : '08:00:00';
 
-            // Default status
-            $attendance->status = 'absent';
+            // Setup status sesuai request dari form edit
+            $attendance->status = $request->status;
 
-            if ($attendance->check_in) {
-                $checkInTime = \Carbon\Carbon::parse($attendance->check_in)->format('H:i:s');
-                if ($checkInTime > $startTime) {
-                    $attendance->status = 'late';
-                } else {
-                    $attendance->status = 'present';
-                }
-            }
-            // Status hanya diatur otomatis, tidak dari request
-
+            // Jika status dari form adalah 'present' atau 'late', dan tidak ada check_in, kita beri info,
+            // atau jika ada check in/out, hitung jam kerja.
             // Hitung jam kerja
             if ($attendance->check_in && $attendance->check_out) {
                 $jamKerja = \Carbon\Carbon::parse($attendance->check_in)->diffInMinutes(\Carbon\Carbon::parse($attendance->check_out));

@@ -54,6 +54,9 @@ class UpdateEmployeeRequest extends FormRequest
             'training_history' => 'nullable|string',
             'family_structure' => 'nullable|string',
             'emergency_contact' => 'nullable|string',
+            'ktp_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
+            'kk_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
+            'marriage_certificate_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
         ];
     }
 }

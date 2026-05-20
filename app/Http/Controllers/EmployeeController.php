@@ -90,7 +90,7 @@ class EmployeeController extends Controller
             return redirect()->route('admin.employees.index')
                 ->with('success', 'Karyawan berhasil ditambahkan.');
         } catch (\Exception $e) {
-            return back()->withInput()->with('error', 'Gagal menambahkan karyawan: '.$e->getMessage());
+            return back()->withInput()->with('error', 'Gagal menambahkan karyawan: ' . $e->getMessage());
         }
     }
 
@@ -123,7 +123,7 @@ class EmployeeController extends Controller
             return redirect()->route('admin.employees.index')
                 ->with('success', 'Data karyawan berhasil diupdate.');
         } catch (\Exception $e) {
-            return back()->withInput()->with('error', 'Gagal mengupdate karyawan: '.$e->getMessage());
+            return back()->withInput()->with('error', 'Gagal mengupdate karyawan: ' . $e->getMessage());
         }
     }
 
@@ -135,7 +135,7 @@ class EmployeeController extends Controller
             return redirect()->route('admin.employees.index')
                 ->with('success', 'Karyawan berhasil dihapus.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal menghapus karyawan: '.$e->getMessage());
+            return back()->with('error', 'Gagal menghapus karyawan: ' . $e->getMessage());
         }
     }
 
@@ -189,7 +189,7 @@ class EmployeeController extends Controller
         } catch (\Exception $e) {
             DB::rollback();
 
-            return back()->with('error', 'Gagal memproses: '.$e->getMessage());
+            return back()->with('error', 'Gagal memproses: ' . $e->getMessage());
         }
     }
 
@@ -249,7 +249,7 @@ class EmployeeController extends Controller
                     Log::info("Auto-attached employee id={$existing->id} to user_id={$user->id}");
                 }
             } catch (\Exception $e) {
-                Log::warning('Failed to auto-attach employee for user '.$user->id.': '.$e->getMessage());
+                Log::warning('Failed to auto-attach employee for user ' . $user->id . ': ' . $e->getMessage());
             }
         }
 
@@ -285,8 +285,7 @@ class EmployeeController extends Controller
 
             if (! $missing) {
                 // Already complete, send them to dashboard/profile
-                // Dimatikan sementara untuk testing agar user bisa melihat form
-                // return redirect()->route('dashboard');
+                return redirect()->route('dashboard');
             }
         }
 
@@ -328,7 +327,7 @@ class EmployeeController extends Controller
             return redirect()->route('dashboard')
                 ->with('success', 'Profil berhasil dilengkapi. Selamat datang!');
         } catch (\Exception $e) {
-            return back()->withInput()->with('error', 'Gagal melengkapi profil: '.$e->getMessage());
+            return back()->withInput()->with('error', 'Gagal melengkapi profil: ' . $e->getMessage());
         }
     }
 
@@ -375,7 +374,7 @@ class EmployeeController extends Controller
 
             return $this->downloadTemplateCSV();
         } catch (\Exception $e) {
-            Log::error('Template download failed: '.$e->getMessage());
+            Log::error('Template download failed: ' . $e->getMessage());
 
             // Return instructions as fallback
             $instructions = "# Template Import Karyawan\n\n";
@@ -404,9 +403,9 @@ class EmployeeController extends Controller
         $headings = $export->headings();
         $array = $export->array();
 
-        $csvContent = implode(',', $headings)."\n";
+        $csvContent = implode(',', $headings) . "\n";
         foreach ($array as $row) {
-            $csvContent .= '"'.implode('","', $row).'"'."\n";
+            $csvContent .= '"' . implode('","', $row) . '"' . "\n";
         }
 
         return response($csvContent, 200)
@@ -437,7 +436,7 @@ class EmployeeController extends Controller
             $message .= "Dilewati: {$skippedCount} baris";
 
             if ($failureCount > 0 || $errorCount > 0) {
-                $message .= ', Gagal: '.($failureCount + $errorCount).' baris';
+                $message .= ', Gagal: ' . ($failureCount + $errorCount) . ' baris';
             }
 
             // Check if there are failures and show them
@@ -454,7 +453,7 @@ class EmployeeController extends Controller
             return redirect()->route('admin.employees.index')
                 ->with('success', $message);
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal mengimpor data: '.$e->getMessage());
+            return back()->with('error', 'Gagal mengimpor data: ' . $e->getMessage());
         }
     }
 }

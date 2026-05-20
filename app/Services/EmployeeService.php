@@ -52,10 +52,10 @@ class EmployeeService
                 'birth_place' => $data['birth_place'] ?? null,
                 'birth_date' => $data['birth_date'] ?? null,
                 'health_condition' => $data['health_condition'] ?? null,
-                'education_history' => $data['education'] ?? null,
-                'training_history' => $data['training'] ?? null,
-                'family_structure' => $data['family'] ?? null,
-                'emergency_contact' => $data['emergency'] ?? null,
+                'education_history' => $data['education_history'] ?? ($data['education'] ?? null),
+                'training_history' => $data['training_history'] ?? ($data['training'] ?? null),
+                'family_structure' => $data['family_structure'] ?? ($data['family'] ?? null),
+                'emergency_contact' => $data['emergency_contact'] ?? ($data['emergency'] ?? null),
             ]);
 
             return $employee;
@@ -82,8 +82,14 @@ class EmployeeService
             $employee->user->update($userData);
 
             $photoPath = $this->handleFileUpload($photo, 'employee_photos', $employee->photo);
+            $ktpPath = $this->handleFileUpload($data['ktp_file'] ?? null, 'ktp_docs', $employee->ktp_path);
+            $kkPath = $this->handleFileUpload($data['kk_file'] ?? null, 'kk_docs', $employee->kk_path);
+            $marriageCertPath = $this->handleFileUpload($data['marriage_certificate_file'] ?? null, 'marriage_docs', $employee->marriage_certificate_path);
 
             $employee->update([
+                'ktp_path' => $ktpPath,
+                'kk_path' => $kkPath,
+                'marriage_certificate_path' => $marriageCertPath,
                 'employee_id' => $data['employee_id'],
                 'department_id' => $data['department_id'],
                 'position_id' => $data['position_id'],

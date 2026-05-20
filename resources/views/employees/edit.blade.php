@@ -11,6 +11,90 @@
 @endsection
 
 @section('content')
+<style>
+    .step-content { display: none; }
+    .step-content.active { display: block; animation: fadeIn 0.4s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+
+    .stepper-nav { display: flex; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; border-bottom: 1px solid rgba(0,0,0,0.05); scrollbar-width: none; }
+    .stepper-nav::-webkit-scrollbar { display: none; }
+    .stepper-item { flex: 0 0 auto; padding: 10px 15px; text-align: center; color: #a0a0a0; font-weight: 700; font-size: 12px; position: relative; transition: all 0.3s; cursor: pointer; }
+    .stepper-item.active { color: #8CC152; border-bottom: 2px solid #8CC152; }
+    .stepper-item.completed { color: #4A89DC; }
+
+    .repeater-card {
+        background: #ffffff;
+        border-radius: 15px;
+        padding: 20px;
+        padding-top: 45px;
+        margin-bottom: 20px;
+        position: relative;
+        border: 1px solid rgba(0,0,0,0.07);
+        box-shadow: 0 3px 10px rgba(0,0,0,0.03);
+    }
+    .theme-dark .repeater-card {
+        background: rgba(255,255,255,0.02);
+        border-color: rgba(255,255,255,0.05);
+        box-shadow: none;
+    }
+    .repeater-input-group { margin-bottom: 12px; }
+    .repeater-input-group label {
+        display: block;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: var(--theme-highlight);
+        margin-bottom: 4px;
+        padding-left: 2px;
+        opacity: 0.7;
+    }
+
+    .repeater-remove {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        border-radius: 8px !important;
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        border: none;
+    }
+
+    .repeater-upload-area {
+        position: relative;
+        border: 1px dashed rgba(74, 137, 220, 0.3);
+        background: rgba(74, 137, 220, 0.03);
+        border-radius: 12px;
+        padding: 12px;
+        text-align: center;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+    .repeater-upload-area:hover {
+        border-color: var(--theme-highlight);
+        background: rgba(74, 137, 220, 0.08);
+    }
+    .repeater-upload-area i { font-size: 22px; color: var(--theme-highlight); display: block; margin-bottom: 2px; pointer-events: none; }
+    .repeater-upload-area .upload-title { font-size: 11px; font-weight: 700; display: block; color: var(--theme-highlight); pointer-events: none; }
+    .repeater-upload-area .upload-sub { font-size: 9px; opacity: 0.5; display: block; pointer-events: none; }
+    .repeater-upload-area input[type=file] { position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index: 10; }
+
+    .form-custom { margin-bottom: 20px !important; }
+    .border-red-dark { border: 1px solid #d84558 !important; box-shadow: 0 0 5px rgba(216, 69, 88, 0.2) !important; }
+    .file-data-card {
+        border: 1px dashed rgba(0,0,0,0.1) !important;
+        background: rgba(0,0,0,0.01) !important;
+        transition: all 0.3s;
+    }
+    .file-data-card:hover { border-color: var(--theme-highlight) !important; background: rgba(0,0,0,0.03) !important; }
+    .theme-dark .file-data-card { border-color: rgba(255,255,255,0.1) !important; background: rgba(255,255,255,0.02) !important; }
+    .upload-file-wrapper { position: relative; overflow: hidden; display: inline-block; }
+    .upload-file-wrapper input[type=file] { position: absolute; left: 0; top: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+</style>
     @include('admin.partials.section-header', [
         'title' => 'Edit Karyawan',
         'subtitle' => 'Perbarui data karyawan di bawah ini',
@@ -177,37 +261,21 @@
                         </div>
                     </div>
 
-                    <div class="col-12">
-                        <div class="form-custom form-label form-icon mb-3">
-                            <i class="bi bi-journal-text font-14"></i>
-                            <textarea class="form-control rounded-xl" name="education_history" placeholder="Riwayat pendidikan (format JSON atau teks)">{{ old('education_history', optional($employee)->education_history ? json_encode($employee->education_history, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE) : '') }}</textarea>
-                            <label class="badge bg-theme text-white px-2 py-1 mb-1" style="font-size:13px;">Riwayat Pendidikan (JSON)</label>
-                        </div>
-                    </div>
+                    <div class="col-12 mb-3">
 
-                    <div class="col-12">
-                        <div class="form-custom form-label form-icon mb-3">
-                            <i class="bi bi-award font-14"></i>
-                            <textarea class="form-control rounded-xl" name="training_history" placeholder="Kursus / Training (format JSON atau teks)">{{ old('training_history', optional($employee)->training_history ? json_encode($employee->training_history, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE) : '') }}</textarea>
-                            <label class="badge bg-theme text-white px-2 py-1 mb-1" style="font-size:13px;">Kursus / Training (JSON)</label>
-                        </div>
-                    </div>
+</div>
 
-                    <div class="col-12">
-                        <div class="form-custom form-label form-icon mb-3">
-                            <i class="bi bi-people-fill font-14"></i>
-                            <textarea class="form-control rounded-xl" name="family_structure" placeholder="Susunan keluarga (format JSON atau teks)">{{ old('family_structure', optional($employee)->family_structure ? json_encode($employee->family_structure, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE) : '') }}</textarea>
-                            <label class="badge bg-theme text-white px-2 py-1 mb-1" style="font-size:13px;">Susunan Keluarga (JSON)</label>
-                        </div>
-                    </div>
+                    <div class="col-12 mb-3">
 
-                    <div class="col-12">
-                        <div class="form-custom form-label form-icon mb-3">
-                            <i class="bi bi-phone-vibrate font-14"></i>
-                            <textarea class="form-control rounded-xl" name="emergency_contact" placeholder="Orang yang dapat dihubungi (format JSON atau teks)">{{ old('emergency_contact', optional($employee)->emergency_contact ? json_encode($employee->emergency_contact, JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE) : '') }}</textarea>
-                            <label class="badge bg-theme text-white px-2 py-1 mb-1" style="font-size:13px;">Kontak Darurat (JSON)</label>
-                        </div>
-                    </div>
+</div>
+
+                    <div class="col-12 mb-3">
+
+</div>
+
+                    <div class="col-12 mb-3">
+
+</div>
                 </div>
             </div>
         </div>
@@ -337,6 +405,37 @@
         </div>
         <div class="card card-style mb-3">
             <div class="content">
+                <h6 class="font-600 mb-3 color-dark-dark">
+                    <i class="bi bi-file-earmark-text me-2"></i>Dokumen Pendukung
+                </h6>
+                <div class="row g-2">
+                    <div class="col-12">
+                        <div class="form-custom form-label form-icon mb-3">
+                            <i class="bi bi-file-pdf font-14"></i>
+                            <input type="file" class="form-control rounded-xl" name="ktp_file" accept=".pdf,.jpg,.jpeg,.png" style="border:none; padding-top: 15px;" />
+                            <label class="badge bg-theme text-white px-2 py-1 mb-1" style="font-size:13px;">Upload KTP (Ganti)</label>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-custom form-label form-icon mb-3">
+                            <i class="bi bi-file-pdf font-14"></i>
+                            <input type="file" class="form-control rounded-xl" name="kk_file" accept=".pdf,.jpg,.jpeg,.png" style="border:none; padding-top: 15px;" />
+                            <label class="badge bg-theme text-white px-2 py-1 mb-1" style="font-size:13px;">Upload KK (Ganti)</label>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-custom form-label form-icon mb-3">
+                            <i class="bi bi-file-pdf font-14"></i>
+                            <input type="file" class="form-control rounded-xl" name="marriage_certificate_file" accept=".pdf,.jpg,.jpeg,.png" style="border:none; padding-top: 15px;" />
+                            <label class="badge bg-theme text-white px-2 py-1 mb-1" style="font-size:13px;">Upload Surat Nikah (Ganti)</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-style mb-3">
+            <div class="content">
                 <div class="row g-2">
                     <div class="col-12 col-md-6">
                         <button type="submit" class="btn btn-full rounded-xl bg-highlight shadow-bg shadow-bg-s font-700 text-uppercase mb-2 w-100">
@@ -353,7 +452,8 @@
         </div>
     </form>
     @push('scripts')
-        <script>
+    
+    <script>
             document.addEventListener('DOMContentLoaded', function() {
                 // Dependent select: positions by department
                 const departmentSelect = document.getElementById('department_id');
@@ -416,9 +516,93 @@
                         e.preventDefault();
                         return false;
                     }
-                    return true;
+        return true;
+    });
+
+        // === 3. REPEATER LOGIC & FULL TEMPLATES ===
+        function makeIndex(container) {
+            const rows = container.querySelectorAll(':scope > div');
+            rows.forEach((row, idx) => {
+                row.setAttribute('data-index', idx);
+                row.querySelectorAll('input, select, textarea').forEach(input => {
+                    const name = input.getAttribute('name');
+                    if (name) input.setAttribute('name', name.replace(/\[\d+\]|\[__INDEX__\]/g, '['+idx+']'));
+
+                    const oldId = input.getAttribute('id');
+                    if (oldId) {
+                        const newId = oldId.replace(/\d+|__INDEX__/g, idx);
+                        input.setAttribute('id', newId);
+                        const label = row.querySelector(`label[for="${oldId}"]`);
+                        if (label) label.setAttribute('for', newId);
+                    }
+
+                    const target = input.getAttribute('data-target');
+                    if (target) {
+                        const newTarget = target.replace(/\d+|__INDEX__/g, idx);
+                        input.setAttribute('data-target', newTarget);
+                        const statusSpan = row.querySelector('.upload-title');
+                        if (statusSpan) statusSpan.setAttribute('id', newTarget);
+                    }
                 });
             });
-        </script>
+        }
+
+        function addRow(listId, templateHtml) {
+            const list = document.getElementById(listId);
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = templateHtml.replace(/__INDEX__/g, list.children.length);
+            list.appendChild(wrapper.firstElementChild);
+            makeIndex(list);
+        }
+
+        //
+        const eduTemplate = `<div class="edu-row repeater-card"><button type="button" class="btn btn-xxs bg-red-dark repeater-remove shadow-bg shadow-bg-xs"><i class="bi bi-x-lg font-12"></i></button><div class="row mb-0"><div class="col-12 col-md-6 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-building font-14"></i><input type="text" name="education[__INDEX__][school_name]" id="edu_school___INDEX__" class="form-control rounded-s" placeholder="Institusi"><label for="edu_school___INDEX__" class="form-label-always-active color-highlight">Institusi</label></div></div><div class="col-12 col-md-6 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-book font-14"></i><input type="text" name="education[__INDEX__][major]" id="edu_major___INDEX__" class="form-control rounded-s" placeholder="Jurusan"><label for="edu_major___INDEX__" class="form-label-always-active color-highlight">Jurusan</label></div></div><div class="col-7 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-geo-alt font-14"></i><input type="text" name="education[__INDEX__][city]" id="edu_city___INDEX__" class="form-control rounded-s" placeholder="Kota"><label for="edu_city___INDEX__" class="form-label-always-active color-highlight">Kota</label></div></div><div class="col-5 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-calendar font-14"></i><input type="number" name="education[__INDEX__][start_year]" id="edu_year___INDEX__" class="form-control rounded-s" placeholder="Tahun"><label for="edu_year___INDEX__" class="form-label-always-active color-highlight">Tahun Lulus</label></div></div><div class="col-12"><div class="repeater-upload-area"><input type="file" name="education[__INDEX__][certificate]" class="upload-file-input" data-target="edu-cert-__INDEX__" accept="image/*,.pdf" /><i class="bi bi-cloud-arrow-up"></i><span class="upload-title" id="edu-cert-__INDEX__">Pilih Ijazah</span><span class="upload-sub">PDF/Gambar (Maks 4MB)</span></div></div></div></div>`;
+
+        const trTemplate = `<div class="tr-row repeater-card"><button type="button" class="btn btn-xxs bg-red-dark repeater-remove shadow-bg shadow-bg-xs"><i class="bi bi-x-lg font-12"></i></button><div class="row mb-0"><div class="col-12 col-md-6 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-award font-14"></i><input type="text" name="training[__INDEX__][course_name]" id="tr_name___INDEX__" class="form-control rounded-s" placeholder="Nama Pelatihan"><label for="tr_name___INDEX__" class="form-label-always-active color-highlight">Nama Pelatihan</label></div></div><div class="col-12 col-md-6 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-patch-check font-14"></i><input type="text" name="training[__INDEX__][organizer]" id="tr_org___INDEX__" class="form-control rounded-s" placeholder="Penyelenggara"><label for="tr_org___INDEX__" class="form-label-always-active color-highlight">Penyelenggara</label></div></div><div class="col-12"><div class="repeater-upload-area"><input type="file" name="training[__INDEX__][certificate]" class="upload-file-input" data-target="tr-cert-__INDEX__" accept="image/*,.pdf" /><i class="bi bi-patch-check"></i><span class="upload-title" id="tr-cert-__INDEX__">Pilih Sertifikat</span><span class="upload-sub">PDF/Gambar (Maks 4MB)</span></div></div></div></div>`;
+
+        const famTemplate = `<div class="family-row repeater-card"><button type="button" class="btn btn-xxs bg-red-dark repeater-remove shadow-bg shadow-bg-xs"><i class="bi bi-x-lg font-12"></i></button><div class="row mb-0"><div class="col-12 col-md-6 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-person font-14"></i><input type="text" name="family[__INDEX__][name]" id="fam_name___INDEX__" class="form-control rounded-s" placeholder="Nama"><label for="fam_name___INDEX__" class="form-label-always-active color-highlight">Nama Lengkap</label></div></div><div class="col-6 col-md-6 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-people font-14"></i><input type="text" name="family[__INDEX__][relation]" id="fam_rel___INDEX__" class="form-control rounded-s" placeholder="Hubungan"><label for="fam_rel___INDEX__" class="form-label-always-active color-highlight">Hubungan</label></div></div><div class="col-6 col-md-6 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-gender-ambiguous font-14"></i><select name="family[__INDEX__][gender]" id="fam_gender___INDEX__" class="form-control rounded-s"><option value="M">Laki-laki</option><option value="F">Perempuan</option></select><label for="fam_gender___INDEX__" class="form-label-always-active color-highlight">Gender</label></div></div><div class="col-12 col-md-6 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-calendar font-14"></i><input type="number" name="family[__INDEX__][age]" id="fam_age___INDEX__" class="form-control rounded-s" placeholder="Usia"><label for="fam_age___INDEX__" class="form-label-always-active color-highlight">Usia</label></div></div></div></div>`;
+
+        const emTemplate = `<div class="em-row repeater-card"><button type="button" class="btn btn-xxs bg-red-dark repeater-remove shadow-bg shadow-bg-xs"><i class="bi bi-x-lg font-12"></i></button><div class="row mb-0"><div class="col-12 col-md-6 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-person font-14"></i><input type="text" name="emergency[__INDEX__][name]" id="em_name___INDEX__" class="form-control rounded-s" placeholder="Nama" required><label for="em_name___INDEX__" class="form-label-always-active color-highlight">Nama Lengkap *</label></div></div><div class="col-6 col-md-6 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-people font-14"></i><input type="text" name="emergency[__INDEX__][relation]" id="em_rel___INDEX__" class="form-control rounded-s" placeholder="Hubungan" required><label for="em_rel___INDEX__" class="form-label-always-active color-highlight">Hubungan *</label></div></div><div class="col-6 col-md-12 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-phone font-14"></i><input type="tel" name="emergency[__INDEX__][phone]" id="em_phone___INDEX__" class="form-control rounded-s" placeholder="Telepon" required><label for="em_phone___INDEX__" class="form-label-always-active color-highlight">Nomor Telepon *</label></div></div></div></div>`;
+
+        const finTemplate = `<div class="fin-row repeater-card"><button type="button" class="btn btn-xxs bg-red-dark repeater-remove shadow-bg shadow-bg-xs"><i class="bi bi-x-lg font-12"></i></button><div class="row mb-0"><div class="col-12 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-bank font-14"></i><input type="text" name="financing[__INDEX__][institution]" id="fin_inst___INDEX__" class="form-control rounded-s" placeholder="Bank"><label for="fin_inst___INDEX__" class="form-label-always-active color-highlight">Lembaga Keuangan</label></div></div><div class="col-6 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-cash-stack font-14"></i><input type="number" name="financing[__INDEX__][plafond]" id="fin_plafond___INDEX__" class="form-control rounded-s" placeholder="Rp"><label for="fin_plafond___INDEX__" class="form-label-always-active color-highlight">Plafond</label></div></div><div class="col-6 mb-2"><div class="form-custom form-label form-icon"><i class="bi bi-calendar font-14"></i><input type="number" name="financing[__INDEX__][monthly_installment]" id="fin_cicilan___INDEX__" class="form-control rounded-s" placeholder="Rp"><label for="fin_cicilan___INDEX__" class="form-label-always-active color-highlight">Cicilan</label></div></div></div></div>`;
+
+        document.getElementById('add-education').addEventListener('click', () => addRow('education-list', eduTemplate));
+        document.getElementById('add-training').addEventListener('click', () => addRow('training-list', trTemplate));
+        document.getElementById('add-family').addEventListener('click', () => addRow('family-list', famTemplate));
+        document.getElementById('add-emergency').addEventListener('click', () => addRow('emergency-list', emTemplate));
+        document.getElementById('add-financing').addEventListener('click', () => addRow('financing-list', finTemplate));
+
+        document.addEventListener('click', function(e) {
+            const btn = e.target.closest('.repeater-remove');
+            if (!btn) return;
+            const row = btn.closest('.repeater-card');
+            const list = row.parentElement;
+            row.remove();
+            makeIndex(list);
+        });
+
+        // === 4. UPLOAD STATUS & PREVIEW ===
+        document.addEventListener('change', function(e) {
+            if (e.target && e.target.classList.contains('upload-file-input')) {
+                const input = e.target;
+                const statusId = input.getAttribute('data-target');
+                const statusEl = document.getElementById(statusId);
+                if (statusEl && input.files[0]) {
+                    statusEl.innerHTML = `<span class="color-green-dark font-600"><i class="bi bi-check-circle-fill"></i> ${input.files[0].name}</span>`;
+                    const card = input.closest('.repeater-upload-area') || input.closest('.file-data-card');
+                    if (card) { card.style.borderColor = '#8CC152'; card.style.backgroundColor = 'rgba(140, 193, 82, 0.05)'; }
+                }
+            }
+        });
+
+        const maritalSelect = document.getElementById('marital_status');
+        if (maritalSelect) {
+            maritalSelect.addEventListener('change', () => {
+                document.getElementById('marriage_certificate_wrapper').style.display = (maritalSelect.value === 'menikah') ? 'block' : 'none';
+            });
+        }
+    });
+    });
+</script>
     @endpush
 @endsection

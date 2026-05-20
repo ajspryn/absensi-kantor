@@ -19,6 +19,15 @@
                 <label for="check_out" class="form-label">Check Out</label>
                 <input type="time" class="form-control" name="check_out" id="check_out">
             </div>
+            <div class="mb-3">
+                <label for="status" class="form-label">Status</label>
+                <select class="form-select" name="status" id="status" required>
+                    <option value="present">Hadir</option>
+                    <option value="late">Terlambat</option>
+                    <option value="absent">Absen/Alpa</option>
+                    <option value="permission">Izin</option>
+                </select>
+            </div>
             <div class="d-flex justify-content-end gap-2">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="offcanvas">Batal</button>
                 <button type="submit" class="btn btn-primary">Simpan</button>

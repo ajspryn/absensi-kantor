@@ -358,6 +358,7 @@
                             document.getElementById('date').value = data.date || '';
                             document.getElementById('check_in').value = data.check_in || '';
                             document.getElementById('check_out').value = data.check_out || '';
+                            document.getElementById('status').value = data.status || '';
                             var sidebar = new bootstrap.Offcanvas(document.getElementById('editAttendanceSidebar'));
                             sidebar.show();
                         });

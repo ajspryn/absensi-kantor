@@ -263,6 +263,7 @@
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end">
                                             <li><a class="dropdown-item" href="{{ route('admin.employees.show', $employee) }}"><i class="bi bi-eye pe-2"></i>Lihat Detail</a></li>
+                                            @if(auth()->user()->hasRole('Admin') || auth()->user()->hasPermission('employees.edit'))
                                             <li><a class="dropdown-item" href="{{ route('admin.employees.edit', $employee) }}"><i class="bi bi-pencil pe-2"></i>Edit</a></li>
                                             <li>
                                                 <hr class="dropdown-divider">
@@ -274,6 +275,7 @@
                                                     <button type="submit" class="dropdown-item text-danger"><i class="bi bi-trash pe-2"></i>Hapus</button>
                                                 </form>
                                             </li>
+                                            @endif
                                         </ul>
                                     </div>
                                 </div>
