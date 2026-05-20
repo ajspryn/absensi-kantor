@@ -1,4 +1,4 @@
-<div class="offcanvas offcanvas-end" tabindex="-1" id="editAttendanceSidebar" aria-labelledby="editAttendanceSidebarLabel">
+<div class="offcanvas offcanvas-end offcanvas-detached rounded-m" style="width: 300px; z-index: 10500;" tabindex="-1" id="editAttendanceSidebar" aria-labelledby="editAttendanceSidebarLabel">
     <div class="offcanvas-header">
         <h5 class="offcanvas-title" id="editAttendanceSidebarLabel">Edit Absensi</h5>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
