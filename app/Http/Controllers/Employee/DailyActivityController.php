@@ -101,6 +101,10 @@ class DailyActivityController extends Controller
     {
         $employee = Auth::user()->employee;
 
+        if (!$employee) {
+            return redirect()->back()->with('error', 'Profil karyawan tidak ditemukan. Silakan hubungi admin.');
+        }
+
         $data = $request->only(['date', 'start_time', 'end_time', 'title', 'description', 'tasks']);
         $data['employee_id'] = $employee->id;
 
