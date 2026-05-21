@@ -14,7 +14,7 @@ class StoreDailyActivityRequest extends FormRequest
     protected function prepareForValidation()
     {
         $merge = [];
-        
+
         if ($this->has('start_time') && $this->start_time) {
             $merge['start_time'] = substr($this->start_time, 0, 5);
         }
@@ -23,7 +23,7 @@ class StoreDailyActivityRequest extends FormRequest
         }
 
         if ($this->has('tasks') && is_array($this->tasks)) {
-            $tasks = array_filter($this->tasks, function($task) {
+            $tasks = array_filter($this->tasks, function ($task) {
                 return isset($task['title']) && trim($task['title']) !== '';
             });
             $merge['tasks'] = empty($tasks) ? null : array_values($tasks);

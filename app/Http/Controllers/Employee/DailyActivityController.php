@@ -63,8 +63,8 @@ class DailyActivityController extends Controller
         } else {
             $month = $request->get('month', now()->format('Y-m'));
             try {
-                $start = \Carbon\Carbon::parse($month.'-01')->startOfMonth()->format('Y-m-d');
-                $end = \Carbon\Carbon::parse($month.'-01')->endOfMonth()->format('Y-m-d');
+                $start = \Carbon\Carbon::parse($month . '-01')->startOfMonth()->format('Y-m-d');
+                $end = \Carbon\Carbon::parse($month . '-01')->endOfMonth()->format('Y-m-d');
                 $query->whereBetween('date', [$start, $end]);
             } catch (\Exception $e) {
             }
@@ -72,7 +72,7 @@ class DailyActivityController extends Controller
 
         $rows = $query->get();
 
-        $filename = 'daily_activities_'.now()->format('Ymd_His').'.csv';
+        $filename = 'daily_activities_' . now()->format('Ymd_His') . '.csv';
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
