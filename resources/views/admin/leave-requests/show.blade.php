@@ -118,8 +118,7 @@
 
 @endsection
 
-@section('footer')
-    <!-- Ensure modal and backdrop sit above offcanvas/sidebar -->
+@push('modals')
     <style>
         /* make modal and backdrop very top-most to avoid being covered by offcanvas */
         .modal {
@@ -131,7 +130,7 @@
         }
     </style>
 
-    <!-- Reject Modal (moved to footer so it appears above offcanvas/sidebar) -->
+    <!-- Reject Modal -->
     <div class="modal fade" id="rejectModal" tabindex="-1" style="z-index:20000;">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -156,4 +155,4 @@
             </div>
         </div>
     </div>
-@endsection
+@endpush

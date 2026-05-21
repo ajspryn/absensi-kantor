@@ -271,9 +271,6 @@
         </div>
     </div><!-- /#page-skeleton -->
 
-    <!-- Sidebar Edit Attendance (Offcanvas) -->
-    @include('admin.attendance.edit-modal')
-
     <div id="page">
         @yield('header')
         @yield('footer')

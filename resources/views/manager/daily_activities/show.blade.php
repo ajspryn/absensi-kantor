@@ -24,6 +24,7 @@
     </script>
 @endpush
 
+@push('modals')
 {{-- shared modal for manager view --}}
 <div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-fullscreen-sm-down modal-dialog-centered">
@@ -35,6 +36,7 @@
         </div>
     </div>
 </div>
+@endpush
 
 @section('content')
     <div class="card card-style mb-3">

@@ -268,6 +268,7 @@
         </div>
     </div>
 </div>
+@endpush
 
 @push('scripts')
     <script>

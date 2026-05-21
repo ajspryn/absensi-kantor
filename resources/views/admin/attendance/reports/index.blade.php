@@ -290,7 +290,6 @@
                 </div>
         </div>
     </div>
-    @include('admin.attendance.edit-modal')
 @else
     <div class="text-center py-4">
         <i class="bi bi-inbox display-4 text-muted"></i>
@@ -400,4 +399,8 @@
             });
         });
     </script>
+@endpush
+
+@push('modals')
+    @include('admin.attendance.edit-modal')
 @endpush
