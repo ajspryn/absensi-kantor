@@ -177,6 +177,7 @@ Route::middleware('auth')->group(function () {
                 // Edit attendance modal (for popup)
                 Route::get('/edit/{id}', [\App\Http\Controllers\Admin\AttendanceReportController::class, 'edit'])->name('edit');
                 Route::post('/update', [\App\Http\Controllers\Admin\AttendanceReportController::class, 'update'])->name('update');
+                Route::delete('/{id}', [\App\Http\Controllers\Admin\AttendanceReportController::class, 'destroy'])->name('destroy');
             });
         }); // Close role:admin group
 

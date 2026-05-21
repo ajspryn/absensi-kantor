@@ -268,7 +268,10 @@
                                     </td>
                                     <td>
                                         @if(auth()->user()->isAdmin())
-                                            <button type="button" class="btn btn-sm btn-warning mb-1 edit-attendance-btn" data-id="{{ $attendance->id }}">Edit</button>
+                                            <div class="d-flex flex-column gap-1">
+                                                <button type="button" class="btn btn-sm btn-warning edit-attendance-btn" data-id="{{ $attendance->id }}">Edit</button>
+                                                <button type="button" class="btn btn-sm btn-danger delete-attendance-btn" data-id="{{ $attendance->id }}">Delete</button>
+                                            </div>
                                         @else
                                             <span class="text-muted"><i class="bi bi-lock"></i></span>
                                         @endif
@@ -396,6 +399,35 @@
                     .catch(error => {
                         alert('Gagal update absensi! (Network error)');
                     });
+            });
+
+            // Delete Attendance Logic
+            document.querySelectorAll('.delete-attendance-btn').forEach(function(btn) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    if(confirm('Apakah Anda yakin ingin menghapus data absensi ini?')) {
+                        const attendanceId = btn.getAttribute('data-id');
+                        fetch(`/admin/attendance-reports/${attendanceId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert(data.message || 'Absensi berhasil dihapus!');
+                                location.reload();
+                            } else {
+                                alert(data.message || 'Gagal menghapus absensi!');
+                            }
+                        })
+                        .catch(error => {
+                            alert('Gagal menghapus absensi! (Network error)');
+                        });
+                    }
+                });
             });
         });
     </script>

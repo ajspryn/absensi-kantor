@@ -716,4 +716,22 @@ class AttendanceReportController extends Controller
 
         return $workDays;
     }
+
+    public function destroy($id)
+    {
+        try {
+            $attendance = \App\Models\Attendance::findOrFail($id);
+            $attendance->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Data absensi berhasil dihapus!'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus data absensi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
