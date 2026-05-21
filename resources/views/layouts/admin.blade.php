@@ -145,6 +145,10 @@
         </div>
         @yield('footer')
     </div>
+
+    <!-- Modals Section -->
+    @stack('modals')
+
     <script src="{{ asset('template/scripts/bootstrap.min.js') }}"></script>
     <script src="{{ asset('template/scripts/custom.js') }}"></script>
     @stack('scripts')
