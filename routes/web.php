@@ -265,7 +265,7 @@ Route::get('/attendance-corrections', function () {
 // Attendance corrections (approval) accessible to Manager/HR/Admin by permission (approve for manager, verify for HR)
 // Allow listing/showing to users who have either permission; action routes are protected individually below.
 Route::middleware(['auth', 'permission:attendance.corrections.approve,attendance.corrections.verify'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/attendance-corrections', [AdminAttendanceCorrectionController::class, 'index']);
+    Route::get('/attendance-corrections', [AdminAttendanceCorrectionController::class, 'index'])->name('attendance-corrections.index');
     Route::get('/attendance-corrections/{attendanceCorrection}', [AdminAttendanceCorrectionController::class, 'show'])->name('attendance-corrections.show');
     Route::get('/attendance-corrections/{attendanceCorrection}/edit', [AdminAttendanceCorrectionController::class, 'edit'])->name('attendance-corrections.edit');
     Route::match(['put', 'patch'], '/attendance-corrections/{attendanceCorrection}', [AdminAttendanceCorrectionController::class, 'update'])->name('attendance-corrections.update');
