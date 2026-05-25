@@ -1,5 +1,10 @@
 @extends('layouts.app')
 
+@php
+    $hideSidebar = true;
+    $hideFooter = true;
+@endphp
+
 @section('title', 'Halaman Tidak Ditemukan - 404')
 
 @section('header')

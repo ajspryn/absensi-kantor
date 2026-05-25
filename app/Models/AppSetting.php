@@ -65,9 +65,12 @@ class AppSetting extends Model
      */
     public static function getSetting($key, $default = null)
     {
-        $setting = static::where('key', $key)->first();
-
-        return $setting ? $setting->getValue() : $default;
+        try {
+            $setting = static::where('key', $key)->first();
+            return $setting ? $setting->getValue() : $default;
+        } catch (\Exception $e) {
+            return $default;
+        }
     }
 
     /**

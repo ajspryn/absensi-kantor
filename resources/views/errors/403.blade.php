@@ -1,5 +1,10 @@
 @extends('layouts.app')
 
+@php
+    $hideSidebar = true;
+    $hideFooter = true;
+@endphp
+
 @section('title', 'Akses Ditolak - 403')
 
 @section('header')

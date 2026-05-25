@@ -1,5 +1,10 @@
 @extends('layouts.app')
 
+@php
+    $hideSidebar = true;
+    $hideFooter = true;
+@endphp
+
 @section('title', 'Terjadi Kesalahan - 500')
 
 @section('header')
