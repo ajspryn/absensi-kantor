@@ -61,16 +61,5 @@ class PermissionServiceProvider extends ServiceProvider
         Blade::directive('endHasRole', function () {
             return '<?php endif; ?>';
         });
-
-        // Register a fallback named route used by older code/tests. If the
-        // route name 'attendance.corrections.index' is not defined, create a
-        // simple redirect to the canonical employee-attendance corrections
-        // index route. This keeps compatibility with tests that expect the
-        // plain route name.
-        if (! \Illuminate\Support\Facades\Route::has('attendance.corrections.index')) {
-            \Illuminate\Support\Facades\Route::get('/attendance-corrections', function () {
-                return redirect()->route('employee.attendance.corrections.index');
-            })->name('attendance.corrections.index');
-        }
     }
 }

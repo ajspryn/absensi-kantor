@@ -2,8 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Models\DailyActivity;
+use App\Models\Employee;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class ManagerDailyActivityTest extends TestCase
@@ -74,5 +78,55 @@ class ManagerDailyActivityTest extends TestCase
         $response = $this->get(route('admin.daily-activities.index'));
         $response->assertStatus(200);
         $response->assertSee('Report by emp2');
+    }
+
+    public function test_manager_with_lowercase_role_name_can_open_same_department_daily_activity_detail()
+    {
+        $managerRole = Role::factory()->create([
+            'name' => 'manager',
+            'permissions' => ['daily_activities.view_own'],
+            'is_active' => true,
+        ]);
+        $managerUser = User::factory()->create(['role_id' => $managerRole->id]);
+
+        $departmentId = DB::table('departments')->insertGetId([
+            'name' => 'Dept Shared',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        $positionId = DB::table('positions')->insertGetId([
+            'name' => 'Pos Shared',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $managerEmployee = Employee::factory()->create([
+            'user_id' => $managerUser->id,
+            'employee_id' => 'MGR-DETAIL',
+            'full_name' => 'Manager Detail',
+            'department_id' => $departmentId,
+            'position_id' => $positionId,
+        ]);
+
+        $employeeUser = User::factory()->create();
+        $employee = Employee::factory()->create([
+            'user_id' => $employeeUser->id,
+            'employee_id' => 'EMP-DETAIL',
+            'full_name' => 'Employee Detail',
+            'department_id' => $departmentId,
+            'position_id' => $positionId,
+        ]);
+
+        $activity = DailyActivity::create([
+            'employee_id' => $employee->id,
+            'date' => now()->toDateString(),
+            'title' => 'Department Detail Activity',
+            'description' => 'Visible to same department manager',
+        ]);
+
+        $this->actingAs($managerUser)
+            ->get(route('employee.daily-activities.show', $activity))
+            ->assertOk()
+            ->assertSee('Department Detail Activity');
     }
 }

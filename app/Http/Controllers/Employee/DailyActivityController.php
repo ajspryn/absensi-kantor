@@ -13,16 +13,22 @@ class DailyActivityController extends Controller
     public function index(Request $request)
     {
         $employee = Auth::user()->employee;
+        $filterLabel = 'Hari ini';
 
         $query = DailyActivity::where('employee_id', $employee->id)->orderBy('date', 'desc');
 
         // Filtering: default to today's activities, or use filters
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('date', [$request->start_date, $request->end_date]);
+            $filterLabel = $request->start_date === $request->end_date
+                ? $request->start_date
+                : $request->start_date . ' s/d ' . $request->end_date;
         } elseif ($request->filled('start_date')) {
             $query->whereDate('date', $request->start_date);
+            $filterLabel = $request->start_date;
         } elseif ($request->filled('end_date')) {
             $query->whereDate('date', $request->end_date);
+            $filterLabel = $request->end_date;
         } else {
             // Default: show today's activities
             $query->whereDate('date', today());
@@ -48,7 +54,7 @@ class DailyActivityController extends Controller
         $pending = (clone $summaryQuery)->where('status', 'submitted')->count();
         $withAttachments = (clone $summaryQuery)->whereNotNull('attachments')->count();
 
-        return view('employee.daily_activities.index', compact('activities', 'total', 'approved', 'pending', 'withAttachments'));
+        return view('employee.daily_activities.index', compact('activities', 'total', 'approved', 'pending', 'withAttachments', 'filterLabel'));
     }
 
     /** Export activities as CSV with current filters */
@@ -132,9 +138,9 @@ class DailyActivityController extends Controller
         $employee = $user->employee;
 
         // Allow owner or manager of same department (check in controller for simplicity)
-        if ($dailyActivity->employee_id !== $employee->id) {
+        if ($dailyActivity->employee_id !== ($employee->id ?? null)) {
             // if user is manager, allow if same department
-            if (! $user->role || $user->role->name !== 'Manager' || $dailyActivity->employee->department_id !== $employee->department_id) {
+            if (! ($user->role && strtolower($user->role->name) === 'manager' && $dailyActivity->employee && $employee && $dailyActivity->employee->department_id === $employee->department_id)) {
                 abort(403);
             }
         }

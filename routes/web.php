@@ -45,10 +45,6 @@ Route::middleware('auth')->group(function () {
     // Dashboard routes
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Publicly-named alias route used by tests: attendance.corrections.index
-    // Points to the employee corrections index but uses the simple route name expected in tests.
-    Route::middleware(['auth', 'employee', 'permission:attendance.corrections.request'])->get('/employee/attendance/corrections', [EmployeeAttendanceCorrectionController::class, 'index']);
-
     // Permission test route (for development/testing)
     Route::get('/permission-test', function () {
         return view('permission-test');
@@ -216,7 +212,7 @@ Route::middleware('auth')->group(function () {
 
             // Attendance corrections (employee submit & history)
             Route::middleware('permission:attendance.corrections.request')->group(function () {
-                Route::get('/attendance/corrections', [EmployeeAttendanceCorrectionController::class, 'index']);
+                Route::get('/attendance/corrections', [EmployeeAttendanceCorrectionController::class, 'index'])->name('attendance.corrections.index');
                 Route::get('/attendance/corrections/create', [EmployeeAttendanceCorrectionController::class, 'create'])->name('attendance.corrections.create');
                 Route::post('/attendance/corrections', [EmployeeAttendanceCorrectionController::class, 'store'])->name('attendance.corrections.store');
                 Route::get('/attendance/corrections/{correction}', [EmployeeAttendanceCorrectionController::class, 'show'])->name('attendance.corrections.show');
@@ -250,17 +246,12 @@ Route::middleware('auth')->group(function () {
             });
         });
     });
-
-    // Alias route (non-prefixed name) for attendance corrections index used in tests
-    Route::middleware(['auth', 'employee', 'permission:attendance.corrections.request'])->get('/employee/attendance/corrections', [EmployeeAttendanceCorrectionController::class, 'index']);
 });
 
-// Backwards-compatible alias route used by tests and some older callers.
-// Redirect directly to the employee attendance corrections URL to avoid
-// relying on a named route that may not exist in all route registration orders.
-Route::get('/attendance-corrections', function () {
-    return redirect('/employee/attendance/corrections');
-});
+// Backwards-compatible alias route used by tests and older callers.
+Route::middleware(['auth', 'employee', 'permission:attendance.corrections.request'])
+    ->get('/attendance-corrections', [EmployeeAttendanceCorrectionController::class, 'index'])
+    ->name('attendance.corrections.index');
 
 // Attendance corrections (approval) accessible to Manager/HR/Admin by permission (approve for manager, verify for HR)
 // Allow listing/showing to users who have either permission; action routes are protected individually below.
