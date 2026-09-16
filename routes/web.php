@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\PasswordResetController;
 use App\Http\Controllers\Admin\PositionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\SsoApplicationController;
 use App\Http\Controllers\Admin\WorkScheduleController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\Employee\AttendanceCorrectionController as EmployeeAtte
 use App\Http\Controllers\Employee\ProfileController as EmployeeProfileController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ForgotPasswordController;
+use App\Http\Controllers\OAuthController;
 use Illuminate\Support\Facades\Route;
 
 // Redirect root to login
@@ -38,6 +40,8 @@ Route::middleware('guest')->group(function () {
     Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
     Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])->name('password.update');
 });
+
+Route::middleware('auth')->get('/oauth/authorize', [OAuthController::class, 'authorize'])->name('oauth.authorize');
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -138,6 +142,12 @@ Route::middleware('auth')->group(function () {
             Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
             Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
             Route::post('/settings/reset', [SettingsController::class, 'reset'])->name('settings.reset');
+
+            // SSO application catalog and user access
+            Route::get('/sso-applications', [SsoApplicationController::class, 'index'])->name('sso-applications.index');
+            Route::post('/sso-applications', [SsoApplicationController::class, 'store'])->name('sso-applications.store');
+            Route::get('/sso-applications/users/{user}/access', [SsoApplicationController::class, 'editUserAccess'])->name('sso-applications.users.access.edit');
+            Route::put('/sso-applications/users/{user}/access', [SsoApplicationController::class, 'updateUserAccess'])->name('sso-applications.users.access.update');
 
             // Office Locations routes
             Route::resource('office-locations', OfficeLocationController::class);

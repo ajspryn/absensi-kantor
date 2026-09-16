@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use App\Models\SsoClient;
+use App\Models\SsoUserApplicationAccess;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -68,6 +70,18 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(WorkSchedule::class)
             ->where('is_active', true)
             ->effectiveOn();
+    }
+
+    public function ssoApplicationAccess()
+    {
+        return $this->hasMany(SsoUserApplicationAccess::class);
+    }
+
+    public function ssoClients()
+    {
+        return $this->belongsToMany(SsoClient::class, 'sso_user_application_access')
+            ->withPivot(['sso_application_role_id', 'is_active'])
+            ->withTimestamps();
     }
 
     // Helper methods

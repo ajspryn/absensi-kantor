@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Role;
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -13,24 +13,27 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $permissions = collect(Role::getAvailablePermissions())
+            ->flatMap(fn (array $group) => array_keys($group))
+            ->values()
+            ->all();
 
-        // Create admin user
-        User::factory()->create([
-            'name' => 'Administrator',
+        $adminRole = Role::updateOrCreate([
+            'name' => 'Admin',
+        ], [
+            'description' => 'System administrator',
+            'permissions' => $permissions,
+            'is_active' => true,
+            'is_default' => false,
+            'priority' => 1,
+        ]);
+
+        User::updateOrCreate([
             'email' => 'admin@absensi.com',
-            'role_id' => 1, // admin role
-            'password' => bcrypt('password'),
+        ], [
+            'name' => 'Administrator',
+            'role_id' => $adminRole->id,
+            'password' => 'password',
         ]);
-
-        // Create test employee user
-        User::factory()->create([
-            'name' => 'Test Employee',
-            'email' => 'employee@absensi.com',
-            'role_id' => 2, // employee role
-            'password' => bcrypt('password'),
-        ]);
-
-        // Seed daily activities
-        $this->call(DailyActivitySeeder::class);
     }
 }

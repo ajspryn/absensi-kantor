@@ -296,6 +296,16 @@
                                         <i class="bi bi-telephone pe-1"></i>{{ $employee->phone }}
                                     @endif
                                 </div>
+                                <div class="col-12 mt-1">
+                                    <i class="bi bi-grid-3x3-gap pe-1"></i>
+                                    <strong>Akses aplikasi:</strong>
+                                    @forelse ($employee->user->ssoApplicationAccess as $applicationAccess)
+                                        <span class="badge bg-blue-dark ms-1">{{ $applicationAccess->client->name }}: {{ $applicationAccess->role->name }}</span>
+                                    @empty
+                                        <span class="opacity-70">Tidak ada</span>
+                                    @endforelse
+                                    <a href="{{ route('admin.sso-applications.users.access.edit', $employee->user) }}" class="ms-2">Atur</a>
+                                </div>
                             </div>
                         </div>
                     </div>

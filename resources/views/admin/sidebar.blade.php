@@ -89,6 +89,12 @@
     <div class="menu-list">
         <div class="card card-style rounded-m p-3 py-2 mb-0">
             @if (auth()->user() && auth()->user()->hasPermission('settings.view'))
+                <a href="{{ route('admin.sso-applications.index') }}" class="{{ request()->routeIs('admin.sso-applications.*') ? 'active' : '' }}">
+                    <i class="gradient-teal shadow-bg shadow-bg-xs bi bi-shield-lock"></i>
+                    <span>Kelola SSO</span>
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+
                 <a href="{{ route('admin.settings.index') }}" class="{{ request()->routeIs('admin.settings.index') ? 'active' : '' }}">
                     <i class="gradient-blue shadow-bg shadow-bg-xs bi bi-gear"></i>
                     <span>Pengaturan Umum</span>

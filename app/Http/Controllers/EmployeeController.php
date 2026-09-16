@@ -8,11 +8,9 @@ use App\Models\Department;
 use App\Models\Employee;
 use App\Models\Position;
 use App\Models\Role;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
@@ -26,7 +24,7 @@ class EmployeeController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Employee::with(['user', 'user.role', 'department', 'position']);
+        $query = Employee::with(['user', 'user.role', 'user.ssoApplicationAccess.role', 'user.ssoApplicationAccess.client', 'department', 'position']);
 
         if ($request->filled('search')) {
             $query->search($request->search);

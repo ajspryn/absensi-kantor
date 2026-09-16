@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DailyActivityController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\OAuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -22,6 +23,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::post('login', [AuthController::class, 'apiLogin']);
+Route::post('oauth/token', [OAuthController::class, 'token']);
+Route::post('oauth/roles', [OAuthController::class, 'registerRoles']);
+Route::get('oauth/roles', [OAuthController::class, 'roles']);
+Route::middleware('jwt.auth')->get('oauth/userinfo', [OAuthController::class, 'userinfo']);
 Route::middleware('jwt.auth')->post('refresh', [AuthController::class, 'apiRefresh']);
 Route::middleware('jwt.auth')->post('logout', [AuthController::class, 'apiLogout']);
 
