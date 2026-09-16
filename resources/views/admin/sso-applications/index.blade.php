@@ -57,13 +57,31 @@
     <div class="card card-style">
         <div class="content">
             <h4 class="font-700 mb-1">Daftarkan aplikasi client</h4>
-            <p class="font-12 opacity-70">Masukkan URL callback aplikasi client. Satu baris untuk satu redirect URI. Nilai ini harus sama persis dengan callback yang dipasang di aplikasi lain.</p>
+            <p class="font-12 opacity-70">Client ID dan Client Secret dibuat secara otomatis agar aman dan mudah digunakan. Anda juga bisa mengklik tombol generate untuk membuat nilai baru sebelum menyimpan.</p>
             <form method="POST" action="{{ route('admin.sso-applications.store') }}">
                 @csrf
                 <div class="form-custom form-label mb-3">
                     <label for="name">Nama aplikasi</label>
                     <input id="name" name="name" type="text" class="form-control rounded-s" value="{{ old('name') }}" required>
                 </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <label class="font-600 mb-0">Client credentials</label>
+                    <button type="button" class="btn btn-sm bg-highlight rounded-s" id="generate-sso-credentials">
+                        <i class="bi bi-arrow-repeat me-1"></i>Generate
+                    </button>
+                </div>
+
+                <div class="form-custom form-label mb-3">
+                    <label for="client_id">Client ID</label>
+                    <input id="client_id" name="client_id" type="text" class="form-control rounded-s font-monospace" value="{{ old('client_id') }}" readonly>
+                </div>
+
+                <div class="form-custom form-label mb-3">
+                    <label for="client_secret">Client Secret</label>
+                    <input id="client_secret" name="client_secret" type="text" class="form-control rounded-s font-monospace" value="{{ old('client_secret') }}" readonly>
+                </div>
+
                 <div class="form-custom form-label mb-3">
                     <label for="redirect_uris">Redirect URI</label>
                     <textarea id="redirect_uris" name="redirect_uris" class="form-control rounded-s" rows="3" required>{{ old('redirect_uris') }}</textarea>
@@ -72,4 +90,32 @@
             </form>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const clientIdInput = document.getElementById('client_id');
+            const clientSecretInput = document.getElementById('client_secret');
+            const generateButton = document.getElementById('generate-sso-credentials');
+
+            const generateRandom = (prefix, length) => {
+                const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-';
+                let value = prefix ? prefix + '_' : '';
+                for (let i = 0; i < length; i++) {
+                    value += charset[Math.floor(Math.random() * charset.length)];
+                }
+                return value;
+            };
+
+            const generateCredentials = () => {
+                clientIdInput.value = generateRandom('client', 24);
+                clientSecretInput.value = generateRandom('', 64);
+            };
+
+            if (!clientIdInput.value && !clientSecretInput.value) {
+                generateCredentials();
+            }
+
+            generateButton.addEventListener('click', generateCredentials);
+        });
+    </script>
 @endsection

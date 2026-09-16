@@ -28,6 +28,8 @@ class SsoApplicationController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:150'],
             'redirect_uris' => ['required', 'string'],
+            'client_id' => ['nullable', 'string', 'max:64', 'regex:/^[A-Za-z0-9_-]+$/'],
+            'client_secret' => ['nullable', 'string', 'min:32', 'max:128'],
         ]);
 
         $redirectUris = collect(preg_split('/\r?\n/', $validated['redirect_uris']))
@@ -37,9 +39,11 @@ class SsoApplicationController extends Controller
             ->values();
         abort_if($redirectUris->isEmpty() || $redirectUris->contains(fn (string $uri) => ! filter_var($uri, FILTER_VALIDATE_URL)), 422, 'Redirect URI tidak valid.');
 
-        $clientSecret = Str::random(64);
+        $clientId = $validated['client_id'] ?? $this->generateClientId();
+        $clientSecret = $validated['client_secret'] ?? $this->generateClientSecret();
+
         $client = SsoClient::create([
-            'client_id' => Str::random(32),
+            'client_id' => $clientId,
             'name' => $validated['name'],
             'client_secret' => Hash::make($clientSecret),
             'redirect_uris' => $redirectUris->all(),
@@ -48,9 +52,23 @@ class SsoApplicationController extends Controller
 
         return redirect()->route('admin.sso-applications.index')->with('sso_credentials', [
             'name' => $client->name,
-            'client_id' => $client->client_id,
+            'client_id' => $clientId,
             'client_secret' => $clientSecret,
         ]);
+    }
+
+    private function generateClientId(): string
+    {
+        do {
+            $value = 'client_' . Str::random(24);
+        } while (SsoClient::where('client_id', $value)->exists());
+
+        return $value;
+    }
+
+    private function generateClientSecret(): string
+    {
+        return Str::random(64);
     }
 
     public function editUserAccess(User $user)

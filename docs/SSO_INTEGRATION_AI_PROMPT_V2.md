@@ -9,7 +9,7 @@ This project is the SSO provider.
 Base URL:
 
 ```text
-https://absensi.example.com
+https://absensi.bprsbtb.co.id
 ```
 
 ## Required flow
