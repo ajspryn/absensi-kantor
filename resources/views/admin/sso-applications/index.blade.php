@@ -46,7 +46,14 @@
                             <span class="font-11 opacity-70">Belum ada role. Aplikasi client dapat mendaftarkan role melalui API.</span>
                         @endforelse
                     </div>
-                    <p class="font-11 opacity-70 mt-2 mb-0">{{ $application->user_access_count }} user memiliki akses</p>
+                    <div class="mt-3 d-flex justify-content-between align-items-center gap-2">
+                        <p class="font-11 opacity-70 mb-0">{{ $application->user_access_count }} user memiliki akses</p>
+                        <form method="POST" action="{{ route('admin.sso-applications.destroy', $application) }}" onsubmit="return confirm('Yakin ingin menghapus client SSO ini? Client secret akan tidak bisa dipakai lagi.');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-sm bg-red-dark rounded-s">Hapus key</button>
+                        </form>
+                    </div>
                 </div>
             @empty
                 <p class="font-12 opacity-70">Belum ada aplikasi terhubung.</p>
@@ -57,7 +64,7 @@
     <div class="card card-style">
         <div class="content">
             <h4 class="font-700 mb-1">Daftarkan aplikasi client</h4>
-            <p class="font-12 opacity-70">Client ID dan Client Secret dibuat secara otomatis agar aman dan mudah digunakan. Anda juga bisa mengklik tombol generate untuk membuat nilai baru sebelum menyimpan.</p>
+            <p class="font-12 opacity-70">Client ID dan Client Secret dibuat secara otomatis agar aman dan mudah digunakan. Client ID dapat dilihat kembali dari daftar di bawah, sedangkan Client Secret hanya ditampilkan sekali saat pembuatan karena disimpan dalam bentuk hash untuk keamanan.</p>
             <form method="POST" action="{{ route('admin.sso-applications.store') }}">
                 @csrf
                 <div class="form-custom form-label mb-3">

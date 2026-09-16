@@ -71,6 +71,13 @@ class SsoApplicationController extends Controller
         return Str::random(64);
     }
 
+    public function destroy(SsoClient $ssoClient)
+    {
+        $ssoClient->delete();
+
+        return redirect()->route('admin.sso-applications.index')->with('success', 'Client SSO berhasil dihapus.');
+    }
+
     public function editUserAccess(User $user)
     {
         $user->load('employee', 'ssoApplicationAccess.role', 'ssoApplicationAccess.client');
