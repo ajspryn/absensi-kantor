@@ -33,11 +33,11 @@ class SsoApplicationController extends Controller
         ]);
 
         $redirectUris = collect(preg_split('/\r?\n/', $validated['redirect_uris']))
-            ->map(fn (string $uri) => trim($uri))
+            ->map(fn(string $uri) => trim($uri))
             ->filter()
             ->unique()
             ->values();
-        abort_if($redirectUris->isEmpty() || $redirectUris->contains(fn (string $uri) => ! filter_var($uri, FILTER_VALIDATE_URL)), 422, 'Redirect URI tidak valid.');
+        abort_if($redirectUris->isEmpty() || $redirectUris->contains(fn(string $uri) => ! filter_var($uri, FILTER_VALIDATE_URL)), 422, 'Redirect URI tidak valid.');
 
         $clientId = $validated['client_id'] ?? $this->generateClientId();
         $clientSecret = $validated['client_secret'] ?? $this->generateClientSecret();
@@ -74,7 +74,7 @@ class SsoApplicationController extends Controller
     public function editUserAccess(User $user)
     {
         $user->load('employee', 'ssoApplicationAccess.role', 'ssoApplicationAccess.client');
-        $applications = SsoClient::with(['applicationRoles' => fn ($query) => $query->where('is_active', true)])
+        $applications = SsoClient::with(['applicationRoles' => fn($query) => $query->where('is_active', true)])
             ->where('is_active', true)
             ->orderBy('name')
             ->get();
