@@ -130,7 +130,7 @@ The external app should map the user to local role/permission based on applicati
 
 ## Role registration flow
 
-The external app may register its own application roles through:
+The external application owns the definition of its application roles. Absensi does not invent or replace these roles; it stores a synchronized copy for user assignment and authorization. The external app must register its roles through:
 
 ```text
 POST https://absensi.bprsbtb.co.id/api/oauth/roles
@@ -153,6 +153,18 @@ Role code rules:
 - numbers allowed
 - allowed punctuation: . \_ -
 - example valid: finance_admin, approver, staff
+
+Synchronize roles during deployment and whenever the external role catalog changes. For Finboard, run:
+
+```bash
+php artisan optimize:clear
+php artisan config:cache
+php artisan sso:sync-roles
+```
+
+The command reads the roles used by Finboard and sends them to the provider. The login flow also attempts synchronization before redirecting the browser, but deployment synchronization is recommended so roles are available in the Absensi admin screen before the first login.
+
+The Absensi admin selects a role for each employee only after synchronization. Do not ask the administrator to manually recreate roles that already exist in the external application.
 
 ## Security requirements
 

@@ -189,7 +189,9 @@ The global identity role is not enough to authorize a user in the external app. 
 
 ## 8. Role registration flow
 
-The external app may optionally register its own application-specific roles.
+The external application is the source of truth for its application roles. For example, Finboard sends its local roles such as `admin`, `pengurus`, `lending`, and `funding` to the provider. Absensi stores a synchronized copy only so the administrator can assign an application role to each user and so the OAuth response can include the assigned role.
+
+The external app should synchronize roles during deployment and may synchronize them again before login. It must not require the administrator to recreate the same roles manually in Absensi.
 
 ```text
 POST https://absensi.bprsbtb.co.id/api/oauth/roles
@@ -212,6 +214,18 @@ Role rules:
 - numbers allowed
 - allowed punctuation: . \_ -
 - valid examples: finance_admin, approver, staff
+
+For the Finboard application, run this command after configuring the SSO environment:
+
+```bash
+php artisan optimize:clear
+php artisan config:cache
+php artisan sso:sync-roles
+```
+
+The command sends the roles currently used by Finboard to the registered client. The client ID and secret must belong to the same SSO client as the callback URL. If a role is added later in Finboard, run the command again; existing roles are updated rather than duplicated.
+
+The SSO admin screen should only be used to assign the synchronized role to an employee. If the role list is empty, verify the client credentials and run the synchronization command on the external application before creating roles manually.
 
 The admin later assigns the role to the relevant employee in the SSO access management screen.
 
@@ -315,6 +329,8 @@ Before production, confirm all of these:
 - code exchange uses POST to /api/oauth/token
 - JWT access token is used for /api/oauth/userinfo
 - user has access to the client in the admin screen
+- external application has synchronized its roles to `/api/oauth/roles`
+- user has been assigned one of the synchronized application roles
 - application role is mapped to local permissions
 
 ## 12. AI-ready copy-paste prompt for a new external app
