@@ -31,7 +31,7 @@
                             @endforeach
                         </select>
                         @if ($application->applicationRoles->isEmpty())
-                            <small class="font-11 opacity-70">Role belum didaftarkan oleh aplikasi ini.</small>
+                            <small class="font-11 opacity-70">Role belum didaftarkan. Tambahkan role pada <a href="{{ route('admin.sso-applications.index') }}">menu Aplikasi SSO</a>, lalu buka ulang halaman ini.</small>
                         @endif
                     </div>
                 @empty
