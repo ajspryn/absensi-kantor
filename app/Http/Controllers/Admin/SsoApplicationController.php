@@ -71,11 +71,50 @@ class SsoApplicationController extends Controller
         return Str::random(64);
     }
 
+    private function parseRedirectUris(string $redirectUris)
+    {
+        return collect(preg_split('/\r?\n/', $redirectUris))
+            ->map(fn(string $uri) => trim($uri))
+            ->filter()
+            ->unique()
+            ->values();
+    }
+
     public function destroy(SsoClient $ssoClient)
     {
         $ssoClient->delete();
 
         return redirect()->route('admin.sso-applications.index')->with('success', 'Client SSO berhasil dihapus.');
+    }
+
+    public function update(Request $request, SsoClient $ssoClient)
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:150'],
+            'redirect_uris' => ['required', 'string'],
+        ]);
+
+        $redirectUris = $this->parseRedirectUris($validated['redirect_uris']);
+        abort_if($redirectUris->isEmpty() || $redirectUris->contains(fn(string $uri) => ! filter_var($uri, FILTER_VALIDATE_URL)), 422, 'Redirect URI tidak valid.');
+
+        $ssoClient->update([
+            'name' => $validated['name'],
+            'redirect_uris' => $redirectUris->all(),
+        ]);
+
+        return redirect()->route('admin.sso-applications.index')->with('success', 'Pengaturan aplikasi SSO berhasil diperbarui.');
+    }
+
+    public function rotateSecret(SsoClient $ssoClient)
+    {
+        $clientSecret = $this->generateClientSecret();
+        $ssoClient->update(['client_secret' => Hash::make($clientSecret)]);
+
+        return redirect()->route('admin.sso-applications.index')->with('sso_credentials', [
+            'name' => $ssoClient->name,
+            'client_id' => $ssoClient->client_id,
+            'client_secret' => $clientSecret,
+        ])->with('warning', 'Client secret baru dibuat. Perbarui SSO_CLIENT_SECRET di aplikasi client sekarang.');
     }
 
     public function storeRole(Request $request, SsoClient $ssoClient)

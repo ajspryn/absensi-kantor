@@ -12,8 +12,8 @@
     @if (session('sso_credentials'))
         <div class="card card-style border border-warning">
             <div class="content">
-                <h4 class="font-700 color-orange-dark"><i class="bi bi-key me-2"></i>Simpan kredensial aplikasi</h4>
-                <p class="font-12">Secret hanya ditampilkan sekarang. Simpan di secret manager aplikasi client dan jangan masukkan ke source control.</p>
+                <h4 class="font-700 color-orange-dark"><i class="bi bi-key me-2"></i>Client secret baru</h4>
+                <p class="font-12">Secret hanya ditampilkan sekarang. Salin ke environment aplikasi client. Secret lama sudah tidak berlaku.</p>
                 <div class="bg-gray-light rounded-s p-3 font-monospace font-12">
                     <div><strong>client_id:</strong> {{ session('sso_credentials.client_id') }}</div>
                     <div><strong>client_secret:</strong> {{ session('sso_credentials.client_secret') }}</div>
@@ -39,6 +39,21 @@
                         </span>
                     </div>
                     <p class="font-11 mb-2"><i class="bi bi-link-45deg me-1"></i>{{ implode(', ', $application->redirect_uris ?? []) }}</p>
+                    <form method="POST" action="{{ route('admin.sso-applications.update', $application) }}" class="border-top pt-3 mt-3">
+                        @csrf
+                        @method('PUT')
+                        <label class="font-600 font-12 mb-2 d-block">Edit aplikasi dan callback URL</label>
+                        <div class="form-custom form-label mb-2">
+                            <label for="application-name-{{ $application->id }}">Nama aplikasi</label>
+                            <input id="application-name-{{ $application->id }}" name="name" type="text" class="form-control rounded-s" value="{{ $application->name }}" required>
+                        </div>
+                        <div class="form-custom form-label mb-2">
+                            <label for="application-redirect-{{ $application->id }}">Redirect URL / Callback URL</label>
+                            <textarea id="application-redirect-{{ $application->id }}" name="redirect_uris" class="form-control rounded-s" rows="2" required>{{ implode("\n", $application->redirect_uris ?? []) }}</textarea>
+                            <small class="font-11 opacity-70">Satu URL per baris. Harus sama persis dengan SSO_REDIRECT_URI di aplikasi client.</small>
+                        </div>
+                        <button type="submit" class="btn btn-sm bg-highlight rounded-s"><i class="bi bi-save me-1"></i>Simpan callback</button>
+                    </form>
                     <div class="d-flex flex-wrap gap-1">
                         @forelse ($application->applicationRoles as $role)
                             <span class="badge bg-blue-dark">{{ $role->name }} <small>({{ $role->code }})</small></span>
@@ -63,11 +78,17 @@
                     </form>
                     <div class="mt-3 d-flex justify-content-between align-items-center gap-2">
                         <p class="font-11 opacity-70 mb-0">{{ $application->user_access_count }} user memiliki akses</p>
-                        <form method="POST" action="{{ route('admin.sso-applications.destroy', $application) }}" onsubmit="return confirm('Yakin ingin menghapus client SSO ini? Client secret akan tidak bisa dipakai lagi.');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-sm bg-red-dark rounded-s">Hapus key</button>
-                        </form>
+                        <div class="d-flex gap-2">
+                            <form method="POST" action="{{ route('admin.sso-applications.rotate-secret', $application) }}" onsubmit="return confirm('Buat secret baru? Secret lama langsung tidak berlaku dan aplikasi client harus diperbarui.');">
+                                @csrf
+                                <button type="submit" class="btn btn-sm bg-orange-dark rounded-s"><i class="bi bi-arrow-repeat me-1"></i>Buat secret baru</button>
+                            </form>
+                            <form method="POST" action="{{ route('admin.sso-applications.destroy', $application) }}" onsubmit="return confirm('Yakin ingin menghapus client SSO ini? Client secret akan tidak bisa dipakai lagi.');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm bg-red-dark rounded-s">Hapus key</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             @empty
