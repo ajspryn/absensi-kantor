@@ -17,7 +17,7 @@ https://absensi.bprsbtb.co.id
 ### Step 1: Redirect user to provider
 
 ```text
-GET https://absensi.example.com/oauth/authorize
+GET https://absensi.bprsbtb.co.id/oauth/authorize
     ?response_type=code
     &client_id=CLIENT_ID
     &redirect_uri=https%3A%2F%2Fapp-client.example.com%2Fauth%2Fcallback
@@ -27,10 +27,10 @@ GET https://absensi.example.com/oauth/authorize
 
 Requirements:
 
-- `client_id` is issued by the provider
-- `redirect_uri` must exactly match the registered callback URL in the provider
-- `state` must be randomly generated and stored in session/server before redirect
-- after callback, compare the returned `state` with the stored value
+- client_id is issued by the provider
+- redirect_uri must exactly match the registered callback URL in the provider
+- state must be randomly generated and stored in session/server before redirect
+- after callback, compare the returned state with the stored value
 
 ### Step 2: Handle callback
 
@@ -42,16 +42,16 @@ https://app-client.example.com/auth/callback?code=CODE_FROM_PROVIDER&state=RANDO
 
 The external app must:
 
-- read `code`
-- read `state`
-- validate `state`
-- reject login if `state` mismatch
+- read code
+- read state
+- validate state
+- reject login if state mismatch
 - continue only if valid
 
 ### Step 3: Exchange authorization code for access token
 
 ```text
-POST https://absensi.example.com/api/oauth/token
+POST https://absensi.bprsbtb.co.id/api/oauth/token
 Content-Type: application/json
 
 {
@@ -75,14 +75,14 @@ Expected response:
 
 Important:
 
-- `client_secret` must never be exposed to frontend or browser
+- client_secret must never be exposed to frontend or browser
 - this request must happen from backend/server side
 - the provider validates redirect URI and client_secret
 
 ### Step 4: Fetch user information
 
 ```text
-GET https://absensi.example.com/api/oauth/userinfo
+GET https://absensi.bprsbtb.co.id/api/oauth/userinfo
 Authorization: Bearer ACCESS_TOKEN
 ```
 
@@ -113,18 +113,18 @@ Expected response:
 
 ## Application roles and authorization rules
 
-Use `application_role` or `roles` as the authorization signal inside the external app.
+Use application_role or roles as the authorization signal inside the external app.
 
-Do NOT treat `identity_role` as application permission.
+Do NOT treat identity_role as application permission.
 
-- `identity_role` = global role inside Absensi, e.g. `employee`
-- `application_role` = role for this external application, e.g. `approver`
+- identity_role = global role inside Absensi, e.g. employee
+- application_role = role for this external application, e.g. approver
 
-The external app should map the user to local role/permission based on `application_role` or `roles`.
+The external app should map the user to local role/permission based on application_role or roles.
 
 ## User identity rules
 
-- Use `sub` as the external user identifier
+- Use sub as the external user identifier
 - Do not use email as primary key
 - If the user is not assigned access to the external app in the Absensi admin panel, the authorize request is rejected with HTTP 403
 
@@ -133,7 +133,7 @@ The external app should map the user to local role/permission based on `applicat
 The external app may register its own application roles through:
 
 ```text
-POST https://absensi.example.com/api/oauth/roles
+POST https://absensi.bprsbtb.co.id/api/oauth/roles
 Content-Type: application/json
 
 {
@@ -151,30 +151,30 @@ Role code rules:
 
 - lowercase letters only
 - numbers allowed
-- allowed punctuation: `.`, `_`, `-`
-- example valid: `finance_admin`, `approver`, `staff`
+- allowed punctuation: . \_ -
+- example valid: finance_admin, approver, staff
 
 ## Security requirements
 
 - use HTTPS everywhere
-- do not store `client_secret` in frontend or browser storage
-- validate `state` on callback
-- validate `redirect_uri`
+- do not store client_secret in frontend or browser storage
+- validate state on callback
+- validate redirect_uri
 - use JWT access token for authenticated requests
 - treat access token as bearer token only
 
 ## Recommended implementation for external app
 
-1. Generate random `state`
-2. Store `state` in session or secure server-side storage
-3. Redirect browser to `/oauth/authorize`
-4. Receive callback with `code` and `state`
-5. Validate `state`
-6. Send backend request to `/api/oauth/token`
-7. Receive JWT `access_token`
-8. Call `/api/oauth/userinfo` with `Authorization: Bearer <token>`
-9. Map `sub` to local user record
-10. Save `application_role` / `roles` into user session or local database
+1. Generate random state
+2. Store state in session or secure server-side storage
+3. Redirect browser to /oauth/authorize
+4. Receive callback with code and state
+5. Validate state
+6. Send backend request to /api/oauth/token
+7. Receive JWT access_token
+8. Call /api/oauth/userinfo with Authorization: Bearer <token>
+9. Map sub to local user record
+10. Save application_role / roles into user session or local database
 11. Grant app-local authorization using those roles
 12. Reject if token or user role is invalid
 
@@ -188,16 +188,86 @@ External App Backend -> GET /api/oauth/userinfo
 External App Backend -> create local user/session and role mapping
 ```
 
+## Troubleshooting checklist
+
+### 400 invalid client or redirect URI
+
+Common causes:
+
+- redirect_uri mismatch
+- client_id mismatch
+- app is inactive
+- callback URL is not registered exactly
+
+Fix:
+
+- Use the exact callback URL registered in the admin screen.
+- Confirm the client_id matches the generated client.
+- Ensure the app is active.
+
+### 403 user not authorized for this application
+
+Common causes:
+
+- user has no access assignment
+- role not assigned
+- app access disabled
+
+Fix:
+
+- Assign the user access in the admin SSO screen.
+- Ensure the role is active.
+
+### 401 invalid_client
+
+Common causes:
+
+- wrong client_secret
+- wrong client_id
+- different app secret used
+
+Fix:
+
+- Use the exact credentials generated for that app.
+- Keep client_secret in server-side config only.
+
+### 400 invalid_grant
+
+Common causes:
+
+- code already used
+- code expired
+- redirect_uri mismatch during token exchange
+
+Fix:
+
+- Repeat the full login flow and use a fresh code.
+- Use the same redirect_uri in authorize and token exchange.
+
+### Userinfo request fails
+
+Common causes:
+
+- missing bearer token
+- expired JWT
+- wrong client access assignment
+
+Fix:
+
+- Use Authorization: Bearer <token>
+- Confirm the token is valid and not expired.
+- Ensure the user is assigned access to the client.
+
 ## Final instruction to AI / code generator
 
 Build the integration using OIDC/OAuth Authorization Code flow with JWT bearer tokens.
 
 Do not implement direct login by username/password from the external app.
 Do not bypass the provider.
-Do not trust `identity_role` as app permission.
-Use `sub` as user id.
-Use `application_role` or `roles` for local authorization.
-Validate `state` and `redirect_uri` strictly.
-Never expose `client_secret` to the frontend.
+Do not trust identity_role as app permission.
+Use sub as user id.
+Use application_role or roles for local authorization.
+Validate state and redirect_uri strictly.
+Never expose client_secret to the frontend.
 
 This project is the SSO provider. The external app is just the client.
