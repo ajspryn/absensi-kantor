@@ -34,7 +34,12 @@ class OAuthController extends Controller
             ->filter()
             ->unique()
             ->values();
-        abort_unless($scopes->every(fn(string $scope) => in_array($scope, config('sso.allowed_scopes'), true)), 400, 'Invalid scope.');
+        $allowedScopes = config('sso.allowed_scopes', ['openid', 'profile', 'email']);
+        if (! is_array($allowedScopes) || $allowedScopes === []) {
+            $allowedScopes = ['openid', 'profile', 'email'];
+        }
+
+        abort_unless($scopes->every(fn(string $scope) => in_array($scope, $allowedScopes, true)), 400, 'Invalid scope.');
 
         $rawCode = Str::random(96);
         SsoAuthorizationCode::create([

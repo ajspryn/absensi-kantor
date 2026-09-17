@@ -22,6 +22,76 @@ Important rule:
 - The external app must not bypass the provider.
 - The provider uses JWT access tokens.
 
+## 1.1 Quick connection guide
+
+Use these steps to connect a Laravel application such as Finboard.
+
+### Step 1: Register the client in Absensi
+
+Open **Admin -> Aplikasi SSO** and register one client per environment.
+
+For local Finboard:
+
+```text
+Application name: Finboard Local
+Redirect URI: http://finboard.test/auth/callback
+```
+
+For production Finboard:
+
+```text
+Application name: Finboard Production
+Redirect URI: https://finboard.corebtb.com/auth/callback
+```
+
+Copy the generated `client_id` and `client_secret`. The secret is shown only once. Do not use the local client credentials in production.
+
+### Step 2: Configure the external application
+
+Add these values to the external application's server-side `.env`:
+
+```env
+SSO_ENABLED=true
+SSO_ISSUER=https://absensi.bprsbtb.co.id
+SSO_CLIENT_ID=CLIENT_ID_FROM_ABSENSI
+SSO_CLIENT_SECRET=CLIENT_SECRET_FROM_ABSENSI
+SSO_REDIRECT_URI=https://your-app.example.com/auth/callback
+SSO_SCOPE="openid profile email"
+SSO_AUTHORIZE_URL=https://absensi.bprsbtb.co.id/oauth/authorize
+SSO_TOKEN_URL=https://absensi.bprsbtb.co.id/api/oauth/token
+SSO_USERINFO_URL=https://absensi.bprsbtb.co.id/api/oauth/userinfo
+SSO_ROLES_URL=https://absensi.bprsbtb.co.id/api/oauth/roles
+```
+
+Replace `SSO_REDIRECT_URI` with the exact URL registered in Step 1.
+
+### Step 3: Clear configuration and synchronize roles
+
+Run this from the external application's project directory:
+
+```bash
+php artisan optimize:clear
+php artisan config:cache
+php artisan sso:sync-roles
+```
+
+The role list comes from the external application. For Finboard, the command synchronizes its local roles (`admin`, `pengurus`, `lending`, and `funding`) to Absensi.
+
+### Step 4: Assign user access
+
+After role synchronization, open the employee's **SSO access** page in Absensi and select the application role. This is an assignment step, not role creation. The user must have an active role before authorization can succeed.
+
+### Step 5: Test the connection
+
+1. Open the external application's login page.
+2. Click **Login with SSO**.
+3. Confirm the browser goes to `https://absensi.bprsbtb.co.id/login`.
+4. Sign in to Absensi.
+5. Confirm the browser returns to the external callback URL.
+6. Confirm the external application redirects to its dashboard.
+
+If the browser remains in Absensi, check the exact `redirect_uri`, client credentials, and whether the provider server has the latest OAuth login continuation code.
+
 ## 2. Provider base URL and environment config
 
 Production provider URL:

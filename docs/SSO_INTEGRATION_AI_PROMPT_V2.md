@@ -120,6 +120,40 @@ Do NOT treat identity_role as application permission.
 - identity_role = global role inside Absensi, e.g. employee
 - application_role = role for this external application, e.g. approver
 
+## Copy-paste connection procedure
+
+Implement the integration in this order:
+
+1. Register the application in Absensi **Admin -> Aplikasi SSO**.
+2. Use one client for local development and another client for production.
+3. Register the exact callback URL. Examples:
+
+- Local: `http://finboard.test/auth/callback`
+- Production: `https://finboard.corebtb.com/auth/callback`
+
+4. Store the generated `client_id` and `client_secret` only in the backend `.env`.
+5. Configure:
+
+```env
+SSO_ENABLED=true
+SSO_ISSUER=https://absensi.bprsbtb.co.id
+SSO_CLIENT_ID=CLIENT_ID_FROM_ABSENSI
+SSO_CLIENT_SECRET=CLIENT_SECRET_FROM_ABSENSI
+SSO_REDIRECT_URI=https://your-app.example.com/auth/callback
+SSO_SCOPE="openid profile email"
+SSO_AUTHORIZE_URL=https://absensi.bprsbtb.co.id/oauth/authorize
+SSO_TOKEN_URL=https://absensi.bprsbtb.co.id/api/oauth/token
+SSO_USERINFO_URL=https://absensi.bprsbtb.co.id/api/oauth/userinfo
+SSO_ROLES_URL=https://absensi.bprsbtb.co.id/api/oauth/roles
+```
+
+6. Run `php artisan optimize:clear` and `php artisan config:cache`.
+7. Register the application's local roles by calling `/api/oauth/roles`, or run `php artisan sso:sync-roles` for Finboard.
+8. Ask the Absensi administrator to assign the synchronized application role to each user.
+9. Redirect the browser to the authorize endpoint and complete the callback/token/userinfo flow described below.
+
+Do not manually recreate Finboard roles in Absensi. Absensi only assigns the roles received from Finboard.
+
 The external app should map the user to local role/permission based on application_role or roles.
 
 ## User identity rules
