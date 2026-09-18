@@ -180,6 +180,7 @@ class SsoFlowTest extends TestCase
         ])->assertRedirect();
 
         $this->assertStringContainsString('/oauth/authorize?', (string) $loginResponse->headers->get('Location'));
+        $this->assertStringContainsString('client_id=' . $client->client_id, (string) $loginResponse->headers->get('Location'));
     }
 
     public function test_client_can_register_and_read_its_application_roles(): void

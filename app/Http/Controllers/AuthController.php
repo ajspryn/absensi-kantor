@@ -52,7 +52,12 @@ class AuthController extends Controller
                 'user_agent' => $request->userAgent(),
             ]);
 
-            return redirect()->intended('dashboard');
+            $intendedUrl = $request->session()->pull('url.intended');
+            if (is_string($intendedUrl) && parse_url($intendedUrl, PHP_URL_PATH) === '/oauth/authorize') {
+                return redirect()->to($intendedUrl);
+            }
+
+            return redirect()->route('dashboard');
         }
 
         return back()->withErrors([
