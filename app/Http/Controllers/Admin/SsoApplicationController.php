@@ -124,21 +124,6 @@ class SsoApplicationController extends Controller
         ])->with('warning', 'Client secret baru dibuat. Perbarui SSO_CLIENT_SECRET di aplikasi client sekarang.');
     }
 
-    public function storeRole(Request $request, SsoClient $ssoClient)
-    {
-        $validated = $request->validate([
-            'code' => ['required', 'string', 'max:100', 'regex:/^[a-z0-9._-]+$/'],
-            'name' => ['required', 'string', 'max:150'],
-        ]);
-
-        SsoApplicationRole::updateOrCreate(
-            ['sso_client_id' => $ssoClient->id, 'code' => $validated['code']],
-            ['name' => $validated['name'], 'is_active' => true]
-        );
-
-        return redirect()->route('admin.sso-applications.index')->with('success', 'Role aplikasi SSO berhasil ditambahkan.');
-    }
-
     public function editUserAccess(User $user)
     {
         $user->load('employee', 'ssoApplicationAccess.role', 'ssoApplicationAccess.client');

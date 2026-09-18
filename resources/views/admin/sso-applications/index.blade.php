@@ -61,21 +61,6 @@
                             <span class="font-11 opacity-70">Belum ada role aplikasi.</span>
                         @endforelse
                     </div>
-                    <form method="POST" action="{{ route('admin.sso-applications.roles.store', $application) }}" class="mt-3">
-                        @csrf
-                        <label class="font-600 font-12 mb-2 d-block">Tambah role aplikasi</label>
-                        <div class="d-flex gap-2 align-items-end">
-                            <div class="form-custom form-label mb-0" style="flex: 1 1 0;">
-                                <label for="role-name-{{ $application->id }}">Nama role</label>
-                                <input id="role-name-{{ $application->id }}" name="name" type="text" class="form-control rounded-s" placeholder="Contoh: Approver" required>
-                            </div>
-                            <div class="form-custom form-label mb-0" style="flex: 1 1 0;">
-                                <label for="role-code-{{ $application->id }}">Kode role</label>
-                                <input id="role-code-{{ $application->id }}" name="code" type="text" class="form-control rounded-s font-monospace" placeholder="approver" pattern="[a-z0-9._-]+" required>
-                            </div>
-                            <button type="submit" class="btn btn-sm bg-highlight rounded-s"><i class="bi bi-plus-circle me-1"></i>Tambah</button>
-                        </div>
-                    </form>
                     <div class="mt-3 d-flex justify-content-between align-items-center gap-2">
                         <p class="font-11 opacity-70 mb-0">{{ $application->user_access_count }} user memiliki akses</p>
                         <div class="d-flex gap-2">

@@ -146,7 +146,6 @@ Route::middleware('auth')->group(function () {
             // SSO application catalog and user access
             Route::get('/sso-applications', [SsoApplicationController::class, 'index'])->name('sso-applications.index');
             Route::post('/sso-applications', [SsoApplicationController::class, 'store'])->name('sso-applications.store');
-            Route::post('/sso-applications/{ssoClient}/roles', [SsoApplicationController::class, 'storeRole'])->name('sso-applications.roles.store');
             Route::put('/sso-applications/{ssoClient}', [SsoApplicationController::class, 'update'])->name('sso-applications.update');
             Route::post('/sso-applications/{ssoClient}/rotate-secret', [SsoApplicationController::class, 'rotateSecret'])->name('sso-applications.rotate-secret');
             Route::delete('/sso-applications/{ssoClient}', [SsoApplicationController::class, 'destroy'])->name('sso-applications.destroy');

@@ -81,13 +81,14 @@ class OAuthController extends Controller
                 ->first();
 
             if (
-                ! $authorizationCode || $authorizationCode->used_at || $authorizationCode->expires_at->isPast()
+                ! $authorizationCode
+                || $authorizationCode->used_at
+                || $authorizationCode->expires_at->isPast()
                 || $authorizationCode->redirect_uri !== $validated['redirect_uri']
             ) {
                 return null;
             }
 
-            $authorizationCode->update(['used_at' => now()]);
             $user = $authorizationCode->user;
             if (! $user || ! $user->is_active) {
                 return null;
@@ -97,6 +98,8 @@ class OAuthController extends Controller
             if (! $access || ! $access->role) {
                 return null;
             }
+
+            $authorizationCode->update(['used_at' => now()]);
 
             $accessToken = JWTAuth::claims([
                 'client_id' => $client->client_id,
