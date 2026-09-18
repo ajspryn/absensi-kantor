@@ -8,6 +8,7 @@ use App\Models\SsoClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -80,23 +81,27 @@ class OAuthController extends Controller
                 ->lockForUpdate()
                 ->first();
 
-            if (
-                ! $authorizationCode
-                || $authorizationCode->used_at
-                || $authorizationCode->expires_at->isPast()
-                || $authorizationCode->redirect_uri !== $validated['redirect_uri']
-            ) {
-                return null;
+            if (! $authorizationCode) {
+                return ['error' => 'authorization_code_not_found'];
+            }
+            if ($authorizationCode->used_at) {
+                return ['error' => 'authorization_code_used'];
+            }
+            if ($authorizationCode->expires_at->isPast()) {
+                return ['error' => 'authorization_code_expired'];
+            }
+            if ($authorizationCode->redirect_uri !== $validated['redirect_uri']) {
+                return ['error' => 'redirect_uri_mismatch'];
             }
 
             $user = $authorizationCode->user;
             if (! $user || ! $user->is_active) {
-                return null;
+                return ['error' => 'user_inactive'];
             }
 
             $access = $client->accessForUser($user);
             if (! $access || ! $access->role) {
-                return null;
+                return ['error' => 'user_access_missing'];
             }
 
             $authorizationCode->update(['used_at' => now()]);
@@ -109,14 +114,25 @@ class OAuthController extends Controller
             ])->fromUser($user);
 
             return [
+                'success' => true,
                 'access_token' => $accessToken,
                 'token_type' => 'Bearer',
                 'expires_in' => (int) config('jwt.ttl') * 60,
             ];
         });
 
-        if (! $tokenData) {
-            return response()->json(['error' => 'invalid_grant'], 400);
+        if (! ($tokenData['success'] ?? false)) {
+            $error = $tokenData['error'] ?? 'invalid_grant';
+            Log::warning('SSO token exchange rejected', [
+                'client_id' => $client->client_id,
+                'reason' => $error,
+                'redirect_uri' => $validated['redirect_uri'],
+            ]);
+
+            return response()->json([
+                'error' => 'invalid_grant',
+                'error_description' => $error,
+            ], 400);
         }
 
         return response()->json($tokenData);

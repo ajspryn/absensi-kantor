@@ -50,13 +50,6 @@ class SsoApplicationController extends Controller
             'is_active' => true,
         ]);
 
-        SsoApplicationRole::create([
-            'sso_client_id' => $client->id,
-            'code' => 'karyawan',
-            'name' => 'Karyawan',
-            'is_active' => true,
-        ]);
-
         return redirect()->route('admin.sso-applications.index')->with('sso_credentials', [
             'name' => $client->name,
             'client_id' => $clientId,
