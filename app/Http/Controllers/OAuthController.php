@@ -49,7 +49,7 @@ class OAuthController extends Controller
             'user_id' => $request->user()->id,
             'redirect_uri' => $validated['redirect_uri'],
             'scopes' => $scopes->all(),
-            'expires_at' => now()->addSeconds(config('sso.authorization_code_ttl')),
+            'expires_at' => now()->addSeconds(max(30, (int) config('sso.authorization_code_ttl', 120))),
         ]);
 
         return redirect()->away($this->appendQuery($validated['redirect_uri'], [

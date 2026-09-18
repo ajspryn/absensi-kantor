@@ -133,6 +133,35 @@ class SsoFlowTest extends TestCase
             ->assertRedirect();
     }
 
+    public function test_authorization_code_has_minimum_lifetime_when_ttl_is_zero(): void
+    {
+        config()->set('sso.authorization_code_ttl', 0);
+        $user = User::factory()->create(['is_active' => true]);
+        $client = $this->createClient();
+        $role = SsoApplicationRole::create([
+            'sso_client_id' => $client->id,
+            'code' => 'staff',
+            'name' => 'Staff',
+            'is_active' => true,
+        ]);
+        SsoUserApplicationAccess::create([
+            'user_id' => $user->id,
+            'sso_client_id' => $client->id,
+            'sso_application_role_id' => $role->id,
+            'is_active' => true,
+        ]);
+
+        $this->actingAs($user)
+            ->get('/oauth/authorize?' . http_build_query([
+                'response_type' => 'code',
+                'client_id' => $client->client_id,
+                'redirect_uri' => 'https://client.test/callback',
+                'scope' => 'openid profile email',
+                'state' => 'state-123',
+            ]))
+            ->assertRedirect();
+    }
+
     public function test_user_without_application_access_cannot_authorize(): void
     {
         $user = User::factory()->create(['is_active' => true]);
