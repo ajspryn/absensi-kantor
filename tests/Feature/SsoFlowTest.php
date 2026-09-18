@@ -162,6 +162,42 @@ class SsoFlowTest extends TestCase
             ->assertRedirect();
     }
 
+    public function test_token_exchange_uses_fallback_issuer_when_sso_issuer_is_missing(): void
+    {
+        config()->set('sso.issuer', null);
+        $user = User::factory()->create(['is_active' => true]);
+        $client = $this->createClient();
+        $role = SsoApplicationRole::create([
+            'sso_client_id' => $client->id,
+            'code' => 'staff',
+            'name' => 'Staff',
+            'is_active' => true,
+        ]);
+        SsoUserApplicationAccess::create([
+            'user_id' => $user->id,
+            'sso_client_id' => $client->id,
+            'sso_application_role_id' => $role->id,
+            'is_active' => true,
+        ]);
+
+        $authorizeResponse = $this->actingAs($user)->get('/oauth/authorize?' . http_build_query([
+            'response_type' => 'code',
+            'client_id' => $client->client_id,
+            'redirect_uri' => 'https://client.test/callback',
+            'scope' => 'openid profile email',
+            'state' => 'state-123',
+        ]));
+        parse_str((string) parse_url($authorizeResponse->headers->get('Location'), PHP_URL_QUERY), $query);
+
+        $this->postJson('/api/oauth/token', [
+            'grant_type' => 'authorization_code',
+            'code' => $query['code'],
+            'client_id' => $client->client_id,
+            'client_secret' => 'client-secret',
+            'redirect_uri' => 'https://client.test/callback',
+        ])->assertOk();
+    }
+
     public function test_user_without_application_access_cannot_authorize(): void
     {
         $user = User::factory()->create(['is_active' => true]);

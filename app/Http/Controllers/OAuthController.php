@@ -110,7 +110,7 @@ class OAuthController extends Controller
                 'client_id' => $client->client_id,
                 'scope' => implode(' ', $authorizationCode->scopes),
                 'roles' => [$access->role->code],
-                'iss' => config('sso.issuer'),
+                'iss' => (string) config('sso.issuer', config('app.url', 'http://localhost')),
             ])->fromUser($user);
 
             return [
