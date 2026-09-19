@@ -32,6 +32,8 @@ Requirements:
 - state must be randomly generated and stored in session/server before redirect
 - after callback, compare the returned state with the stored value
 
+The provider uses a dedicated SSO login page when the user is not already authenticated. Preserve the pending OAuth request and allow the provider to return to the client callback after login. Do not treat the provider login page as the external application's final destination.
+
 ### Step 2: Handle callback
 
 The provider redirects back to:
@@ -47,6 +49,14 @@ The external app must:
 - validate state
 - reject login if state mismatch
 - continue only if valid
+
+If the callback contains `error`, handle it before requiring `code`:
+
+```text
+https://app-client.example.com/auth/callback?error=access_denied&error_description=...&state=RANDOM_STATE
+```
+
+Validate `state`, show a friendly error to the user, and return to the application's login page. Do not call the token endpoint when `error` is present.
 
 ### Step 3: Exchange authorization code for access token
 
@@ -160,7 +170,7 @@ The external app should map the user to local role/permission based on applicati
 
 - Use sub as the external user identifier
 - Do not use email as primary key
-- If the user is not assigned access to the external app in the Absensi admin panel, the authorize request is rejected with HTTP 403
+- If the user is not assigned access to the external app in the Absensi admin panel, the provider redirects to the registered callback with `error=access_denied` and the original `state`
 
 ## Role registration flow
 

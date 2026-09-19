@@ -29,7 +29,14 @@ class OAuthController extends Controller
             ->first();
 
         abort_unless($client && $client->acceptsRedirectUri($validated['redirect_uri']), 400, 'Invalid client or redirect URI.');
-        abort_unless($client->allowsUser($request->user()), 403, 'User is not authorized for this application.');
+
+        if (! $client->allowsUser($request->user())) {
+            return redirect()->away($this->appendQuery($validated['redirect_uri'], [
+                'error' => 'access_denied',
+                'error_description' => 'User is not authorized for this application.',
+                'state' => $validated['state'] ?? null,
+            ]));
+        }
 
         $scopes = collect(preg_split('/\s+/', trim($validated['scope'] ?? 'openid profile email')))
             ->filter()
@@ -40,7 +47,13 @@ class OAuthController extends Controller
             $allowedScopes = ['openid', 'profile', 'email'];
         }
 
-        abort_unless($scopes->every(fn(string $scope) => in_array($scope, $allowedScopes, true)), 400, 'Invalid scope.');
+        if (! $scopes->every(fn(string $scope) => in_array($scope, $allowedScopes, true))) {
+            return redirect()->away($this->appendQuery($validated['redirect_uri'], [
+                'error' => 'invalid_scope',
+                'error_description' => 'Requested scope is not allowed.',
+                'state' => $validated['state'] ?? null,
+            ]));
+        }
 
         $rawCode = Str::random(96);
         SsoAuthorizationCode::create([

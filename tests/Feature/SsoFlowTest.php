@@ -203,13 +203,31 @@ class SsoFlowTest extends TestCase
         $user = User::factory()->create(['is_active' => true]);
         $client = $this->createClient();
 
-        $this->actingAs($user)
+        $response = $this->actingAs($user)
             ->get('/oauth/authorize?' . http_build_query([
                 'response_type' => 'code',
                 'client_id' => $client->client_id,
                 'redirect_uri' => 'https://client.test/callback',
+                'state' => 'state-1234567890123456',
             ]))
-            ->assertStatus(403);
+            ->assertRedirect();
+
+        $this->assertStringContainsString('error=access_denied', $response->headers->get('Location'));
+    }
+
+    public function test_oauth_request_uses_dedicated_login_page(): void
+    {
+        $client = $this->createClient();
+        $response = $this->get('/oauth/authorize?' . http_build_query([
+            'response_type' => 'code',
+            'client_id' => $client->client_id,
+            'redirect_uri' => 'https://client.test/callback',
+            'scope' => 'openid profile email',
+            'state' => 'state-1234567890123456',
+        ]));
+
+        $response->assertRedirect('/login');
+        $this->get('/login')->assertOk()->assertSee('Masuk dengan SSO');
     }
 
     public function test_login_continues_pending_oauth_authorization(): void

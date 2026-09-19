@@ -85,10 +85,12 @@ After role synchronization, open the employee's **SSO access** page in Absensi a
 
 1. Open the external application's login page.
 2. Click **Login with SSO**.
-3. Confirm the browser goes to `https://absensi.bprsbtb.co.id/login`.
+3. Confirm the browser goes to the dedicated SSO login page on `https://absensi.bprsbtb.co.id`.
 4. Sign in to Absensi.
 5. Confirm the browser returns to the external callback URL.
 6. Confirm the external application redirects to its dashboard.
+
+The OAuth login page is separate from the normal Absensi login experience. It preserves the pending OAuth request while the user signs in. On success, the provider continues authorization and redirects to the client callback. If login fails, the user remains on the SSO login page with an error. If the user is authenticated but has no access to the client, the provider redirects to the registered callback with `error=access_denied` and the original `state`.
 
 If the browser remains in Absensi, check the exact `redirect_uri`, client credentials, and whether the provider server has the latest OAuth login continuation code.
 
@@ -329,7 +331,7 @@ Fix:
 - Confirm client_id matches the generated one.
 - Ensure the app is active in the SSO admin.
 
-### B. HTTP 403 user not authorized for this application
+### B. OAuth error `access_denied`
 
 Typical causes:
 
@@ -337,11 +339,18 @@ Typical causes:
 - role not assigned
 - application not enabled for the user
 
+The provider redirects the browser to the registered callback with:
+
+```text
+https://app-client.example.com/auth/callback?error=access_denied&error_description=User%20is%20not%20authorized%20for%20this%20application.&state=RANDOM_STATE
+```
+
 Fix:
 
 - Open the admin SSO user access screen.
 - Grant access to the relevant user and role.
 - Make sure the application role is active.
+- Display the error to the user and do not exchange a token when the callback contains `error`.
 
 ### C. HTTP 401 invalid_client
 

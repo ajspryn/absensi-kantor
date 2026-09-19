@@ -19,6 +19,11 @@ class AuthController extends Controller
             return redirect()->route('dashboard');
         }
 
+        $intendedUrl = session('url.intended');
+        if (is_string($intendedUrl) && parse_url($intendedUrl, PHP_URL_PATH) === '/oauth/authorize') {
+            return view('auth.oauth-login');
+        }
+
         return view('auth.login');
     }
 
