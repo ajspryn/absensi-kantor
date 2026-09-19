@@ -13,7 +13,7 @@
                             <img src="{{ App\Models\AppSetting::getLogoUrl() }}" alt="Logo Absensi" class="rounded-s" style="max-width: 120px; max-height: 80px;">
                         </div>
                         <h1 class="font-800 font-24 mb-2 color-theme">Masuk dengan SSO</h1>
-                        <p class="font-12 opacity-70 mb-0">Anda akan kembali ke aplikasi setelah login berhasil.</p>
+                        <p class="font-12 opacity-70 mb-0">Gunakan akun Absensi Anda. Setelah berhasil, Anda akan kembali ke aplikasi tujuan.</p>
                     </div>
 
                     @if ($errors->any())

@@ -230,6 +230,26 @@ class SsoFlowTest extends TestCase
         $this->get('/login')->assertOk()->assertSee('Masuk dengan SSO');
     }
 
+    public function test_oauth_login_validation_messages_are_in_indonesian(): void
+    {
+        $client = $this->createClient();
+        $this->get('/oauth/authorize?' . http_build_query([
+            'response_type' => 'code',
+            'client_id' => $client->client_id,
+            'redirect_uri' => 'https://client.test/callback',
+            'scope' => 'openid profile email',
+            'state' => 'state-1234567890123456',
+        ]));
+
+        $this->from('/login')->post('/login', [
+            'email' => '',
+            'password' => '',
+        ])->assertSessionHasErrors([
+            'email' => 'Email wajib diisi.',
+            'password' => 'Password wajib diisi.',
+        ]);
+    }
+
     public function test_login_continues_pending_oauth_authorization(): void
     {
         $user = User::factory()->create(['is_active' => true]);
