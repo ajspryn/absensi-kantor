@@ -64,15 +64,44 @@
         }
 
         .date-col {
-            width: 30px;
-            font-size: 5px;
+            width: 45px;
+            font-size: 10px;
             line-height: 1.1;
         }
 
         .rekap {
-            width: 35px;
+            width: 75px;
             font-weight: bold;
-            font-size: 5px;
+            font-size: 9px;
+        }
+
+        .detail-section {
+            page-break-before: always;
+        }
+
+        .detail-section h3 {
+            font-size: 12px;
+            margin: 0 0 8px;
+        }
+
+        .detail-table td {
+            font-size: 10px;
+        }
+
+        .detail-table .name-col {
+            font-size: 10px;
+        }
+
+        .detail-table .no-col {
+            font-size: 9px;
+        }
+
+        .detail-table .rekap {
+            font-size: 9px;
+        }
+
+        tr {
+            page-break-inside: avoid;
         }
 
         .status-hadir {
@@ -483,7 +512,7 @@
                     <td style="background:#f8d7da;color:#721c24;">{{ $totalRekap['A'] }}</td>
                     <td style="background:#cce5ff;color:#004085;">{{ $totalRekap['I'] }}</td>
                     <td style="background:#e2e3e5;color:#383d41;">{{ $totalRekap['C'] }}</td>
-                    <td>{{ count($dates) * count($employees) }}</td>
+                    <td>{{ array_sum($totalRekap) }}</td>
                 </tr>
             @endif
         </tbody>
@@ -499,15 +528,19 @@
             $pd->addDay();
         }
     @endphp
-    <table>
+    @foreach (array_chunk($allDates, 14) as $dateChunk)
+    <div class="detail-section">
+    <h3>Detail harian: {{ \Carbon\Carbon::parse($dateChunk[0])->format('d-m-Y') }} s/d {{ \Carbon\Carbon::parse(end($dateChunk))->format('d-m-Y') }}</h3>
+    <p>Rekap pada tabel ini hanya untuk tanggal di atas.</p>
+    <table class="detail-table">
         <thead>
             <tr>
                 <th class="no-col">No</th>
                 <th class="name-col">Nama</th>
-                @foreach ($allDates as $date)
-                    <th class="date-col">{{ \Carbon\Carbon::parse($date)->format('j') }}</th>
+                @foreach ($dateChunk as $date)
+                    <th class="date-col">{{ \Carbon\Carbon::parse($date)->format('d/m/y') }}</th>
                 @endforeach
-                <th>Rekap</th>
+                <th class="rekap">Rekap Bagian</th>
             </tr>
         </thead>
         <tbody>
@@ -521,7 +554,7 @@
                         <strong>{{ $employee->user->name ?? '-' }}</strong><br>
                         <small>{{ $employee->employee_id ?? '-' }}</small><br>
                     </td>
-                    @foreach ($allDates as $dateYmd)
+                    @foreach ($dateChunk as $dateYmd)
                         @php
                             $isWorkDay = false;
                             if ($employee->workSchedule) {
@@ -569,7 +602,7 @@
                                     $rekap['I']++;
                                     echo '<td class="status-izin">IZIN</td>';
                                 } elseif (!$isWorkDay) {
-                                    echo '<td style="background:#e9ecef;color:#6c757d;font-size:7px;">LIBUR</td>';
+                                    echo '<td style="background:#e9ecef;color:#6c757d;">LIBUR</td>';
                                 } else {
                                     $rekap['A']++;
                                     echo '<td class="status-absen">ABSEN</td>';
@@ -584,6 +617,8 @@
             @endforeach
         </tbody>
     </table>
+    </div>
+    @endforeach
 </body>
 
 </html>
