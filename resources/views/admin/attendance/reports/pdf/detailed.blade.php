@@ -76,7 +76,7 @@
         }
 
         .detail-section {
-            page-break-before: always;
+            page-break-inside: avoid;
         }
 
         .detail-section h3 {

@@ -66,7 +66,7 @@ class AttendanceDetailedPdfTest extends TestCase
 
         $pdf = Pdf::loadView('admin.attendance.reports.pdf.detailed', $data)->setPaper('A4', 'landscape');
         $this->assertStringStartsWith('%PDF-', $pdf->output());
-        $this->assertGreaterThanOrEqual(5, $pdf->getDomPDF()->getCanvas()->get_page_count());
+        $this->assertLessThan(5, $pdf->getDomPDF()->getCanvas()->get_page_count());
     }
 
     public function test_single_day_without_employees_still_renders(): void
@@ -80,5 +80,37 @@ class AttendanceDetailedPdfTest extends TestCase
         ])->render();
 
         $this->assertStringContainsString('01-03-2025 s/d 01-03-2025', $html);
+    }
+
+    public function test_many_employees_are_included_in_each_date_section_and_pdf_spans_pages(): void
+    {
+        $employees = collect(range(1, 40))->map(function ($id) {
+            $employee = new Employee(['employee_id' => 'EMP-'.$id]);
+            $employee->id = $id;
+            $employee->setRelation('user', new User(['name' => 'Karyawan '.$id]));
+            $employee->setRelation('workSchedule', null);
+
+            return $employee;
+        });
+        $data = [
+            'startDate' => '2025-01-01',
+            'endDate' => '2025-01-29',
+            'employees' => $employees,
+            'attendances' => collect(),
+            'leaves' => collect(),
+        ];
+
+        $document = new DOMDocument;
+        @$document->loadHTML(view('admin.attendance.reports.pdf.detailed', $data)->render());
+        $xpath = new DOMXPath($document);
+        $sections = $xpath->query('//div[contains(concat(" ", normalize-space(@class), " "), " detail-section ")]');
+        $this->assertCount(3, $sections);
+        foreach ($sections as $section) {
+            $this->assertCount(40, $xpath->query('.//table/tbody/tr', $section));
+        }
+
+        $pdf = Pdf::loadView('admin.attendance.reports.pdf.detailed', $data)->setPaper('A4', 'landscape');
+        $this->assertStringStartsWith('%PDF-', $pdf->output());
+        $this->assertGreaterThan(3, $pdf->getDomPDF()->getCanvas()->get_page_count());
     }
 }
