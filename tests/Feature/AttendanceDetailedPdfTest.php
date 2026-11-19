@@ -45,12 +45,12 @@ class AttendanceDetailedPdfTest extends TestCase
         @$document->loadHTML($html);
         $xpath = new DOMXPath($document);
         $sections = $xpath->query('//div[contains(concat(" ", normalize-space(@class), " "), " detail-section ")]');
-        $this->assertCount(5, $sections);
+        $this->assertCount(10, $sections);
 
         $expectedDate = Carbon::parse($data['startDate']);
-        foreach ($sections as $section) {
+        foreach ($sections as $index => $section) {
             $headers = $xpath->query('.//th[@class="date-col"]', $section);
-            $this->assertLessThanOrEqual(14, $headers->length);
+            $this->assertSame($index === 9 ? 1 : 7, $headers->length);
             foreach ($headers as $header) {
                 $this->assertSame($expectedDate->format('d/m/y'), trim($header->textContent));
                 $expectedDate->addDay();
@@ -58,15 +58,15 @@ class AttendanceDetailedPdfTest extends TestCase
             $this->assertStringContainsString('Nama Karyawan', $section->textContent);
         }
         $this->assertSame('2025-03-04', $expectedDate->format('Y-m-d'));
-        $this->assertStringContainsString('30-12-2024 s/d 12-01-2025', $sections->item(0)->textContent);
-        $this->assertStringContainsString('24-02-2025 s/d 03-03-2025', $sections->item(4)->textContent);
+        $this->assertStringContainsString('30-12-2024 s/d 05-01-2025', $sections->item(0)->textContent);
+        $this->assertStringContainsString('03-03-2025 s/d 03-03-2025', $sections->item(9)->textContent);
         $this->assertStringContainsString('07:45', $sections->item(0)->textContent);
-        $this->assertStringContainsString('08:15', $sections->item(3)->textContent);
-        $this->assertStringContainsString('CUTI', $sections->item(4)->textContent);
+        $this->assertStringContainsString('08:15', $sections->item(7)->textContent);
+        $this->assertStringContainsString('CUTI', $sections->item(9)->textContent);
 
         $pdf = Pdf::loadView('admin.attendance.reports.pdf.detailed', $data)->setPaper('A4', 'landscape');
         $this->assertStringStartsWith('%PDF-', $pdf->output());
-        $this->assertLessThan(5, $pdf->getDomPDF()->getCanvas()->get_page_count());
+        $this->assertLessThan(10, $pdf->getDomPDF()->getCanvas()->get_page_count());
     }
 
     public function test_single_day_without_employees_still_renders(): void
@@ -79,12 +79,13 @@ class AttendanceDetailedPdfTest extends TestCase
             'leaves' => collect(),
         ])->render();
 
-        $this->assertStringContainsString('01-03-2025 s/d 01-03-2025', $html);
+        $this->assertStringContainsString('Periode: 2025-03-01 s/d 2025-03-01', $html);
+        $this->assertStringNotContainsString('Detail harian:', $html);
     }
 
-    public function test_many_employees_are_included_in_each_date_section_and_pdf_spans_pages(): void
+    public function test_employees_are_grouped_with_all_their_weekly_sections(): void
     {
-        $employees = collect(range(1, 40))->map(function ($id) {
+        $employees = collect(range(1, 3))->map(function ($id) {
             $employee = new Employee(['employee_id' => 'EMP-'.$id]);
             $employee->id = $id;
             $employee->setRelation('user', new User(['name' => 'Karyawan '.$id]));
@@ -96,21 +97,33 @@ class AttendanceDetailedPdfTest extends TestCase
             'startDate' => '2025-01-01',
             'endDate' => '2025-01-29',
             'employees' => $employees,
-            'attendances' => collect(),
+            'attendances' => collect([
+                (object) ['employee_id' => 1, 'date' => '2025-01-02', 'check_in' => '07:51', 'check_out' => '17:00'],
+                (object) ['employee_id' => 2, 'date' => '2025-01-02', 'check_in' => '07:52', 'check_out' => '17:00'],
+            ]),
             'leaves' => collect(),
         ];
 
         $document = new DOMDocument;
         @$document->loadHTML(view('admin.attendance.reports.pdf.detailed', $data)->render());
         $xpath = new DOMXPath($document);
-        $sections = $xpath->query('//div[contains(concat(" ", normalize-space(@class), " "), " detail-section ")]');
-        $this->assertCount(3, $sections);
-        foreach ($sections as $section) {
-            $this->assertCount(40, $xpath->query('.//table/tbody/tr', $section));
+        $groups = $xpath->query('//div[@class="employee-page-break"]');
+        $this->assertCount(3, $groups);
+        foreach ($groups as $index => $group) {
+            $sections = $xpath->query('.//div[@class="detail-section"]', $group);
+            $this->assertCount(5, $sections);
+            foreach ($sections as $section) {
+                $this->assertCount(1, $xpath->query('.//table/tbody/tr', $section));
+                $this->assertStringContainsString('EMP-'.($index + 1), $section->textContent);
+            }
         }
+        $this->assertStringContainsString('07:51', $groups->item(0)->textContent);
+        $this->assertStringNotContainsString('07:52', $groups->item(0)->textContent);
+        $this->assertStringContainsString('07:52', $groups->item(1)->textContent);
+        $this->assertStringNotContainsString('07:51', $groups->item(1)->textContent);
 
         $pdf = Pdf::loadView('admin.attendance.reports.pdf.detailed', $data)->setPaper('A4', 'landscape');
         $this->assertStringStartsWith('%PDF-', $pdf->output());
-        $this->assertGreaterThan(3, $pdf->getDomPDF()->getCanvas()->get_page_count());
+        $this->assertGreaterThanOrEqual(4, $pdf->getDomPDF()->getCanvas()->get_page_count());
     }
 }

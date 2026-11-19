@@ -79,6 +79,10 @@
             page-break-inside: avoid;
         }
 
+        .employee-page-break {
+            page-break-before: always;
+        }
+
         .detail-section h3 {
             font-size: 12px;
             margin: 0 0 8px;
@@ -528,7 +532,10 @@
             $pd->addDay();
         }
     @endphp
-    @foreach (array_chunk($allDates, 14) as $dateChunk)
+    @foreach ($employees as $employee)
+    @php $employeeNumber = $loop->iteration; @endphp
+    <div @if (count($employees) > 1) class="employee-page-break" @endif>
+    @foreach (array_chunk($allDates, 7) as $dateChunk)
     <div class="detail-section">
     <h3>Detail harian: {{ \Carbon\Carbon::parse($dateChunk[0])->format('d-m-Y') }} s/d {{ \Carbon\Carbon::parse(end($dateChunk))->format('d-m-Y') }}</h3>
     <p>Rekap pada tabel ini hanya untuk tanggal di atas.</p>
@@ -544,12 +551,11 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($employees as $i => $employee)
                 @php
                     $rekap = ['H' => 0, 'T' => 0, 'A' => 0, 'I' => 0, 'C' => 0];
                 @endphp
                 <tr>
-                    <td class="no-col">{{ $loop->iteration }}</td>
+                    <td class="no-col">{{ $employeeNumber }}</td>
                     <td class="name-col">
                         <strong>{{ $employee->user->name ?? '-' }}</strong><br>
                         <small>{{ $employee->employee_id ?? '-' }}</small><br>
@@ -614,9 +620,10 @@
                         H:{{ $rekap['H'] }} T:{{ $rekap['T'] }}<br>A:{{ $rekap['A'] }} I:{{ $rekap['I'] }} C:{{ $rekap['C'] }}
                     </td>
                 </tr>
-            @endforeach
         </tbody>
     </table>
+    </div>
+    @endforeach
     </div>
     @endforeach
 </body>
